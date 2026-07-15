@@ -1,0 +1,176 @@
+# SIP - Sistema Inteligente de Projetos
+
+## Visão Geral
+
+O SIP (Sistema Inteligente de Projetos) é uma plataforma desenvolvida para gerenciamento integrado de projetos de infraestrutura, permitindo o controle completo de contratos, projetos, disciplinas, documentos, RAPs (Respostas de Análise de Projeto), indicadores de desempenho e inteligência aplicada à gestão de engenharia.
+
+O sistema está sendo desenvolvido com foco em empresas de engenharia consultiva, projetos rodoviários, infraestrutura urbana e processos BIM.
+
+---
+
+## Objetivos
+
+- Centralizar informações dos projetos.
+- Gerenciar contratos e disciplinas.
+- Controlar o ciclo de vida dos projetos.
+- Controlar RAPs e pendências.
+- Automatizar processos de engenharia.
+- Integrar dashboards gerenciais.
+- Aplicar Inteligência Artificial na gestão de projetos.
+- Criar um ambiente único para tomada de decisão.
+
+---
+
+## Estrutura Hierárquica
+
+```text
+Cliente
+ └── Contrato
+      └── Projeto
+            ├── Disciplinas
+            ├── Documentos
+            ├── RAPs
+            ├── Indicadores
+            └── Entregáveis
+```
+
+---
+
+## Principais Módulos
+
+### Gestão de Clientes
+
+- Cadastro de clientes.
+- Histórico de contratos.
+- Indicadores por cliente.
+
+### Gestão de Contratos
+
+- Controle contratual.
+- Prazos.
+- Vigência.
+- Termos de referência.
+
+### Gestão de Projetos
+
+- Planejamento.
+- Status.
+- Equipes.
+- Cronograma.
+
+### Gestão de Disciplinas
+
+- Geometria
+- Terraplenagem
+- Pavimentação
+- Drenagem
+- Obras de Arte
+- Sinalização
+- Meio Ambiente
+- Desapropriação
+
+### Gestão de RAPs
+
+- Registro de RAPs.
+- Controle de itens.
+- Itens similares.
+- Reiterações.
+- Histórico completo das análises.
+
+### Dashboard Executivo
+
+- Indicadores de prazo.
+- Indicadores de produtividade.
+- Indicadores de atendimento de RAP.
+- Indicadores financeiros.
+
+### Inteligência Artificial
+
+- Leitura automática de RAPs.
+- Classificação de itens.
+- Sugestão de respostas.
+- Geração de indicadores.
+- Busca inteligente de informações.
+
+---
+
+## Tecnologias
+
+### Frontend
+
+- React
+- TypeScript
+- Tailwind CSS
+
+### Backend
+
+- Firebase
+- Firestore
+- Cloud Functions
+
+### Integrações
+
+- Power BI
+- Autodesk Civil 3D
+- Excel
+- BIM
+
+---
+
+## Estrutura Inicial do Repositório
+
+```text
+SIP/
+│
+├── docs/
+├── frontend/
+├── backend/
+├── firebase/
+├── database/
+├── powerbi/
+├── civil3d/
+└── uploads/
+```
+
+---
+
+## Fases de Desenvolvimento
+
+### Fase 0
+Visão e Planejamento
+
+### Fase 1
+Estrutura Base do Sistema
+
+### Fase 2
+Gestão de Projetos
+
+### Fase 3
+Gestão de RAPs
+
+### Fase 4
+Indicadores e Dashboards
+
+### Fase 5
+Inteligência Artificial
+
+### Fase 6
+Aplicativo Mobile
+
+---
+
+## Responsável
+
+Rafael Lourenço Muniz
+
+Engenheiro Civil
+
+Coordenador de Geometria e Terraplenagem
+
+Consol Engenheiros Consultores
+
+---
+
+## Status
+
+🚧 Em desenvolvimento
