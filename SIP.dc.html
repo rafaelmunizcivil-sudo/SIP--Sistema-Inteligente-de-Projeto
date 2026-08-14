@@ -7,6 +7,20 @@
 <body>
 <x-dc>
 
+<template id="__bundler_thumbnail" data-bg-color="#050505">
+  <svg viewBox="0 0 240 160" xmlns="http://www.w3.org/2000/svg">
+    <rect width="240" height="160" fill="#050505"/>
+    <circle cx="120" cy="80" r="45" fill="none" stroke="#0066ff" stroke-width="2" opacity="0.6"/>
+    <circle cx="80" cy="60" r="8" fill="#0066ff" opacity="0.8"/>
+    <circle cx="160" cy="70" r="8" fill="#ff2d55" opacity="0.8"/>
+    <circle cx="100" cy="100" r="6" fill="#0066ff" opacity="0.6"/>
+    <circle cx="140" cy="110" r="6" fill="#ff2d55" opacity="0.6"/>
+    <line x1="80" y1="60" x2="100" y2="100" stroke="#0066ff" stroke-width="1" opacity="0.3"/>
+    <line x1="160" y1="70" x2="140" y2="110" stroke="#ff2d55" stroke-width="1" opacity="0.3"/>
+    <text x="120" y="145" font-size="20" font-weight="bold" fill="#fff" text-anchor="middle">SIP</text>
+  </svg>
+</template>
+
 <helmet>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
@@ -288,20 +302,35 @@
       <!-- GALERIA (dentro da Visita Técnica) ===================== -->
       <sc-if value="{{ isGaleriaView }}" hint-placeholder-val="{{ false }}">
         <div style="flex:1;min-height:0;overflow:auto;background:#eef1f4;">
-          <div style="max-width:1000px;margin:0 auto;padding:24px 20px 60px;">
+          <div style="max-width:1200px;margin:0 auto;padding:24px 20px 60px;">
             <div sc-camel-on-click="{{ voltarVisita }}" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#5b6774;margin-bottom:20px;">← Voltar para Visita Técnica</div>
             <h1 style="margin:0 0 4px;font-size:22px;font-weight:800;color:#1f3a5f;">Galeria de Fotos</h1>
-            <div style="font-size:12.5px;color:#8a94a3;margin-bottom:20px;">Fotos capturadas e sincronizadas.</div>
+            <div style="font-size:12.5px;color:#8a94a3;margin-bottom:20px;">Fotos capturadas, agrupadas por disciplina.</div>
 
-            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;">
-              <sc-for list="{{ visitaPhotosVals }}" as="foto" hint-placeholder-count="0">
-                <div style="border-radius:10px;overflow:hidden;background:#fff;border:1px solid #dde3ea;box-shadow:0 2px 6px rgba(0,0,0,0.08);">
-                  <img ref="{{ foto.imgRef }}" style="width:100%;height:160px;object-fit:cover;display:block;background:#eef1f4;">
-                  <div style="padding:12px;">
-                    <div style="font-size:12px;font-weight:700;color:#1f3a5f;margin-bottom:3px;">{{ foto.disciplina }}</div>
-                    <div style="font-size:10px;color:#8a94a3;margin-bottom:6px;">{{ foto.dataAtualizacao }}</div>
-                    <div style="font-size:10px;color:#5b6774;line-height:1.4;">{{ foto.legenda }}</div>
+            <div style="display:flex;flex-direction:column;gap:16px;">
+              <sc-for list="{{ galeriaDisciplinas }}" as="disc" hint-placeholder-count="0">
+                <div style="border-radius:10px;overflow:hidden;background:#fff;border:1px solid #dde3ea;">
+                  <div sc-camel-on-click="{{ disc.toggle }}" style="cursor:pointer;padding:16px;background:#f5f7fa;display:flex;align-items:center;justify-content:space-between;border-bottom:{{ disc.expanded ? '1px solid #dde3ea' : 'none' }};">
+                    <div style="font-size:14px;font-weight:700;color:#1f3a5f;">{{ disc.disciplina }} ({{ disc.count }})</div>
+                    <div style="font-size:12px;color:#5b6774;">{{ disc.expanded ? '▼' : '▶' }}</div>
                   </div>
+                  <sc-if value="{{ disc.expanded }}" hint-placeholder-val="{{ false }}">
+                    <div style="padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;">
+                      <sc-for list="{{ disc.fotos }}" as="foto" hint-placeholder-count="0">
+                        <div style="border-radius:8px;overflow:hidden;background:#f9fafc;border:1px solid #e0e6ee;">
+                          <img ref="{{ foto.imgRef }}" style="width:100%;height:180px;object-fit:cover;display:block;background:#eef1f4;">
+                          <div style="padding:12px;">
+                            <div style="font-size:11px;font-weight:700;color:#1f3a5f;margin-bottom:8px;">{{ foto.localizacao }}</div>
+                            <div style="font-size:10px;color:#8a94a3;margin-bottom:6px;">{{ foto.dataFormatada }}</div>
+                            <div style="font-size:9px;color:#5b6774;line-height:1.5;word-break:break-all;">{{ foto.coordenadasUTM }}</div>
+                            <sc-if value="{{ foto.obs }}" hint-placeholder-val="{{ false }}">
+                              <div style="font-size:9px;color:#5b6774;margin-top:6px;padding-top:6px;border-top:1px solid #dde3ea;line-height:1.4;">{{ foto.obs }}</div>
+                            </sc-if>
+                          </div>
+                        </div>
+                      </sc-for>
+                    </div>
+                  </sc-if>
                 </div>
               </sc-for>
             </div>
@@ -343,6 +372,7 @@ class Component extends DCLogic {
     visitaPhotos: [],
     visitaSyncing: false,
     galeriaPhotos: [],
+    galeriaDisciplinasExpanded: {},
   };
 
   visitaDisciplinas = ['Geometria', 'Terraplenagem', 'Sinalização', 'Obras Complementares', 'Desapropriação', 'Interseção', 'Segurança Viária', 'Pavimentação', 'Drenagem', 'Topografia', 'Meio Ambiente'];
@@ -648,6 +678,35 @@ class Component extends DCLogic {
     this.setState({ view: 'visita-tecnica' });
   }
 
+  toggleGaleriaDisciplina(disc) {
+    this.setState(s => ({
+      galeriaDisciplinasExpanded: { ...s.galeriaDisciplinasExpanded, [disc]: !s.galeriaDisciplinasExpanded[disc] }
+    }));
+  }
+
+  latLngToUTM(lat, lng) {
+    const utm = this.llToUtm(lat, lng);
+    if (!utm) return 'Coordenadas indisponíveis';
+    const zone = utm.zone;
+    const easting = Math.round(utm.easting);
+    const northing = Math.round(utm.northing);
+    return `Zona ${zone} | ${easting}E ${northing}N`;
+  }
+
+  llToUtm(lat, lng) {
+    const a = 6378137; const b = 6356752.314245; const f = 1 / 298.257223563;
+    const e = Math.sqrt(1 - (1 - f) * (1 - f));
+    const N = a / Math.sqrt(1 - e * e * Math.sin(lat * Math.PI / 180) ** 2);
+    const T = Math.tan(lat * Math.PI / 180) ** 2;
+    const C = e * e * Math.cos(lat * Math.PI / 180) ** 2 / (1 - e * e);
+    const A = Math.cos(lat * Math.PI / 180) * ((lng - (Math.floor((lng + 180) / 6) * 6 + 3)) * Math.PI / 180);
+    const M = a * ((1 - e * e / 4 - 3 * e * e * e * e / 64 - 5 * e * e * e * e * e * e / 256) * lat * Math.PI / 180 - (3 * e * e / 8 + 3 * e * e * e * e / 32 - 45 * e * e * e * e * e * e / 1024) * Math.sin(2 * lat * Math.PI / 180) + (15 * e * e * e * e / 256 - 45 * e * e * e * e * e * e / 1024) * Math.sin(4 * lat * Math.PI / 180) - (35 * e * e * e * e * e * e / 3072) * Math.sin(6 * lat * Math.PI / 180));
+    const easting = 500000 + N * (A + N * T * A * A * A / 6 + N * T * T * A * A * A * A * A / 120);
+    const northing = (lat < 0 ? 10000000 : 0) + M + N * T * A * A / 2 + N * T * T * A * A * A * A / 24;
+    const zone = Math.floor((lng + 180) / 6) + 1;
+    return { zone, easting, northing };
+  }
+
   setVisitaProjeto(e) { this.setState({ visitaProjetoId: e.target.value }); }
   setVisitaDisciplina(e) { this.setState({ visitaDisciplina: e.target.value }); }
   setVisitaKm(e) { this.setState({ visitaKm: e.target.value }); }
@@ -702,6 +761,38 @@ class Component extends DCLogic {
     }).catch(err => console.error('idbAll error', err));
   }
 
+  buildGaleriaDisciplinas() {
+    const fotos = this.state.visitaPhotos;
+    const byDisc = {};
+    fotos.forEach(f => {
+      const disc = f.disciplina || 'Sem disciplina';
+      if (!byDisc[disc]) byDisc[disc] = [];
+      byDisc[disc].push(f);
+    });
+    const disciplinas = Object.keys(byDisc).sort();
+    return disciplinas.map(disc => ({
+      disciplina: disc,
+      count: byDisc[disc].length,
+      expanded: !!this.state.galeriaDisciplinasExpanded[disc],
+      toggle: () => this.toggleGaleriaDisciplina(disc),
+      fotos: byDisc[disc].map(f => {
+        const data = new Date(f.criadoEm);
+        const dataFormatada = data.toLocaleDateString('pt-BR');
+        const lat = f.lat !== undefined ? f.lat : -19.9191;
+        const lng = f.lng !== undefined ? f.lng : -43.9386;
+        const localizacao = f.localizacao || 'Belo Horizonte';
+        const coordenadasUTM = this.latLngToUTM(lat, lng);
+        return {
+          localizacao,
+          dataFormatada,
+          coordenadasUTM,
+          obs: f.obs || '',
+          imgRef: (el) => { if (el && el.src !== f.url) el.src = f.url; },
+        };
+      }),
+    }));
+  }
+
   async loadGaleriaPhotos() {
     try {
       const snap = await this.db().collection('visitasCampo').get();
@@ -731,11 +822,72 @@ class Component extends DCLogic {
     });
   }
 
+  getGeolocation() {
+    return new Promise((resolve) => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude, source: 'gps' });
+          },
+          (err) => {
+            console.warn('GPS não disponível:', err);
+            resolve(null);
+          },
+          { timeout: 10000, enableHighAccuracy: true }
+        );
+      } else {
+        resolve(null);
+      }
+    });
+  }
+
+  async getLocationByIP() {
+    try {
+      const resp = await fetch('https://ipapi.co/json/');
+      if (!resp.ok) return null;
+      const data = await resp.json();
+      if (data.latitude && data.longitude) {
+        return { lat: data.latitude, lng: data.longitude, localizacao: data.city || 'Localização desconhecida', source: 'ip' };
+      }
+    } catch (e) {
+      console.warn('IP geolocation fallback failed', e);
+    }
+    return null;
+  }
+
+  async getLocationName(lat, lng) {
+    try {
+      const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+      if (!resp.ok) return null;
+      const data = await resp.json();
+      if (data.address && data.address.city) return data.address.city;
+      if (data.address && data.address.town) return data.address.town;
+    } catch (e) {
+      console.warn('Reverse geocoding failed', e);
+    }
+    return null;
+  }
+
   async onCapturaFotos(e) {
     const files = Array.from(e.target.files || []);
     e.target.value = '';
     if (!files.length) return;
     if (!this.state.visitaDisciplina) { alert('Selecione a disciplina antes de fotografar.'); return; }
+    
+    let geoData = await this.getGeolocation();
+    if (!geoData) {
+      geoData = await this.getLocationByIP();
+    }
+    
+    const lat = geoData?.lat || -19.9191;
+    const lng = geoData?.lng || -43.9386;
+    let localizacao = geoData?.localizacao || 'Belo Horizonte';
+    
+    if (!localizacao && geoData && geoData.lat && geoData.lng) {
+      const nomeLocal = await this.getLocationName(geoData.lat, geoData.lng);
+      if (nomeLocal) localizacao = nomeLocal;
+    }
+    
     for (const file of files) {
       const blob = await this.compressImage(file, 1600);
       await this.idbPut({
@@ -745,6 +897,10 @@ class Component extends DCLogic {
         disciplina: this.state.visitaDisciplina,
         km: this.state.visitaKm,
         obs: this.state.visitaObs,
+        lat,
+        lng,
+        localizacao,
+        geoSource: geoData?.source || 'padrão',
         criadoEm: Date.now(),
         synced: false,
       });
@@ -870,6 +1026,7 @@ class Component extends DCLogic {
         legenda: (f.km ? 'km ' + f.km : 'Sem localização') + (f.obs ? ' · ' + f.obs : ''),
         imgRef: (el) => { if (el && el.src !== f.url) el.src = f.url; },
       })),
+      galeriaDisciplinas: this.buildGaleriaDisciplinas(),
       isProjetoMG259: this.state.view === 'projeto' && selectedProjeto && selectedProjeto.tipo === 'mg-259',
       isProjetoAracuai: this.state.view === 'projeto' && selectedProjeto && selectedProjeto.tipo === 'aracuai-nc',
       isProjetoRubim: this.state.view === 'projeto' && selectedProjeto && selectedProjeto.tipo === 'rubim-rp',
