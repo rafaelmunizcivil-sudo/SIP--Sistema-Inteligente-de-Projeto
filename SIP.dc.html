@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+    a{color:#2f6690;}
+    a:hover{color:#1f3a5f;}
+    ::-webkit-scrollbar{width:10px;height:10px;}
+    ::-webkit-scrollbar-thumb{background:#c4ccd6;border-radius:6px;}
+    @keyframes sipFloatUp{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+    @keyframes sipBadgePulse{0%,100%{box-shadow:0 0 0 0 rgba(0,102,255,0.35);}50%{box-shadow:0 0 26px 6px rgba(0,102,255,0.30);}}
+    @keyframes sipShine{to{background-position:-200% 0;}}
+    .sip-hero-badge{animation:sipFloatUp 0.8s ease-out both, sipBadgePulse 3s ease-in-out infinite;}
+    .sip-hero-title{animation:sipFloatUp 0.9s ease-out 0.15s both, sipShine 5s linear infinite;}
+    .sip-hero-sub{animation:sipFloatUp 0.9s ease-out 0.32s both;}
+    .sip-hero-buttons{animation:sipFloatUp 0.9s ease-out 0.48s both;}
+    .sip-btn-primary{transition:transform 0.25s ease, box-shadow 0.25s ease;}
+    .sip-btn-primary:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 0 28px rgba(0,102,255,0.55);}
+    .sip-btn-secondary{transition:transform 0.25s ease, background 0.25s ease, border-color 0.25s ease;}
+    .sip-btn-secondary:hover{transform:translateY(-2px) scale(1.03);background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.4);}
+    @media (max-width:700px){
+      .sip-topbar-sub{display:none;}
+      .sip-topbar-title{font-size:12px!important;}
+      .sip-projetos-row{flex-direction:column;}
+      .sip-projetos-sidebar{width:100%!important;flex:0 0 auto!important;}
+      .sip-projetos-content{padding:20px 16px!important;}
+      .sip-visita-form{padding:14px!important;}
+    }
+  </style>
+
+  
+</helmet>
+
+<div style="min-height:100vh;background:#eef1f4;font-size:14px;color:#1f2933;">
+
+  <!-- ===================== LOADING ===================== -->
+  <sc-if value="{{ isLoading }}" hint-placeholder-val="{{ true }}">
+    <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;color:#8a94a3;font-size:13px;">Carregando…</div>
+  </sc-if>
+
+  <!-- ===================== ERRO FIRESTORE ===================== -->
+  <sc-if value="{{ isFirestoreError }}" hint-placeholder-val="{{ false }}">
+    <div style="min-height:100vh;display:flex;align-items:center;justify-content:center;">
+      <div style="width:420px;background:#fff;border:1px solid #dde3ea;border-radius:12px;padding:28px 26px;text-align:center;">
+        <div style="font-size:15px;font-weight:700;color:#c0392b;margin-bottom:8px;">Sem acesso ao Firestore</div>
+        <div style="font-size:12.5px;color:#5b6774;line-height:1.6;">{{ firestoreError }}</div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ===================== CAPA ===================== -->
+  <sc-if value="{{ isCoverView }}" hint-placeholder-val="{{ false }}">
+    <div style="position:relative;min-height:100vh;overflow:hidden;background:#050505;">
+      <canvas ref="{{ coverCanvasRef }}" style="position:absolute;inset:0;width:100%;height:100%;display:block;"></canvas>
+      <div style="position:relative;z-index:2;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;padding:40px;text-align:center;">
+        <div class="sip-hero-badge" style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(120,150,255,0.35);backdrop-filter:blur(8px);color:rgba(220,230,255,0.85);font-size:12px;font-weight:700;letter-spacing:0.15em;padding:8px 18px;border-radius:999px;">SIP PLATFORM</div>
+        <div>
+          <div class="sip-hero-title" style="font-size:96px;font-weight:800;letter-spacing:0.08em;line-height:1;background:linear-gradient(90deg,#fff,#8fb4ff,#ff8fae,#fff);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;">SIP</div>
+          <div class="sip-hero-sub" style="margin-top:18px;font-size:19px;font-weight:600;color:#fff;">Sistema Inteligente de Projetos</div>
+          <div class="sip-hero-sub" style="margin-top:8px;font-size:14.5px;color:rgba(255,255,255,0.55);white-space:nowrap;">Transformando contratos, medições e análises de projetos em inteligência operacional.</div>
+        </div>
+        <div class="sip-hero-buttons" style="display:flex;align-items:center;gap:14px;">
+          <div sc-camel-on-click="{{ enter }}" class="sip-btn-primary" style="cursor:pointer;background:#0066ff;color:#fff;font-weight:700;font-size:14px;padding:14px 32px;border-radius:8px;box-shadow:0 0 20px rgba(0,102,255,0.4);">Entrar no Sistema</div>
+          <div sc-camel-on-click="{{ openSobre }}" class="sip-btn-secondary" style="cursor:pointer;background:transparent;color:#fff;font-weight:600;font-size:14px;padding:14px 32px;border-radius:8px;border:1px solid rgba(255,255,255,0.25);">Conhecer a Plataforma</div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ===================== SOBRE / CONHECER A PLATAFORMA ===================== -->
+  <sc-if value="{{ isSobreView }}" hint-placeholder-val="{{ false }}">
+    <div style="min-height:100vh;background:#050505;color:#fff;display:flex;justify-content:center;padding:64px 24px;">
+      <div style="max-width:680px;width:100%;">
+        <div sc-camel-on-click="{{ closeSobre }}" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-size:13px;color:rgba(255,255,255,0.55);margin-bottom:40px;">← Voltar</div>
+
+        <div style="font-size:12px;font-weight:700;letter-spacing:0.15em;color:#8fb4ff;margin-bottom:14px;">SIP PLATFORM</div>
+        <h1 style="margin:0 0 28px;font-size:40px;font-weight:800;line-height:1.15;">SIP — Sistema Inteligente de Projetos</h1>
+
+        <div style="font-size:15.5px;line-height:1.85;color:rgba(255,255,255,0.75);display:flex;flex-direction:column;gap:22px;text-align:justify;">
+          <p style="margin:0;">O SIP (Sistema Inteligente de Projetos) é a plataforma da Consol Engenheiros Consultores desenvolvida para acompanhar, de forma integrada, todo o ciclo de vida dos projetos de infraestrutura da empresa — desde os estudos iniciais e levantamentos técnicos até a emissão e impressão final dos projetos.</p>
+
+          <div>
+            <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;color:#ff8fae;margin-bottom:8px;">O QUE O SIP FAZ</div>
+            <p style="margin:0 0 10px;">O sistema centraliza, em um único ambiente, todas as informações relacionadas aos projetos, incluindo:</p>
+            <ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;">
+              <li>As diferentes disciplinas envolvidas;</li>
+              <li>O histórico completo de análises, pareceres e interações com os órgãos contratantes;</li>
+              <li>O controle de medições e faturamento;</li>
+              <li>A gestão de contratos com empresas terceirizadas;</li>
+              <li>O acompanhamento do andamento e da evolução de cada entrega.</li>
+            </ul>
+          </div>
+
+          <div>
+            <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;color:#ff8fae;margin-bottom:8px;">OBJETIVO</div>
+            <p style="margin:0 0 10px;">O principal objetivo do SIP é substituir planilhas isoladas, e-mails dispersos e controles descentralizados por uma plataforma única, confiável e sempre atualizada.</p>
+            <p style="margin:0 0 10px;">Com isso, gestores e equipes podem visualizar rapidamente:</p>
+            <ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;">
+              <li>O que já foi entregue;</li>
+              <li>O que está pendente;</li>
+              <li>Quais itens foram questionados pelos órgãos contratantes;</li>
+              <li>O que já foi respondido ou solucionado;</li>
+              <li>Todo o histórico de decisões e revisões do projeto.</li>
+            </ul>
+            <p style="margin:10px 0 0;">Todas as informações são baseadas em documentos reais dos projetos, garantindo rastreabilidade, transparência e segurança dos dados.</p>
+          </div>
+
+          <div>
+            <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;color:#ff8fae;margin-bottom:8px;">COMO FUNCIONA</div>
+            <p style="margin:0 0 10px;">Cada projeto possui um espaço exclusivo dentro do SIP, acessível por meio da barra lateral da plataforma.</p>
+            <p style="margin:0 0 10px;">Nesse ambiente são concentradas todas as informações, documentos, análises, indicadores e registros relacionados ao empreendimento. O sistema também cria uma linha do tempo completa do projeto, permitindo que gestores acompanhem sua evolução, identifiquem pontos críticos e tomem decisões com maior agilidade e assertividade.</p>
+            <p style="margin:0;">A estrutura do SIP foi concebida para ser padronizada e replicável, garantindo que todos os projetos da Consol Engenheiros Consultores sigam a mesma lógica de organização, controle e acompanhamento.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ===================== APP SHELL ===================== -->
+  <sc-if value="{{ isApp }}" hint-placeholder-val="{{ false }}">
+    <div style="display:flex;flex-direction:column;min-height:100vh;">
+      <sc-if value="{{ isProjetosView }}" hint-placeholder-val="{{ true }}">
+        <div style="height:56px;flex:0 0 56px;background:#1f3a5f;display:flex;align-items:center;justify-content:space-between;padding:0 24px;">
+          <div style="display:flex;align-items:center;gap:16px;">
+            <div sc-camel-on-click="{{ goProjetos }}" class="sip-topbar-title" style="font-size:13px;font-weight:700;color:#fff;letter-spacing:0.03em;cursor:pointer;white-space:nowrap;">SIP - Sistema Inteligente de Projetos</div>
+          </div>
+          <div class="sip-topbar-sub" style="font-size:12px;color:rgba(255,255,255,0.65);white-space:nowrap;">Modo aberto · sem login</div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ crumbProjeto }}" hint-placeholder-val="{{ false }}">
+        <div style="height:36px;flex:0 0 36px;background:#1f3a5f;display:flex;align-items:center;gap:8px;padding:0 24px;font-size:12px;color:rgba(255,255,255,0.75);">
+          <div sc-camel-on-click="{{ goProjetos }}" style="cursor:pointer;color:#fff;font-weight:700;">SIP</div>
+          <div>/</div>
+          <div sc-camel-on-click="{{ goProjetos }}" style="cursor:pointer;">Projetos</div>
+          <div>/</div>
+          <div style="color:#fff;">{{ crumbProjeto.label }}</div>
+        </div>
+      </sc-if>
+
+      <!-- LISTA DE PROJETOS -->
+      <sc-if value="{{ isProjetosView }}" hint-placeholder-val="{{ true }}">
+        <div class="sip-projetos-row" style="flex:1;display:flex;">
+          <div class="sip-projetos-sidebar" style="width:220px;flex:0 0 220px;background:#16283f;padding:20px 14px;display:flex;flex-direction:column;gap:10px;">
+            <div style="background:#fff;border-radius:8px;padding:10px 12px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;">
+              <img src="098f3a22-ac8e-4d7e-a782-fbc2100a4ac2" alt="Consol Engenheiros Consultores" style="display:block;height:26px;width:auto;">
+            </div>
+            <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.45);letter-spacing:0.08em;text-transform:uppercase;padding:0 8px 4px;">Projetos</div>
+            <sc-for list="{{ projetos }}" as="p" hint-placeholder-count="1">
+              <div sc-camel-on-click="{{ p.open }}" style="padding:14px 16px;border-radius:10px;cursor:pointer;background:{{ p.bg }};box-shadow:0 6px 16px rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.15);">
+                <div style="font-size:13.5px;font-weight:700;color:{{ p.textColor }};">{{ p.nome }}</div>
+                <div style="font-size:11.5px;font-weight:600;color:{{ p.textColor }};opacity:0.6;margin-top:2px;">{{ p.rodovia }}</div>
+              </div>
+            </sc-for>
+            <div style="height:1px;background:rgba(255,255,255,0.12);margin:6px 4px;"></div>
+            <div sc-camel-on-click="{{ openVisitaTecnica }}" style="padding:14px 16px;border-radius:10px;cursor:pointer;background:{{ visitaTecnicaBg }};border:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:space-between;gap:8px;">
+              <div style="font-size:13.5px;font-weight:700;color:{{ visitaTecnicaColor }};">Visita Técnica</div>
+              <sc-if value="{{ visitaPendentes }}" hint-placeholder-val="{{ false }}">
+                <div style="background:#e0752f;color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;flex:0 0 auto;">{{ visitaPendentesCount }}</div>
+              </sc-if>
+            </div>
+          </div>
+          <div class="sip-projetos-content" style="flex:1;overflow:auto;padding:56px 40px;display:flex;justify-content:center;">
+            <div style="max-width:720px;width:100%;">
+              <div sc-camel-on-click="{{ goCover }}" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#5b6774;margin-bottom:32px;">← Voltar</div>
+
+              <img src="098f3a22-ac8e-4d7e-a782-fbc2100a4ac2" alt="Consol Engenheiros Consultores" style="display:block;height:34px;width:auto;margin-bottom:22px;">
+              <h1 style="margin:0 0 6px;font-size:30px;font-weight:800;line-height:1.2;color:#1f3a5f;">CONSOL ENGENHEIROS CONSULTORES</h1>
+              <div style="font-size:16px;font-weight:600;color:#2f6690;margin-bottom:28px;">Mais de 60 anos construindo caminhos para o futuro.</div>
+
+              <div style="font-size:15px;line-height:1.85;color:#3a4552;display:flex;flex-direction:column;gap:20px;text-align:justify;">
+                <p style="margin:0;">Fundada em 21 de julho de 1960, a CONSOL ENGENHEIROS CONSULTORES nasceu com a missão de transformar ideias em grandes obras de infraestrutura. Desde o início, nos dedicamos a desenvolver projetos rodoviários, gerenciar e supervisionar obras, realizar estudos de viabilidade técnica especializada, sempre com foco em inovação, responsabilidade social e sustentabilidade ambiental. Com atuação pioneira em geotecnia e pavimentação, a CONSOL foi construída sobre a sólida experiência de seus fundadores — os engenheiros rodoviários Antônio Pimenta, Rafael Gontijo Assunção e Antônio Viçoso — e rapidamente se consolidou como referência no setor.</p>
+
+                <p style="margin:0;">No início dos anos 70, marcamos presença em programas estratégicos do Governo Federal, muitos deles financiados pelo BID e pelo Banco Mundial, expandindo nossa atuação para todas as regiões do país. A partir daí, crescemos juntos com o país na elaboração de Estudos e Projetos Executivos de Engenharia até o Gerenciamento e a Supervisão de grandes obras.</p>
+
+                <div>
+                  <p style="margin:0 0 12px;">Hoje, somos uma empresa de destaque na Engenharia Consultiva com um acervo técnico robusto e equipes multidisciplinares preparadas para atuar em diferentes setores:</p>
+                  <ul style="margin:0;padding-left:20px;display:flex;flex-direction:column;gap:6px;">
+                    <li>Rodoviário, ferroviário, hidroviário e aeroportuário</li>
+                    <li>Planejamento urbano e saneamento básico</li>
+                    <li>Estudos e projetos ambientais</li>
+                    <li>Concessões Rodoviárias</li>
+                  </ul>
+                </div>
+
+                <p style="margin:0;">Mais do que participar de obras, ajudamos a formar profissionais de excelência, que hoje ocupam posições estratégicas em órgãos e empresas de engenharia em todo o país.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- PROJETO (MG-259) — tela cheia, com sua própria barra lateral -->
+      <sc-if value="{{ isProjetoMG259 }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;min-height:0;">
+          <dc-import name="Apresentacao Infraestrutura" hint-size="100%,100%" on-voltar-projetos="{{ goProjetos }}"></dc-import>
+        </div>
+      </sc-if>
+
+      <!-- PROJETO (Araçuaí – Novo Cruzeiro) — tela cheia, com sua própria barra lateral -->
+      <sc-if value="{{ isProjetoAracuai }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;min-height:0;">
+          <dc-import name="Apresentacao Aracuai-Novo Cruzeiro" hint-size="100%,100%" on-voltar-projetos="{{ goProjetos }}"></dc-import>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isProjetoGurinhata }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;min-height:0;">
+          <dc-import name="Apresentacao Gurinhata" hint-size="100%,100%" on-voltar-projetos="{{ goProjetos }}"></dc-import>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isProjetoRotaLiberdade }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;min-height:0;">
+          <dc-import name="Apresentacao Rota da Liberdade" hint-size="100%,100%" on-voltar-projetos="{{ goProjetos }}"></dc-import>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isProjetoRubim }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;min-height:0;">
+          <dc-import name="Apresentacao Rubim-Rio do Prado" hint-size="100%,100%" on-voltar-projetos="{{ goProjetos }}"></dc-import>
+        </div>
+      </sc-if>
+
+      <!-- VISITA TÉCNICA ===================== -->
+      <sc-if value="{{ isVisitaTecnica }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;min-height:0;overflow:auto;background:#eef1f4;">
+          <div style="max-width:560px;margin:0 auto;padding:24px 20px 60px;">
+            <div sc-camel-on-click="{{ goProjetos }}" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#5b6774;margin-bottom:20px;">← Voltar</div>
+            <h1 style="margin:0 0 4px;font-size:22px;font-weight:800;color:#1f3a5f;">Visita Técnica de Campo</h1>
+            <div style="font-size:12.5px;color:#8a94a3;margin-bottom:20px;line-height:1.5;">Tire fotos em campo pelo celular — elas ficam salvas no aparelho e sincronizam quando houver internet.</div>
+
+            <div class="sip-visita-form" style="background:#fff;border:1px solid #dde3ea;border-radius:10px;padding:16px;margin-bottom:20px;display:flex;flex-direction:column;gap:12px;">
+              <div>
+                <label style="font-size:11.5px;font-weight:700;color:#5b6774;display:block;margin-bottom:4px;">Projeto</label>
+                <sc-raw-select value="{{ visitaProjetoId }}" sc-camel-on-change="{{ setVisitaProjeto }}" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #dde3ea;font-size:13.5px;background:#fff;">
+                  <option value="">Selecione…</option>
+                  <sc-for list="{{ visitaProjetosOptions }}" as="vp" hint-placeholder-count="1">
+                    <option value="{{ vp.id }}">{{ vp.nome }}</option>
+                  </sc-for>
+                </sc-raw-select>
+              </div>
+              <div>
+                <label style="font-size:11.5px;font-weight:700;color:#5b6774;display:block;margin-bottom:4px;">Disciplina</label>
+                <sc-raw-select value="{{ visitaDisciplina }}" sc-camel-on-change="{{ setVisitaDisciplina }}" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #dde3ea;font-size:13.5px;background:#fff;">
+                  <option value="">Selecione…</option>
+                  <sc-for list="{{ visitaDisciplinasList }}" as="vd" hint-placeholder-count="1">
+                    <option value="{{ vd }}">{{ vd }}</option>
+                  </sc-for>
+                </sc-raw-select>
+              </div>
+              <div>
+                <label style="font-size:11.5px;font-weight:700;color:#5b6774;display:block;margin-bottom:4px;">Km / Estaca (opcional)</label>
+                <input value="{{ visitaKm }}" sc-camel-on-change="{{ setVisitaKm }}" placeholder="ex.: 33+400" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #dde3ea;font-size:13.5px;box-sizing:border-box;">
+              </div>
+              <div>
+                <label style="font-size:11.5px;font-weight:700;color:#5b6774;display:block;margin-bottom:4px;">Observação (opcional)</label>
+                <input value="{{ visitaObs }}" sc-camel-on-change="{{ setVisitaObs }}" placeholder="ex.: erosão no talude direito" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #dde3ea;font-size:13.5px;box-sizing:border-box;">
+              </div>
+              <label style="display:flex;align-items:center;justify-content:center;gap:8px;background:#1f3a5f;color:#fff;font-weight:700;font-size:14.5px;padding:16px;border-radius:10px;cursor:pointer;text-align:center;">
+                Tirar Foto
+                <input type="file" accept="image/*" capture="environment" multiple="true" sc-camel-on-change="{{ onCapturaFotos }}" style="display:none;">
+              </label>
+              <div sc-camel-on-click="{{ openGaleriaFromVisita }}" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#1f3a5f;color:#fff;font-weight:700;font-size:14.5px;padding:16px;border-radius:10px;cursor:pointer;text-align:center;">
+                Galeria de Fotos ({{ visitaTotal }})
+              </div>
+            </div>
+
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+              <div style="font-size:13px;font-weight:700;color:#1f2933;">Fotos desta visita ({{ visitaTotal }})</div>
+              <sc-if value="{{ visitaPendentes }}" hint-placeholder-val="{{ false }}">
+                <div sc-camel-on-click="{{ sincronizarFotos }}" style="cursor:pointer;background:#2f6690;color:#fff;font-size:11.5px;font-weight:700;padding:7px 12px;border-radius:8px;">{{ visitaSyncLabel }}</div>
+              </sc-if>
+            </div>
+
+
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- GALERIA (dentro da Visita Técnica) ===================== -->
+      <sc-if value="{{ isGaleriaView }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;min-height:0;overflow:auto;background:#eef1f4;">
+          <div style="max-width:1000px;margin:0 auto;padding:24px 20px 60px;">
+            <div sc-camel-on-click="{{ voltarVisita }}" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#5b6774;margin-bottom:20px;">← Voltar para Visita Técnica</div>
+            <h1 style="margin:0 0 4px;font-size:22px;font-weight:800;color:#1f3a5f;">Galeria de Fotos</h1>
+            <div style="font-size:12.5px;color:#8a94a3;margin-bottom:20px;">Fotos capturadas e sincronizadas.</div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;">
+              <sc-for list="{{ visitaPhotosVals }}" as="foto" hint-placeholder-count="0">
+                <div style="border-radius:10px;overflow:hidden;background:#fff;border:1px solid #dde3ea;box-shadow:0 2px 6px rgba(0,0,0,0.08);">
+                  <img ref="{{ foto.imgRef }}" style="width:100%;height:160px;object-fit:cover;display:block;background:#eef1f4;">
+                  <div style="padding:12px;">
+                    <div style="font-size:12px;font-weight:700;color:#1f3a5f;margin-bottom:3px;">{{ foto.disciplina }}</div>
+                    <div style="font-size:10px;color:#8a94a3;margin-bottom:6px;">{{ foto.dataAtualizacao }}</div>
+                    <div style="font-size:10px;color:#5b6774;line-height:1.4;">{{ foto.legenda }}</div>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+
+
+      <!-- PROJETO sem conteúdo -->
+      <sc-if value="{{ isProjetoVazio }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;padding:40px;">
+          <div style="padding:40px;background:#fff;border:1.5px dashed #c9d2db;border-radius:10px;text-align:center;">
+            <div style="font-size:13px;font-weight:600;color:#8a94a3;">Este projeto ainda não tem um site modelado.</div>
+          </div>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script="">
+class Component extends DCLogic {
+  state = {
+    authResolved: false,
+    firestoreError: '',
+    entered: false,
+    showSobre: false,
+    view: 'projetos', // 'projetos' | 'projeto' | 'visita-tecnica' | 'galeria-visita'
+    selectedProjetoId: null,
+    projetos: [],
+    dataLoaded: false,
+    visitaProjetoId: '',
+    visitaDisciplina: '',
+    visitaKm: '',
+    visitaObs: '',
+    visitaPhotos: [],
+    visitaSyncing: false,
+    galeriaPhotos: [],
+  };
+
+  visitaDisciplinas = ['Geometria', 'Terraplenagem', 'Sinalização', 'Obras Complementares', 'Desapropriação', 'Interseção', 'Segurança Viária', 'Pavimentação', 'Drenagem', 'Topografia', 'Meio Ambiente'];
+
+  coverCanvasRef = React.createRef();
+
+  initHero() {
+    const canvas = this.coverCanvasRef.current;
+    if (!canvas || this.heroInited) return;
+    this.heroInited = true;
+    const ctx = canvas.getContext('2d');
+    const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+    resize();
+    window.addEventListener('resize', resize);
+    this._heroResize = resize;
+
+    const isSmall = window.innerWidth < 700;
+    const nodes = [];
+    for (let i = 0; i < (isSmall ? 32 : 70); i++) {
+      nodes.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, vx: (Math.random() - 0.5) * 0.25, vy: (Math.random() - 0.5) * 0.25 });
+    }
+    const particles = [];
+    for (let i = 0; i < (isSmall ? 22 : 55); i++) {
+      particles.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, vx: (Math.random() - 0.5) * 0.15, vy: (Math.random() - 0.5) * 0.15, r: Math.random() * 1.6 + 0.6, hue: Math.random() < 0.5 ? 'rgba(0,102,255,' : 'rgba(255,45,85,' });
+    }
+    this.mouse = { x: canvas.width / 2, y: canvas.height / 2, active: false };
+    const onMove = (e) => { this.mouse.x = e.clientX; this.mouse.y = e.clientY; this.mouse.active = true; };
+    const onLeave = () => { this.mouse.active = false; };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseleave', onLeave);
+    this._heroMove = onMove;
+    this._heroLeave = onLeave;
+
+    const draw = () => {
+      this.rafId = requestAnimationFrame(draw);
+      if (this.state.entered) return;
+      const w = canvas.width, h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = '#050505';
+      ctx.fillRect(0, 0, w, h);
+
+      const t = Date.now() / 6000;
+      const b1x = w * 0.3 + Math.sin(t) * w * 0.15, b1y = h * 0.35 + Math.cos(t * 0.8) * h * 0.12;
+      const g1 = ctx.createRadialGradient(b1x, b1y, 0, b1x, b1y, w * 0.5);
+      g1.addColorStop(0, 'rgba(0,102,255,0.35)'); g1.addColorStop(1, 'rgba(0,102,255,0)');
+      ctx.fillStyle = g1; ctx.fillRect(0, 0, w, h);
+
+      const b2x = w * 0.7 + Math.cos(t * 0.7) * w * 0.15, b2y = h * 0.65 + Math.sin(t * 0.9) * h * 0.12;
+      const g2 = ctx.createRadialGradient(b2x, b2y, 0, b2x, b2y, w * 0.5);
+      g2.addColorStop(0, 'rgba(255,45,85,0.30)'); g2.addColorStop(1, 'rgba(255,45,85,0)');
+      ctx.fillStyle = g2; ctx.fillRect(0, 0, w, h);
+
+      if (this.mouse.active) {
+        const gm = ctx.createRadialGradient(this.mouse.x, this.mouse.y, 0, this.mouse.x, this.mouse.y, 260);
+        gm.addColorStop(0, 'rgba(120,140,255,0.18)'); gm.addColorStop(1, 'rgba(120,140,255,0)');
+        ctx.fillStyle = gm; ctx.fillRect(0, 0, w, h);
+      }
+
+      for (const n of nodes) {
+        n.x += n.vx; n.y += n.vy;
+        if (n.x < 0 || n.x > w) n.vx *= -1;
+        if (n.y < 0 || n.y > h) n.vy *= -1;
+      }
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const a = nodes[i], b = nodes[j];
+          const dx = a.x - b.x, dy = a.y - b.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 140) {
+            let alpha = (1 - dist / 140) * 0.25;
+            if (this.mouse.active) {
+              const mdA = Math.hypot(a.x - this.mouse.x, a.y - this.mouse.y);
+              const mdB = Math.hypot(b.x - this.mouse.x, b.y - this.mouse.y);
+              if (mdA < 220 || mdB < 220) alpha = Math.min(1, alpha + 0.5);
+            }
+            ctx.strokeStyle = 'rgba(140,170,255,' + alpha + ')';
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+          }
+        }
+      }
+      for (const n of nodes) {
+        let r = 1.6, alpha = 0.5;
+        if (this.mouse.active) {
+          const d = Math.hypot(n.x - this.mouse.x, n.y - this.mouse.y);
+          if (d < 220) { const boost = 1 - d / 220; r = 1.6 + boost * 2.2; alpha = 0.5 + boost * 0.5; }
+        }
+        ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(180,200,255,' + alpha + ')';
+        ctx.fill();
+      }
+
+      for (const p of particles) {
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0) p.x = w; if (p.x > w) p.x = 0;
+        if (p.y < 0) p.y = h; if (p.y > h) p.y = 0;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = p.hue + '0.55)';
+        ctx.fill();
+      }
+    };
+    draw();
+  }
+
+  componentDidUpdate() {
+    this.initHero();
+  }
+
+  componentWillUnmount() {
+    if (this.rafId) cancelAnimationFrame(this.rafId);
+    if (this._heroResize) window.removeEventListener('resize', this._heroResize);
+    if (this._heroMove) window.removeEventListener('mousemove', this._heroMove);
+    if (this._heroLeave) window.removeEventListener('mouseleave', this._heroLeave);
+  }
+
+  loadScript(src, timeoutMs) {
+    if (!window.__sipScriptPromises) window.__sipScriptPromises = {};
+    if (window.__sipScriptPromises[src]) return window.__sipScriptPromises[src];
+    const p = new Promise((resolve, reject) => {
+      const existing = document.querySelector('script[src="' + src + '"]');
+      if (existing && existing.__loaded) { resolve(); return; }
+      const timer = setTimeout(() => reject(new Error('Timeout ao carregar ' + src)), timeoutMs || 4000);
+      const s = existing || document.createElement('script');
+      s.src = src;
+      s.onload = () => { clearTimeout(timer); s.__loaded = true; resolve(); };
+      s.onerror = () => { clearTimeout(timer); reject(new Error('Falha ao carregar ' + src)); };
+      if (!existing) document.head.appendChild(s);
+    });
+    window.__sipScriptPromises[src] = p;
+    return p;
+  }
+
+  async waitForFirebase() {
+    await this.loadScript('https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js');
+    await this.loadScript('https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js');
+    await this.loadScript('https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js');
+    await this.loadScript('https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js');
+  }
+
+  async componentDidMount() {
+    this.loadVisitaPhotos();
+    this.addExamplePhoto();
+    try {
+      await this.waitForFirebase();
+      if (!firebase.apps.length) {
+        firebase.initializeApp({
+          apiKey: "AIzaSyDNBXkzFJFAsOKefmBesSWmwRHgS0i7ACA",
+          authDomain: "sip-sistema-intelig-de-projeto.firebaseapp.com",
+          projectId: "sip-sistema-intelig-de-projeto",
+          storageBucket: "sip-sistema-intelig-de-projeto.firebasestorage.app",
+          messagingSenderId: "957059964424",
+          appId: "1:957059964424:web:30ba5c315b713c2c05bbbd"
+        });
+      }
+      await firebase.auth().signInAnonymously();
+      await this.ensureSeedData();
+      await this.ensureAracuaiProject();
+      await this.ensureRubimProject();
+      await this.ensureGurinhataProject();
+      await this.ensureRotaLiberdadeProject();
+      await this.loadProjetos();
+    } catch (e) {
+      console.error('SIP init error', e);
+      this.setState({ firestoreError: (e && e.message) || 'Não foi possível conectar ao Firestore.' });
+    } finally {
+      this.setState({ authResolved: true }, () => this.initHero());
+    }
+  }
+
+  enter() {
+    this.resetHero();
+    this.setState({ entered: true, wantsEnter: true });
+  }
+
+  resetHero() {
+    if (this.rafId) cancelAnimationFrame(this.rafId);
+    this.heroInited = false;
+  }
+
+  openSobre() {
+    this.resetHero();
+    this.setState({ showSobre: true });
+  }
+
+  closeSobre() {
+    this.resetHero();
+    this.setState({ showSobre: false });
+  }
+
+  db() {
+    return firebase.firestore();
+  }
+
+  async ensureSeedData() {
+    const clientesSnap = await this.db().collection('clientes').limit(1).get();
+    if (!clientesSnap.empty) return;
+    const clienteRef = await this.db().collection('clientes').add({ nome: 'DER-MG (exemplo)' });
+    const contratoRef = await this.db().collection('contratos').add({ clienteId: clienteRef.id, numero: 'DC-007/2024', descricao: 'Contrato de projetos rodoviários — exemplo' });
+    await this.db().collection('projetos').add({ contratoId: contratoRef.id, nome: 'Serro - Trinta Reis', rodovia: 'MG-259', status: 'Modelo pronto', tipo: 'mg-259' });
+  }
+
+  async ensureAracuaiProject() {
+    const ref = this.db().collection('projetos').doc('seed-aracuai-nc');
+    const doc = await ref.get();
+    if (doc.exists) return;
+    const contratosSnap = await this.db().collection('contratos').where('numero', '==', 'DP-024/2023').limit(1).get();
+    let contratoId = contratosSnap.empty ? null : contratosSnap.docs[0].id;
+    if (!contratoId) {
+      const clienteRef = await this.db().collection('clientes').add({ nome: 'DER-MG (exemplo)' });
+      const contratoRef = await this.db().collection('contratos').add({ clienteId: clienteRef.id, numero: 'DP-024/2023', descricao: 'Lote 5 — Araçuaí-Novo Cruzeiro / Novo Cruzeiro-Ladainha / Rubim-Rio do Prado' });
+      contratoId = contratoRef.id;
+    }
+    await ref.set({ contratoId, nome: 'Araçuaí - Novo Cruzeiro', rodovia: 'LMG-678', status: 'Aguardando dados', tipo: 'aracuai-nc' });
+  }
+
+  async ensureRubimProject() {
+    const snap = await this.db().collection('projetos').where('tipo', '==', 'rubim-rp').limit(1).get();
+    if (!snap.empty) {
+      if (snap.docs[0].data().rodovia !== 'MG-406') await snap.docs[0].ref.update({ rodovia: 'MG-406' });
+      return;
+    }
+    let contratoId;
+    const contratoSnap = await this.db().collection('contratos').where('numero', '==', 'DP-024/2023').limit(1).get();
+    if (!contratoSnap.empty) {
+      contratoId = contratoSnap.docs[0].id;
+    } else {
+      const clienteRef = await this.db().collection('clientes').add({ nome: 'DER-MG (exemplo)' });
+      const contratoRef = await this.db().collection('contratos').add({ clienteId: clienteRef.id, numero: 'DP-024/2023', descricao: 'Lote 5 — Araçuaí-Novo Cruzeiro / Novo Cruzeiro-Ladainha / Rubim-Rio do Prado' });
+      contratoId = contratoRef.id;
+    }
+    const ref = this.db().collection('projetos').doc();
+    await ref.set({ contratoId, nome: 'Rubim - Rio do Prado', rodovia: 'MG-406', status: 'Aguardando dados', tipo: 'rubim-rp' });
+  }
+
+  async ensureGurinhataProject() {
+    const ref = this.db().collection('projetos').doc('seed-gurinhata');
+    const doc = await ref.get();
+    if (doc.exists) return;
+    let clienteId;
+    const clienteSnap = await this.db().collection('clientes').where('nome', '==', 'DER-MG (exemplo)').limit(1).get();
+    if (!clienteSnap.empty) {
+      clienteId = clienteSnap.docs[0].id;
+    } else {
+      const clienteRef = await this.db().collection('clientes').add({ nome: 'DER-MG (exemplo)' });
+      clienteId = clienteRef.id;
+    }
+    const contratoRef = await this.db().collection('contratos').add({ clienteId, numero: 'A definir', descricao: 'Gurinhatã — BR-364/MG (contrato a definir)' });
+    await ref.set({ contratoId: contratoRef.id, nome: 'Gurinhatã', rodovia: 'BR-364/MG', status: 'Aguardando dados', tipo: 'gurinhata' });
+  }
+
+  async ensureRotaLiberdadeProject() {
+    const ref = this.db().collection('projetos').doc('seed-rota-liberdade');
+    const doc = await ref.get();
+    if (doc.exists) return;
+    let clienteId;
+    const clienteSnap = await this.db().collection('clientes').where('nome', '==', 'DER-MG (exemplo)').limit(1).get();
+    if (!clienteSnap.empty) {
+      clienteId = clienteSnap.docs[0].id;
+    } else {
+      const clienteRef = await this.db().collection('clientes').add({ nome: 'DER-MG (exemplo)' });
+      clienteId = clienteRef.id;
+    }
+    const contratoRef = await this.db().collection('contratos').add({ clienteId, numero: 'A definir', descricao: 'Rota da Liberdade — BR-356/BR-262 (contrato a definir)' });
+    await ref.set({ contratoId: contratoRef.id, nome: 'Rota da Liberdade', rodovia: 'BR-356/BR-262', status: 'Aguardando dados', tipo: 'rota-liberdade' });
+  }
+
+  async loadProjetos() {
+    const snap = await this.db().collection('projetos').get();
+    const projetos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const ordem = { 'gurinhata': 0, 'mg-259': 1, 'aracuai-nc': 2, 'rubim-rp': 3, 'rota-liberdade': 4 };
+    projetos.sort((a, b) => (ordem[a.tipo] ?? 99) - (ordem[b.tipo] ?? 99));
+    this.setState({ projetos, dataLoaded: true });
+  }
+
+  openProjeto(projeto) {
+    this.setState({ view: 'projeto', selectedProjetoId: projeto.id });
+  }
+
+  goProjetos() {
+    this.setState({ view: 'projetos', selectedProjetoId: null });
+  }
+
+  goCover() {
+    this.resetHero();
+    this.setState({ entered: false, view: 'projetos', selectedProjetoId: null });
+  }
+
+  openVisitaTecnica() {
+    this.setState({ view: 'visita-tecnica' });
+    this.loadVisitaPhotos();
+  }
+
+  openGaleria() {
+    this.setState({ view: 'visita-tecnica' });
+    this.loadGaleriaPhotos();
+  }
+
+  openGaleriaFromVisita() {
+    this.setState({ view: 'galeria-visita' });
+  }
+
+  voltarVisita() {
+    this.setState({ view: 'visita-tecnica' });
+  }
+
+  setVisitaProjeto(e) { this.setState({ visitaProjetoId: e.target.value }); }
+  setVisitaDisciplina(e) { this.setState({ visitaDisciplina: e.target.value }); }
+  setVisitaKm(e) { this.setState({ visitaKm: e.target.value }); }
+  setVisitaObs(e) { this.setState({ visitaObs: e.target.value }); }
+
+  idbOpen() {
+    return new Promise((resolve, reject) => {
+      const req = indexedDB.open('sip-visita-campo', 1);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if (!db.objectStoreNames.contains('fotos')) db.createObjectStore('fotos', { keyPath: 'id' });
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async idbAll() {
+    const db = await this.idbOpen();
+    return new Promise((resolve, reject) => {
+      const req = db.transaction('fotos', 'readonly').objectStore('fotos').getAll();
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  async idbPut(rec) {
+    const db = await this.idbOpen();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('fotos', 'readwrite');
+      tx.objectStore('fotos').put(rec);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  async idbDelete(id) {
+    const db = await this.idbOpen();
+    return new Promise((resolve, reject) => {
+      const tx = db.transaction('fotos', 'readwrite');
+      tx.objectStore('fotos').delete(id);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  loadVisitaPhotos() {
+    this.idbAll().then(list => {
+      const withUrls = list.map(r => ({ ...r, url: URL.createObjectURL(r.blob) }));
+      withUrls.sort((a, b) => b.criadoEm - a.criadoEm);
+      this.setState({ visitaPhotos: withUrls });
+    }).catch(err => console.error('idbAll error', err));
+  }
+
+  async loadGaleriaPhotos() {
+    try {
+      const snap = await this.db().collection('visitasCampo').get();
+      const fotos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      fotos.sort((a, b) => b.criadoEm - a.criadoEm);
+      this.setState({ galeriaPhotos: fotos });
+    } catch (e) {
+      console.error('Erro ao carregar galeria', e);
+    }
+  }
+
+  compressImage(file, maxW) {
+    return new Promise((resolve, reject) => {
+      const img = document.createElement('img');
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        const scale = Math.min(1, maxW / img.width);
+        const w = Math.round(img.width * scale), h = Math.round(img.height * scale);
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        URL.revokeObjectURL(url);
+        canvas.toBlob(b => resolve(b), 'image/jpeg', 0.72);
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
+  }
+
+  async onCapturaFotos(e) {
+    const files = Array.from(e.target.files || []);
+    e.target.value = '';
+    if (!files.length) return;
+    if (!this.state.visitaDisciplina) { alert('Selecione a disciplina antes de fotografar.'); return; }
+    for (const file of files) {
+      const blob = await this.compressImage(file, 1600);
+      await this.idbPut({
+        id: 'foto_' + Date.now() + '_' + Math.random().toString(36).slice(2),
+        blob,
+        projetoId: this.state.visitaProjetoId || null,
+        disciplina: this.state.visitaDisciplina,
+        km: this.state.visitaKm,
+        obs: this.state.visitaObs,
+        criadoEm: Date.now(),
+        synced: false,
+      });
+    }
+    this.loadVisitaPhotos();
+  }
+
+  async addExamplePhoto() {
+    const existing = await this.idbAll();
+    if (existing.length > 0) return;
+    const canvas = document.createElement('canvas');
+    canvas.width = 800; canvas.height = 600;
+    const ctx = canvas.getContext('2d');
+    const grad = ctx.createLinearGradient(0, 0, 800, 600);
+    grad.addColorStop(0, '#0066ff'); grad.addColorStop(1, '#ff2d55');
+    ctx.fillStyle = grad; ctx.fillRect(0, 0, 800, 600);
+    ctx.fillStyle = '#fff'; ctx.font = '48px sans-serif'; ctx.textAlign = 'center';
+    ctx.fillText('Foto de Exemplo', 400, 280);
+    ctx.font = '24px sans-serif'; ctx.fillText('Geometria', 400, 340);
+    canvas.toBlob(blob => {
+      this.idbPut({
+        id: 'foto_exemplo_' + Date.now(),
+        blob,
+        projetoId: null,
+        disciplina: 'Geometria',
+        km: '10+500',
+        obs: 'Foto de exemplo para teste',
+        criadoEm: Date.now() - 3600000,
+        synced: false,
+      }).then(() => this.loadVisitaPhotos());
+    });
+  }
+
+  async deleteFoto(id) {
+    await this.idbDelete(id);
+    this.loadVisitaPhotos();
+  }
+
+  async sincronizarFotos() {
+    if (this.state.visitaSyncing) return;
+    const pendentes = this.state.visitaPhotos.filter(p => !p.synced);
+    if (!pendentes.length) return;
+    this.setState({ visitaSyncing: true });
+    for (const foto of pendentes) {
+      try {
+        const path = 'visitas-campo/' + foto.id + '.jpg';
+        const ref = firebase.storage().ref(path);
+        await ref.put(foto.blob);
+        const url = await ref.getDownloadURL();
+        await this.db().collection('visitasCampo').add({
+          projetoId: foto.projetoId, disciplina: foto.disciplina, km: foto.km, obs: foto.obs,
+          storagePath: path, url, criadoEm: foto.criadoEm,
+        });
+        const { url: _u, ...rest } = foto;
+        await this.idbPut({ ...rest, synced: true });
+      } catch (err) {
+        console.error('Erro ao sincronizar foto', foto.id, err);
+      }
+    }
+    this.setState({ visitaSyncing: false });
+    this.loadVisitaPhotos();
+  }
+
+  renderVals() {
+    const authResolved = this.state.authResolved;
+    const selectedProjeto = this.state.projetos.find(p => p.id === this.state.selectedProjetoId);
+
+    return {
+      isLoading: !authResolved,
+      isCoverView: authResolved && !this.state.entered && !this.state.showSobre && !(this.state.firestoreError && this.state.wantsEnter),
+      isSobreView: authResolved && !this.state.entered && this.state.showSobre,
+      isApp: authResolved && !this.state.firestoreError && this.state.entered,
+      isFirestoreError: authResolved && !!this.state.firestoreError && !!this.state.wantsEnter,
+      firestoreError: this.state.firestoreError,
+      enter: () => this.enter(),
+      openSobre: () => this.openSobre(),
+      closeSobre: () => this.closeSobre(),
+      coverCanvasRef: this.coverCanvasRef,
+
+      isProjetosView: this.state.view === 'projetos',
+      isVisitaTecnica: this.state.view === 'visita-tecnica',
+      isGaleriaView: this.state.view === 'galeria-visita',
+      visitaTecnicaBg: this.state.view === 'visita-tecnica' ? '#2f6690' : 'transparent',
+      visitaTecnicaColor: this.state.view === 'visita-tecnica' ? '#fff' : 'rgba(255,255,255,0.8)',
+      visitaProjetosOptions: this.state.projetos.map(p => ({ id: p.id, nome: p.nome })),
+      visitaDisciplinasList: this.visitaDisciplinas,
+      visitaProjetoId: this.state.visitaProjetoId,
+      visitaDisciplina: this.state.visitaDisciplina,
+      visitaKm: this.state.visitaKm,
+      visitaObs: this.state.visitaObs,
+      setVisitaProjeto: (e) => this.setVisitaProjeto(e),
+      setVisitaDisciplina: (e) => this.setVisitaDisciplina(e),
+      setVisitaKm: (e) => this.setVisitaKm(e),
+      setVisitaObs: (e) => this.setVisitaObs(e),
+      onCapturaFotos: (e) => this.onCapturaFotos(e),
+      openVisitaTecnica: () => this.openVisitaTecnica(),
+      openGaleriaFromVisita: () => this.openGaleriaFromVisita(),
+      voltarVisita: () => this.voltarVisita(),
+      sincronizarFotos: () => this.sincronizarFotos(),
+      visitaTotal: this.state.visitaPhotos.length,
+      visitaPendentes: this.state.visitaPhotos.some(f => !f.synced),
+      visitaPendentesCount: this.state.visitaPhotos.filter(f => !f.synced).length,
+      visitaSyncLabel: this.state.visitaSyncing ? 'Sincronizando…' : ('Sincronizar (' + this.state.visitaPhotos.filter(f => !f.synced).length + ')'),
+      visitaPhotosVals: this.state.visitaPhotos.map(f => {
+        const agora = Date.now();
+        const diff = agora - f.criadoEm;
+        let dataStr = '';
+        if (diff < 60000) dataStr = 'agora mesmo';
+        else if (diff < 3600000) dataStr = Math.floor(diff / 60000) + 'm atrás';
+        else if (diff < 86400000) dataStr = Math.floor(diff / 3600000) + 'h atrás';
+        else dataStr = Math.floor(diff / 86400000) + 'd atrás';
+        return {
+          disciplina: f.disciplina || 'Sem disciplina',
+          dataAtualizacao: dataStr,
+          legenda: (f.km ? 'km ' + f.km : 'Sem localização') + (f.obs ? ' · ' + f.obs : ''),
+          remove: () => this.deleteFoto(f.id),
+          imgRef: (el) => { if (el && el.src !== f.url) el.src = f.url; },
+        };
+      }),
+      galeriaTotal: this.state.galeriaPhotos.length,
+      galeriaPhotosVals: this.state.galeriaPhotos.map(f => ({
+        disciplina: f.disciplina || 'Sem disciplina',
+        legenda: (f.km ? 'km ' + f.km : 'Sem localização') + (f.obs ? ' · ' + f.obs : ''),
+        imgRef: (el) => { if (el && el.src !== f.url) el.src = f.url; },
+      })),
+      isProjetoMG259: this.state.view === 'projeto' && selectedProjeto && selectedProjeto.tipo === 'mg-259',
+      isProjetoAracuai: this.state.view === 'projeto' && selectedProjeto && selectedProjeto.tipo === 'aracuai-nc',
+      isProjetoRubim: this.state.view === 'projeto' && selectedProjeto && selectedProjeto.tipo === 'rubim-rp',
+      isProjetoGurinhata: this.state.view === 'projeto' && selectedProjeto && selectedProjeto.tipo === 'gurinhata',
+      isProjetoRotaLiberdade: this.state.view === 'projeto' && selectedProjeto && selectedProjeto.tipo === 'rota-liberdade',
+      isProjetoVazio: this.state.view === 'projeto' && selectedProjeto && selectedProjeto.tipo !== 'mg-259' && selectedProjeto.tipo !== 'aracuai-nc' && selectedProjeto.tipo !== 'rubim-rp' && selectedProjeto.tipo !== 'gurinhata' && selectedProjeto.tipo !== 'rota-liberdade',
+
+      crumbProjeto: selectedProjeto ? { label: selectedProjeto.nome } : null,
+      goProjetos: () => this.goProjetos(),
+      goCover: () => this.goCover(),
+
+      projetos: this.state.projetos.map(p => ({
+        ...p,
+        open: () => this.openProjeto(p),
+        bg: p.id === this.state.selectedProjetoId ? '#2f6690' : 'transparent',
+        textColor: p.id === this.state.selectedProjetoId ? '#fff' : 'rgba(255,255,255,0.8)',
+      })),
+    };
+  }
+}
+</script>
+
+
+</body></html>
