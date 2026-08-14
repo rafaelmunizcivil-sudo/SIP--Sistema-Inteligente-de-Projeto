@@ -800,7 +800,14 @@ class Component extends DCLogic {
   async loadGaleriaPhotos() {
     try {
       const snap = await this.db().collection('visitasCampo').orderBy('criadoEm', 'desc').get();
-      const fotos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      const fotos = snap.docs.map(d => {
+        const data = d.data();
+        return {
+          id: d.id,
+          ...data,
+          url: data.imageData || data.url,
+        };
+      });
       this.setState({ galeriaPhotos: fotos });
     } catch (e) {
       console.error('Erro ao carregar galeria', e);
@@ -942,37 +949,50 @@ class Component extends DCLogic {
     this.loadVisitaPhotos();
   }
 
+  blobToBase64(blob) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
   async sincronizarFotos() {
     if (this.state.visitaSyncing) return;
     const pendentes = this.state.visitaPhotos.filter(p => !p.synced);
-    if (!pendentes.length) return;
+    if (!pendentes.length) { alert('Nenhuma foto pendente para sincronizar.'); return; }
     this.setState({ visitaSyncing: true });
+    let sucessos = 0;
     for (const foto of pendentes) {
       try {
-        const path = 'visitas-campo/' + foto.id + '.jpg';
-        const ref = firebase.storage().ref(path);
-        await ref.put(foto.blob);
-        const url = await ref.getDownloadURL();
+        console.log('Sincronizando foto:', foto.id);
+        const base64 = await this.blobToBase64(foto.blob);
+        console.log('Base64 gerado, tamanho:', base64.length);
         await this.db().collection('visitasCampo').add({
-          projetoId: foto.projetoId,
-          disciplina: foto.disciplina,
-          km: foto.km,
-          obs: foto.obs,
-          lat: foto.lat,
-          lng: foto.lng,
-          localizacao: foto.localizacao,
-          geoSource: foto.geoSource,
-          storagePath: path,
-          url,
-          criadoEm: foto.criadoEm,
+          id: foto.id,
+          projetoId: foto.projetoId || '',
+          disciplina: foto.disciplina || 'Sem disciplina',
+          km: foto.km || '',
+          obs: foto.obs || '',
+          lat: foto.lat !== undefined ? foto.lat : -19.9191,
+          lng: foto.lng !== undefined ? foto.lng : -43.9386,
+          localizacao: foto.localizacao || 'Belo Horizonte',
+          geoSource: foto.geoSource || 'padrão',
+          imageData: base64,
+          criadoEm: foto.criadoEm || Date.now(),
         });
+        console.log('Firestore salvo:', foto.id);
         const { url: _u, ...rest } = foto;
         await this.idbPut({ ...rest, synced: true });
+        sucessos++;
       } catch (err) {
-        console.error('Erro ao sincronizar foto', foto.id, err);
+        console.error('Erro ao sincronizar foto', foto.id, err.message, err);
+        alert('Erro ao sincronizar ' + foto.id + ': ' + err.message);
       }
     }
     this.setState({ visitaSyncing: false });
+    alert('Sincronização concluída: ' + sucessos + ' de ' + pendentes.length + ' fotos.');
     this.loadVisitaPhotos();
     this.loadGaleriaPhotos();
   }
