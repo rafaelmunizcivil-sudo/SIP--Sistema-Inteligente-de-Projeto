@@ -164,7 +164,9 @@
         <div class="sip-projetos-row" style="flex:1;display:flex;">
           <div class="sip-projetos-sidebar" style="width:220px;flex:0 0 220px;background:#16283f;padding:20px 14px;display:flex;flex-direction:column;gap:10px;">
             <div style="background:#fff;border-radius:8px;padding:10px 12px;display:flex;align-items:center;justify-content:center;margin-bottom:8px;">
-              <img src="098f3a22-ac8e-4d7e-a782-fbc2100a4ac2" alt="Consol Engenheiros Consultores" style="display:block;height:26px;width:auto;">
+              <svg viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg" style="height:26px;width:auto;">
+                <text x="100" y="40" font-size="32" font-weight="bold" fill="#1f3a5f" text-anchor="middle">CONSOL</text>
+              </svg>
             </div>
             <div style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.45);letter-spacing:0.08em;text-transform:uppercase;padding:0 8px 4px;">Projetos</div>
             <sc-for list="{{ projetos }}" as="p" hint-placeholder-count="1">
@@ -185,7 +187,9 @@
             <div style="max-width:720px;width:100%;">
               <div sc-camel-on-click="{{ goCover }}" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#5b6774;margin-bottom:32px;">← Voltar</div>
 
-              <img src="098f3a22-ac8e-4d7e-a782-fbc2100a4ac2" alt="Consol Engenheiros Consultores" style="display:block;height:34px;width:auto;margin-bottom:22px;">
+              <svg viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg" style="height:34px;width:auto;margin-bottom:22px;">
+                <text x="100" y="40" font-size="32" font-weight="bold" fill="#1f3a5f" text-anchor="middle">CONSOL</text>
+              </svg>
               <h1 style="margin:0 0 6px;font-size:30px;font-weight:800;line-height:1.2;color:#1f3a5f;">CONSOL ENGENHEIROS CONSULTORES</h1>
               <div style="font-size:16px;font-weight:600;color:#2f6690;margin-bottom:28px;">Mais de 60 anos construindo caminhos para o futuro.</div>
 
@@ -795,9 +799,8 @@ class Component extends DCLogic {
 
   async loadGaleriaPhotos() {
     try {
-      const snap = await this.db().collection('visitasCampo').get();
+      const snap = await this.db().collection('visitasCampo').orderBy('criadoEm', 'desc').get();
       const fotos = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      fotos.sort((a, b) => b.criadoEm - a.criadoEm);
       this.setState({ galeriaPhotos: fotos });
     } catch (e) {
       console.error('Erro ao carregar galeria', e);
@@ -951,8 +954,17 @@ class Component extends DCLogic {
         await ref.put(foto.blob);
         const url = await ref.getDownloadURL();
         await this.db().collection('visitasCampo').add({
-          projetoId: foto.projetoId, disciplina: foto.disciplina, km: foto.km, obs: foto.obs,
-          storagePath: path, url, criadoEm: foto.criadoEm,
+          projetoId: foto.projetoId,
+          disciplina: foto.disciplina,
+          km: foto.km,
+          obs: foto.obs,
+          lat: foto.lat,
+          lng: foto.lng,
+          localizacao: foto.localizacao,
+          geoSource: foto.geoSource,
+          storagePath: path,
+          url,
+          criadoEm: foto.criadoEm,
         });
         const { url: _u, ...rest } = foto;
         await this.idbPut({ ...rest, synced: true });
@@ -962,6 +974,7 @@ class Component extends DCLogic {
     }
     this.setState({ visitaSyncing: false });
     this.loadVisitaPhotos();
+    this.loadGaleriaPhotos();
   }
 
   renderVals() {
