@@ -490,6 +490,7 @@ class Component extends DCLogic {
     if (this._heroResize) window.removeEventListener('resize', this._heroResize);
     if (this._heroMove) window.removeEventListener('mousemove', this._heroMove);
     if (this._heroLeave) window.removeEventListener('mouseleave', this._heroLeave);
+    if (this.galeriaUnsubscribe) this.galeriaUnsubscribe();
   }
 
   loadScript(src, timeoutMs) {
@@ -797,6 +798,26 @@ class Component extends DCLogic {
     }));
   }
 
+  setupGaleriaListener() {
+    if (this.galeriaUnsubscribe) return;
+    try {
+      this.galeriaUnsubscribe = this.db().collection('visitasCampo').orderBy('criadoEm', 'desc').onSnapshot(snap => {
+        const fotos = snap.docs.map(d => {
+          const data = d.data();
+          return {
+            id: d.id,
+            ...data,
+            url: data.imageData || data.url,
+          };
+        });
+        console.log('Galeria atualizada:', fotos.length, 'fotos');
+        this.setState({ galeriaPhotos: fotos });
+      });
+    } catch (e) {
+      console.error('Erro ao configurar listener da galeria', e);
+    }
+  }
+
   async loadGaleriaPhotos() {
     try {
       const snap = await this.db().collection('visitasCampo').orderBy('criadoEm', 'desc').get();
@@ -808,7 +829,9 @@ class Component extends DCLogic {
           url: data.imageData || data.url,
         };
       });
+      console.log('Galeria carregada:', fotos.length, 'fotos');
       this.setState({ galeriaPhotos: fotos });
+      this.setupGaleriaListener();
     } catch (e) {
       console.error('Erro ao carregar galeria', e);
     }
@@ -994,7 +1017,7 @@ class Component extends DCLogic {
     this.setState({ visitaSyncing: false });
     alert('Sincronização concluída: ' + sucessos + ' de ' + pendentes.length + ' fotos.');
     this.loadVisitaPhotos();
-    this.loadGaleriaPhotos();
+    setTimeout(() => this.loadGaleriaPhotos(), 500);
   }
 
   renderVals() {
