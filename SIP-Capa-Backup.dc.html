@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+    @keyframes sipFloatUp{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+    @keyframes sipBadgePulse{0%,100%{box-shadow:0 0 0 0 rgba(0,102,255,0.35);}50%{box-shadow:0 0 26px 6px rgba(0,102,255,0.30);}}
+    @keyframes sipShine{to{background-position:-200% 0;}}
+    .sip-hero-badge{animation:sipFloatUp 0.8s ease-out both, sipBadgePulse 3s ease-in-out infinite;}
+    .sip-hero-title{animation:sipFloatUp 0.9s ease-out 0.15s both, sipShine 5s linear infinite;}
+    .sip-hero-sub{animation:sipFloatUp 0.9s ease-out 0.32s both;}
+    .sip-hero-buttons{animation:sipFloatUp 0.9s ease-out 0.48s both;}
+    .sip-btn-primary{transition:transform 0.25s ease, box-shadow 0.25s ease;}
+    .sip-btn-primary:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 0 28px rgba(0,102,255,0.55);}
+    .sip-btn-secondary{transition:transform 0.25s ease, background 0.25s ease, border-color 0.25s ease;}
+    .sip-btn-secondary:hover{transform:translateY(-2px) scale(1.03);background:rgba(255,255,255,0.08);border-color:rgba(255,255,255,0.4);}
+  </style>
+</helmet>
+
+<div style="position:relative;min-height:100vh;overflow:hidden;background:#050505;">
+  <canvas ref="{{ coverCanvasRef }}" style="position:absolute;inset:0;width:100%;height:100%;display:block;"></canvas>
+  <div style="position:relative;z-index:2;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;padding:40px;text-align:center;">
+    <div class="sip-hero-badge" style="display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,0.06);border:1px solid rgba(120,150,255,0.35);backdrop-filter:blur(8px);color:rgba(220,230,255,0.85);font-size:12px;font-weight:700;letter-spacing:0.15em;padding:8px 18px;border-radius:999px;">SIP PLATFORM</div>
+    <div>
+      <div class="sip-hero-title" style="font-size:96px;font-weight:800;letter-spacing:0.08em;line-height:1;background:linear-gradient(90deg,#fff,#8fb4ff,#ff8fae,#fff);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;">SIP</div>
+      <div class="sip-hero-sub" style="margin-top:18px;font-size:19px;font-weight:600;color:#fff;">Sistema Inteligente de Projetos</div>
+      <div class="sip-hero-sub" style="margin-top:8px;font-size:14.5px;color:rgba(255,255,255,0.55);white-space:nowrap;">Transformando contratos, medições e análises de projetos em inteligência operacional.</div>
+    </div>
+    <div class="sip-hero-buttons" style="display:flex;align-items:center;gap:14px;">
+      <div sc-camel-on-click="{{ enter }}" class="sip-btn-primary" style="cursor:pointer;background:#0066ff;color:#fff;font-weight:700;font-size:14px;padding:14px 32px;border-radius:8px;box-shadow:0 0 20px rgba(0,102,255,0.4);">Entrar no Sistema</div>
+      <div sc-camel-on-click="{{ openSobre }}" class="sip-btn-secondary" style="cursor:pointer;background:transparent;color:#fff;font-weight:600;font-size:14px;padding:14px 32px;border-radius:8px;border:1px solid rgba(255,255,255,0.25);">Conhecer a Plataforma</div>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="">
+class Component extends DCLogic {
+  state = {
+    showSobre: false
+  };
+
+  coverCanvasRef = React.createRef();
+
+  initHero() {
+    const canvas = this.coverCanvasRef.current;
+    if (!canvas || this.heroInited) return;
+    this.heroInited = true;
+    const ctx = canvas.getContext('2d');
+    const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+    resize();
+    window.addEventListener('resize', resize);
+    this._heroResize = resize;
+
+    const isSmall = window.innerWidth < 700;
+    const nodes = [];
+    for (let i = 0; i < (isSmall ? 32 : 70); i++) {
+      nodes.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, vx: (Math.random() - 0.5) * 0.25, vy: (Math.random() - 0.5) * 0.25 });
+    }
+    const particles = [];
+    for (let i = 0; i < (isSmall ? 22 : 55); i++) {
+      particles.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, vx: (Math.random() - 0.5) * 0.15, vy: (Math.random() - 0.5) * 0.15, r: Math.random() * 1.6 + 0.6, hue: Math.random() < 0.5 ? 'rgba(0,102,255,' : 'rgba(255,45,85,' });
+    }
+    this.mouse = { x: canvas.width / 2, y: canvas.height / 2, active: false };
+    const onMove = (e) => { this.mouse.x = e.clientX; this.mouse.y = e.clientY; this.mouse.active = true; };
+    const onLeave = () => { this.mouse.active = false; };
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseleave', onLeave);
+    this._heroMove = onMove;
+    this._heroLeave = onLeave;
+
+    const draw = () => {
+      this.rafId = requestAnimationFrame(draw);
+      const w = canvas.width, h = canvas.height;
+      ctx.clearRect(0, 0, w, h);
+      ctx.fillStyle = '#050505';
+      ctx.fillRect(0, 0, w, h);
+
+      const t = Date.now() / 6000;
+      const b1x = w * 0.3 + Math.sin(t) * w * 0.15, b1y = h * 0.35 + Math.cos(t * 0.8) * h * 0.12;
+      const g1 = ctx.createRadialGradient(b1x, b1y, 0, b1x, b1y, w * 0.5);
+      g1.addColorStop(0, 'rgba(0,102,255,0.35)'); g1.addColorStop(1, 'rgba(0,102,255,0)');
+      ctx.fillStyle = g1; ctx.fillRect(0, 0, w, h);
+
+      const b2x = w * 0.7 + Math.cos(t * 0.7) * w * 0.15, b2y = h * 0.65 + Math.sin(t * 0.9) * h * 0.12;
+      const g2 = ctx.createRadialGradient(b2x, b2y, 0, b2x, b2y, w * 0.5);
+      g2.addColorStop(0, 'rgba(255,45,85,0.30)'); g2.addColorStop(1, 'rgba(255,45,85,0)');
+      ctx.fillStyle = g2; ctx.fillRect(0, 0, w, h);
+
+      if (this.mouse.active) {
+        const gm = ctx.createRadialGradient(this.mouse.x, this.mouse.y, 0, this.mouse.x, this.mouse.y, 260);
+        gm.addColorStop(0, 'rgba(120,140,255,0.18)'); gm.addColorStop(1, 'rgba(120,140,255,0)');
+        ctx.fillStyle = gm; ctx.fillRect(0, 0, w, h);
+      }
+
+      for (const n of nodes) {
+        n.x += n.vx; n.y += n.vy;
+        if (n.x < 0 || n.x > w) n.vx *= -1;
+        if (n.y < 0 || n.y > h) n.vy *= -1;
+      }
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const a = nodes[i], b = nodes[j];
+          const dx = a.x - b.x, dy = a.y - b.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 140) {
+            let alpha = (1 - dist / 140) * 0.25;
+            if (this.mouse.active) {
+              const mdA = Math.hypot(a.x - this.mouse.x, a.y - this.mouse.y);
+              const mdB = Math.hypot(b.x - this.mouse.x, b.y - this.mouse.y);
+              if (mdA < 220 || mdB < 220) alpha = Math.min(1, alpha + 0.5);
+            }
+            ctx.strokeStyle = 'rgba(140,170,255,' + alpha + ')';
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(a.x, a.y); ctx.lineTo(b.x, b.y); ctx.stroke();
+          }
+        }
+      }
+      for (const n of nodes) {
+        let r = 1.6, alpha = 0.5;
+        if (this.mouse.active) {
+          const d = Math.hypot(n.x - this.mouse.x, n.y - this.mouse.y);
+          if (d < 220) { const boost = 1 - d / 220; r = 1.6 + boost * 2.2; alpha = 0.5 + boost * 0.5; }
+        }
+        ctx.beginPath(); ctx.arc(n.x, n.y, r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(180,200,255,' + alpha + ')';
+        ctx.fill();
+      }
+
+      for (const p of particles) {
+        p.x += p.vx; p.y += p.vy;
+        if (p.x < 0) p.x = w; if (p.x > w) p.x = 0;
+        if (p.y < 0) p.y = h; if (p.y > h) p.y = 0;
+        ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = p.hue + '0.55)';
+        ctx.fill();
+      }
+    };
+    draw();
+  }
+
+  componentDidMount() {
+    this.initHero();
+  }
+
+  componentWillUnmount() {
+    if (this.rafId) cancelAnimationFrame(this.rafId);
+    if (this._heroResize) window.removeEventListener('resize', this._heroResize);
+    if (this._heroMove) window.removeEventListener('mousemove', this._heroMove);
+    if (this._heroLeave) window.removeEventListener('mouseleave', this._heroLeave);
+  }
+
+  enter() {
+    alert('Entrar no Sistema');
+  }
+
+  openSobre() {
+    alert('Conhecer a Plataforma');
+  }
+
+  renderVals() {
+    return {
+      coverCanvasRef: this.coverCanvasRef,
+      enter: () => this.enter(),
+      openSobre: () => this.openSobre(),
+    };
+  }
+}
+</script>
+</body>
+</html>
