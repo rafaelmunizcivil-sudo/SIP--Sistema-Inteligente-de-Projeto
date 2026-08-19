@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+    a{color:#2f6690;}
+    a:hover{color:#1f3a5f;}
+    ::-webkit-scrollbar{width:10px;height:10px;}
+    ::-webkit-scrollbar-thumb{background:#c4ccd6;border-radius:6px;}
+  </style>
+  <template id="__bundler_thumbnail">
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <rect width="200" height="200" fill="#1f3a5f"></rect>
+      <text x="100" y="112" font-size="54" font-weight="700" fill="#fff" text-anchor="middle" font-family="Arial, sans-serif">RL</text>
+    </svg>
+  </template>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script>
+    if (!window.__sipFirebaseApp) {
+      window.__sipFirebaseApp = firebase.initializeApp({
+        apiKey: "AIzaSyDNBXkzFJFAsOKefmBesSWmwRHgS0i7ACA",
+        authDomain: "sip-sistema-intelig-de-projeto.firebaseapp.com",
+        projectId: "sip-sistema-intelig-de-projeto",
+        storageBucket: "sip-sistema-intelig-de-projeto.firebasestorage.app",
+        messagingSenderId: "957059964424",
+        appId: "1:957059964424:web:30ba5c315b713c2c05bbbd"
+      });
+    }
+  </script>
+</helmet>
+
+<div style="display:flex;min-height:100vh;background:#eef1f4;color:#1f2933;">
+
+  <nav style="width:264px;flex:0 0 264px;background:{{ primaryColor }};display:flex;flex-direction:column;position:sticky;top:0;align-self:flex-start;height:100vh;overflow-y:auto;">
+    <div style="padding:20px 22px 18px;border-bottom:1px solid rgba(255,255,255,0.12);">
+      <div style="background:#fff;border-radius:8px;padding:8px 12px;display:inline-block;margin-bottom:14px;">
+        <img src="assets/logo-consol.png" alt="Consol Engenheiros Consultores" style="display:block;height:28px;width:auto;">
+      </div>
+      <div style="font-size:11px;letter-spacing:0.12em;color:rgba(255,255,255,0.55);text-transform:uppercase;margin-bottom:4px;">Rodovias BR-356/BR-262</div>
+      <div style="font-size:17px;font-weight:700;color:#fff;line-height:1.3;">Rota da Liberdade</div>
+    </div>
+    <div style="padding:14px 10px;display:flex;flex-direction:column;gap:2px;flex:1;">
+      <sc-for list="{{ navItems }}" as="item" hint-placeholder-count="8">
+        <div onClick="{{ item.select }}" style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:8px;cursor:pointer;background:{{ item.bg }};" style-hover="background:rgba(255,255,255,0.08);">
+          <div style="width:34px;height:34px;flex:0 0 34px;border-radius:8px;background:{{ item.iconBg }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;">{{ item.code }}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13.5px;font-weight:600;color:#fff;white-space:pre-line;line-height:1.25;">{{ item.label }}</div>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="padding:16px 22px;border-top:1px solid rgba(255,255,255,0.12);font-size:11px;color:rgba(255,255,255,0.45);">
+      Modelo estrutural · v1
+    </div>
+  </nav>
+
+  <main style="flex:1;min-width:0;padding:38px 48px 64px;">
+
+    <!-- ===================== VISÃO GERAL (em branco a pedido do usuário) ===================== -->
+    <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+      <div data-screen-label="Visão Geral">
+        <sc-if value="{{ onVoltarProjetos }}" hint-placeholder-val="{{ false }}">
+          <div onClick="{{ onVoltarProjetos }}" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#5b6774;margin-bottom:20px;">&larr; Voltar</div>
+        </sc-if>
+        <div style="margin-bottom:22px;">
+          <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;color:#2f6690;text-transform:uppercase;margin-bottom:6px;">Visão Geral do Projeto</div>
+          <h1 style="margin:0 0 8px;font-size:30px;color:#1f3a5f;font-weight:700;">Rota da Liberdade</h1>
+          <div style="font-size:13px;color:#5b6774;margin-bottom:12px;">Contrato Nº CRLSA 021/2026.GOP · Concessionária Rota da Liberdade · Duplicação rodoviária BR-356/MG-262 (Lote 07 do PER)</div>
+          <p style="margin:0;max-width:820px;font-size:14px;color:#5b6774;line-height:1.7;text-align:justify;">Termo de Referência para contratação de serviços técnicos de engenharia para elaboração do Projeto Executivo de duplicação da BR-356 (km 29,10 ao km 43,80) e implantação da 3ª faixa na MG-262, além de intervenções pontuais previstas para os Anos 1, 2 e 3 da concessão. O sistema rodoviário da concessão (BR-356/MG-262/MG-329) totaliza aproximadamente 187 km, atravessando 11 municípios de Minas Gerais.</p>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:30px;">
+          <sc-for list="{{ trKpis }}" as="k" hint-placeholder-count="5">
+            <div onClick="{{ k.onClick }}" style="background:#fff;border:1px solid #dde3ea;border-radius:10px;padding:16px 18px;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:88px;box-sizing:border-box;cursor:{{ k.clickable ? 'pointer' : 'default' }};">
+              <div style="font-size:10.5px;color:#8a94a3;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;line-height:1.3;">{{ k.label }}</div>
+              <div style="font-size:22px;font-weight:700;color:#1f3a5f;">{{ k.value }}</div>
+              <sc-if value="{{ k.hasSub }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:11.5px;color:#5b6774;margin-top:2px;">{{ k.sub }}</div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+
+        <div style="font-size:15px;font-weight:700;color:#1f3a5f;margin-bottom:14px;">Trechos do Projeto</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:30px;">
+          <div style="background:#fff;border:1px solid #dde3ea;border-radius:10px;padding:20px;">
+            <div style="font-size:14px;font-weight:700;color:#1f2933;margin-bottom:6px;">Duplicação BR-356</div>
+            <div style="font-size:12.5px;color:#5b6774;margin-bottom:10px;">Km 29,10 ao km 43,80 · 14,70 km</div>
+            <div style="font-size:12px;color:#b5541f;background:#fdf1e8;border:1px solid #f0dcc4;border-radius:8px;padding:8px 10px;line-height:1.5;">Subtrecho km 36,50–41,40: alinhamento obrigatório sobre o eixo do traçado antigo — não utilizar a atual configuração viária ("Variante").</div>
+          </div>
+          <div style="background:#fff;border:1px solid #dde3ea;border-radius:10px;padding:20px;">
+            <div style="font-size:14px;font-weight:700;color:#1f2933;margin-bottom:10px;">3ª Faixa — MG-262 (6,69 km)</div>
+            <div style="display:flex;flex-direction:column;gap:6px;">
+              <sc-for list="{{ trTrechosFaixa }}" as="t" hint-placeholder-count="3">
+                <div style="font-size:12.5px;color:#5b6774;display:flex;justify-content:space-between;border-bottom:1px solid #eef1f4;padding-bottom:5px;">
+                  <span>Km {{ t.kmIni }} – {{ t.kmFim }} ({{ t.lado }}) · {{ t.municipio }}</span><span style="font-weight:700;color:#1f2933;">{{ t.ext }} km</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+
+        <div style="font-size:15px;font-weight:700;color:#1f3a5f;margin-bottom:14px;">Disciplinas do Projeto (Termo de Referência)</div>
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:30px;">
+          <sc-for list="{{ trDisciplinas }}" as="d" hint-placeholder-count="11">
+            <div style="background:#fff;border:1px solid #dde3ea;border-radius:10px;padding:16px 18px;">
+              <div style="font-size:11px;font-weight:700;color:#2f6690;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px;">{{ d.codigo }}</div>
+              <div style="font-size:13.5px;font-weight:700;color:#1f2933;margin-bottom:6px;">{{ d.nome }}</div>
+              <div style="font-size:12px;color:#5b6774;line-height:1.5;">{{ d.desc }}</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <div onClick="{{ toggleIntervencoes }}" style="display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid #dde3ea;border-radius:10px;padding:16px 20px;cursor:pointer;margin-bottom:14px;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div style="font-size:15px;font-weight:700;color:#1f3a5f;">Intervenções Pontuais (Tabela 3 do TR)</div>
+            <div style="font-size:12px;color:#8a94a3;">{{ trIntervencoes.length }} intervenções cadastradas</div>
+          </div>
+          <div style="font-size:18px;color:#8a94a3;">{{ intervencoesChevron }}</div>
+        </div>
+        <sc-if value="{{ intervencoesOpen }}" hint-placeholder-val="{{ false }}">
+        <sc-if value="{{ hasFiltroAtivo }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+            <div style="font-size:12px;color:#2f6690;background:#eaf1f8;border:1px solid #cfe0ee;border-radius:20px;padding:5px 12px;">{{ filtroAtivoLabel }}</div>
+            <div onClick="{{ limparFiltro }}" style="font-size:12px;color:#8a94a3;cursor:pointer;text-decoration:underline;">ver todas</div>
+          </div>
+        </sc-if>
+        <div style="width:100%;box-sizing:border-box;background:#fff;border:1px solid #dde3ea;border-radius:10px;overflow-x:auto;margin-bottom:30px;">
+          <table style="width:100%;border-collapse:collapse;table-layout:fixed;font-size:12px;">
+            <tr>
+              <th style="width:17%;text-align:left;padding:10px 12px;background:#f4f6f8;color:#5b6774;font-weight:700;border-bottom:1px solid #dde3ea;">Tipo</th>
+              <th style="width:8%;text-align:left;padding:10px 12px;background:#f4f6f8;color:#5b6774;font-weight:700;border-bottom:1px solid #dde3ea;">Rodovia</th>
+              <th style="width:8%;text-align:left;padding:10px 12px;background:#f4f6f8;color:#5b6774;font-weight:700;border-bottom:1px solid #dde3ea;">Km Inicial</th>
+              <th style="width:8%;text-align:left;padding:10px 12px;background:#f4f6f8;color:#5b6774;font-weight:700;border-bottom:1px solid #dde3ea;">Km Final</th>
+              <th style="width:8%;text-align:left;padding:10px 12px;background:#f4f6f8;color:#5b6774;font-weight:700;border-bottom:1px solid #dde3ea;">Extensão</th>
+              <th style="width:8%;text-align:left;padding:10px 12px;background:#f4f6f8;color:#5b6774;font-weight:700;border-bottom:1px solid #dde3ea;">Lado</th>
+              <th style="width:29%;text-align:left;padding:10px 12px;background:#f4f6f8;color:#5b6774;font-weight:700;border-bottom:1px solid #dde3ea;">Observação</th>
+              <th style="width:14%;text-align:left;padding:10px 12px;background:#f4f6f8;color:#5b6774;font-weight:700;border-bottom:1px solid #dde3ea;">Status</th>
+            </tr>
+            <sc-for list="{{ trIntervencoes }}" as="isv" hint-placeholder-count="10">
+              <tr>
+                <td style="padding:8px 12px;border-bottom:1px solid #eef1f4;height:32px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#1f2933;" title="{{ isv.tipo }}">{{ isv.tipo }}</td>
+                <td style="padding:8px 12px;border-bottom:1px solid #eef1f4;height:32px;color:#5b6774;">{{ isv.rodovia }}</td>
+                <td style="padding:8px 12px;border-bottom:1px solid #eef1f4;height:32px;color:#5b6774;">{{ isv.kmIni }}</td>
+                <td style="padding:8px 12px;border-bottom:1px solid #eef1f4;height:32px;color:#5b6774;">{{ isv.kmFim }}</td>
+                <td style="padding:8px 12px;border-bottom:1px solid #eef1f4;height:32px;color:#5b6774;">{{ isv.ext }}</td>
+                <td style="padding:8px 12px;border-bottom:1px solid #eef1f4;height:32px;color:#5b6774;">{{ isv.lado }}</td>
+                <td style="padding:8px 12px;border-bottom:1px solid #eef1f4;height:32px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#5b6774;" title="{{ isv.obs }}">{{ isv.obs }}</td>
+                <td style="padding:5px 12px;border-bottom:1px solid #eef1f4;height:32px;"><select value="{{ isv.status }}" onChange="{{ isv.setStatus }}" style="font-size:10.5px;font-weight:600;padding:3px 6px;border-radius:6px;border:1px solid transparent;background:{{ isv.statusBg }};color:{{ isv.statusColor }};cursor:pointer;width:100%;"><option value="Não iniciado">Não iniciado</option><option value="Em estudo">Em estudo</option><option value="Desenvolvendo">Desenvolvendo</option><option value="Concluído">Concluído</option></select></td>
+              </tr>
+            </sc-for>
+          </table>
+        </div>
+        </sc-if>
+
+        <div style="margin-bottom:30px;">
+          <div style="font-size:18px;font-weight:700;color:#1f3a5f;margin-bottom:2px;">Linear de Intervenções — BR-356</div>
+          <div style="font-size:12.5px;color:#8a94a3;margin-bottom:4px;">Trecho: km 29+100 ao km 43+800 (Extensão total: 14,70 km)</div>
+          <div style="font-size:12px;color:#2f6690;font-weight:600;margin-bottom:16px;">Município de referência: Ouro Preto/Mariana (Lote 07, conforme TR)</div>
+
+          <div style="width:100%;box-sizing:border-box;background:#0f2942;border:1px solid #1f3a5f;border-radius:10px;padding:16px 12px;margin-bottom:16px;overflow-x:auto;display:flex;align-items:center;justify-content:center;min-height:220px;">
+            <div style="display:flex;align-items:center;min-width:1400px;height:140px;">
+              <sc-for list="{{ linBR356PrincipalTl }}" as="pt" hint-placeholder-count="16">
+                <div style="display:flex;flex-direction:column;align-items:center;min-width:85px;flex:0 0 auto;justify-content:center;height:100%;">
+                  <div style="font-size:10.5px;font-weight:700;color:#fff;text-align:center;line-height:1.3;max-width:95px;word-break:break-word;margin-bottom:10px;">{{ pt.nome }}</div>
+                  <div style="font-size:9.5px;color:#b5c4d4;margin-bottom:10px;">{{ pt.km }}</div>
+                  <div style="width:14px;height:14px;border-radius:50%;background:{{ pt.cor }};border:2px solid #fff;box-shadow:0 0 0 1px #0f2942;flex:0 0 14px;"></div>
+                </div>
+                <sc-if value="{{ pt.distToNext }}" hint-placeholder-val="{{ false }}">
+                  <div style="flex:0 0 35px;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;">
+                    <div style="width:100%;height:3px;background:#4f8fc0;margin-bottom:8px;"></div>
+                    <div style="font-size:9px;color:#b5c4d4;white-space:nowrap;">{{ pt.distToNext }} km</div>
+                  </div>
+                </sc-if>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="background:#fff;border:1px solid #dde3ea;border-radius:10px;overflow-x:auto;margin-bottom:20px;">
+            <table style="width:100%;border-collapse:collapse;table-layout:fixed;font-size:12px;min-width:900px;">
+              <tr>
+                <th style="width:5%;text-align:left;padding:10px 12px;background:#1f3a5f;color:#fff;font-weight:700;">ORD.</th>
+                <th style="width:8%;text-align:left;padding:10px 12px;background:#1f3a5f;color:#fff;font-weight:700;">KM</th>
+                <th style="width:24%;text-align:left;padding:10px 12px;background:#1f3a5f;color:#fff;font-weight:700;">INTERVENÇÃO</th>
+                <th style="width:13%;text-align:left;padding:10px 12px;background:#1f3a5f;color:#fff;font-weight:700;">TIPO</th>
+                <th style="width:10%;text-align:left;padding:10px 12px;background:#1f3a5f;color:#fff;font-weight:700;">DIST. ANT. (km)</th>
+                <th style="width:10%;text-align:left;padding:10px 12px;background:#1f3a5f;color:#fff;font-weight:700;">DIST. ACUM. (km)</th>
+                <th style="width:6%;text-align:left;padding:10px 12px;background:#1f3a5f;color:#fff;font-weight:700;">OBS.</th>
+                <th style="width:14%;text-align:left;padding:10px 12px;background:#1f3a5f;color:#fff;font-weight:700;">STATUS</th>
+              </tr>
+              <sc-for list="{{ linBR356Principal }}" as="rp" hint-placeholder-count="16">
+                <tr>
+                  <td style="padding:7px 12px;border-bottom:1px solid #eef1f4;height:30px;color:#5b6774;">{{ rp.ord }}</td>
+                  <td style="padding:7px 12px;border-bottom:1px solid #eef1f4;height:30px;color:#1f2933;font-weight:600;">{{ rp.km }}</td>
+                  <td style="padding:7px 12px;border-bottom:1px solid #eef1f4;height:30px;color:{{ rp.corHex }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:{{ rp.cor === '#e74c3c' ? '600' : '400' }};" title="{{ rp.nome }}">{{ rp.nome }}</td>
+                  <td style="padding:7px 12px;border-bottom:1px solid #eef1f4;height:30px;color:{{ rp.corHex }};font-weight:{{ rp.cor === '#e74c3c' ? '600' : '400' }};">{{ rp.tipo }}</td>
+                  <td style="padding:7px 12px;border-bottom:1px solid #eef1f4;height:30px;color:#5b6774;">{{ rp.distAnt }}</td>
+                  <td style="padding:7px 12px;border-bottom:1px solid #eef1f4;height:30px;color:#5b6774;">{{ rp.distAcum }}</td>
+                  <td style="padding:7px 12px;border-bottom:1px solid #eef1f4;height:30px;color:#5b6774;">—</td>
+                  <td style="padding:5px 8px;border-bottom:1px solid #eef1f4;height:30px;">
+                    <select value="{{ rp.status }}" onChange="{{ rp.setStatus }}" style="font-size:10.5px;font-weight:600;padding:3px 6px;border-radius:6px;border:1px solid transparent;background:{{ rp.statusBg }};color:{{ rp.statusColor }};cursor:pointer;width:100%;">
+                      <option value="Não iniciado">Não iniciado</option>
+                      <option value="Em estudo">Em estudo</option>
+                      <option value="Desenvolvendo">Desenvolvendo</option>
+                      <option value="Concluído">Concluído</option>
+                    </select>
+                  </td>
+                </tr>
+              </sc-for>
+            </table>
+          </div>
+
+          <div style="background:#fff;border:1px solid #f0d0cc;border-radius:10px;padding:20px;margin-bottom:20px;display:grid;grid-template-columns:140px 1fr;gap:24px;align-items:center;">
+            <div style="width:140px;height:140px;border-radius:50%;background:{{ obrasDestaqueBR356.gradient }};flex:0 0 140px;"></div>
+            <div>
+              <div style="font-size:14px;font-weight:700;color:#c0392b;margin-bottom:2px;">Obras em Destaque</div>
+              <div style="font-size:11.5px;color:#8a94a3;margin-bottom:12px;">Intervenções críticas em destaque no linear da BR-356</div>
+              <div style="display:flex;flex-direction:column;gap:8px;">
+                <sc-for list="{{ obrasDestaqueBR356.legend }}" as="od" hint-placeholder-count="6">
+                  <div style="display:flex;align-items:center;gap:10px;">
+                    <div style="width:11px;height:11px;border-radius:50%;background:{{ od.color }};flex:0 0 11px;"></div>
+                    <div style="font-size:12.5px;color:#1f2933;font-weight:600;flex:1;">{{ od.nome }} <span style="color:#8a94a3;font-weight:500;">— km {{ od.km }}</span></div>
+                    <div style="font-size:12px;font-weight:700;color:#c0392b;">{{ od.pct }}%</div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+
+        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:30px;">
+          <sc-for list="{{ trCategoriasBR356 }}" as="cat" hint-placeholder-count="6">
+            <div style="background:#fff;border:1px solid {{ cat.corBorda }};border-radius:10px;padding:16px;">
+              <div style="font-size:12px;font-weight:700;color:{{ cat.cor }};margin-bottom:2px;">{{ cat.numero }} {{ cat.titulo }}</div>
+              <div style="font-size:10.5px;color:#8a94a3;margin-bottom:10px;">{{ cat.municipio }}</div>
+              <table style="width:100%;border-collapse:collapse;font-size:11px;">
+                <tr>
+                  <th style="text-align:left;padding:5px 6px;background:#f4f6f8;color:#5b6774;">KM INI.</th>
+                  <th style="text-align:left;padding:5px 6px;background:#f4f6f8;color:#5b6774;">KM FIM</th>
+                  <th style="text-align:left;padding:5px 6px;background:#f4f6f8;color:#5b6774;">EXT.</th>
+                  <th style="text-align:left;padding:5px 6px;background:#f4f6f8;color:#5b6774;">LADO</th>
+                  <th style="text-align:left;padding:5px 6px;background:#f4f6f8;color:#5b6774;">OBS.</th>
+                  <th style="text-align:left;padding:5px 6px;background:#f4f6f8;color:#5b6774;">STATUS</th>
+                </tr>
+                <sc-for list="{{ cat.rows }}" as="r" hint-placeholder-count="4">
+                  <tr>
+                    <td style="padding:5px 6px;border-bottom:1px solid #eef1f4;color:#1f2933;font-weight:600;">{{ r.kmIni }}</td>
+                    <td style="padding:5px 6px;border-bottom:1px solid #eef1f4;color:#5b6774;">{{ r.kmFim }}</td>
+                    <td style="padding:5px 6px;border-bottom:1px solid #eef1f4;color:#5b6774;">{{ r.ext }}</td>
+                    <td style="padding:5px 6px;border-bottom:1px solid #eef1f4;color:#5b6774;">{{ r.lado }}</td>
+                    <td style="padding:5px 6px;border-bottom:1px solid #eef1f4;color:#5b6774;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px;" title="{{ r.obs }}">{{ r.obs }}</td>
+                    <td style="padding:4px 6px;border-bottom:1px solid #eef1f4;"><select value="{{ r.status }}" onChange="{{ r.setStatus }}" style="font-size:10px;font-weight:600;padding:2px 4px;border-radius:6px;border:1px solid transparent;background:{{ r.statusBg }};color:{{ r.statusColor }};cursor:pointer;"><option value="Não iniciado">Não iniciado</option><option value="Em estudo">Em estudo</option><option value="Desenvolvendo">Desenvolvendo</option><option value="Concluído">Concluído</option></select></td>
+                  </tr>
+                </sc-for>
+              </table>
+            </div>
+          </sc-for>
+        </div>
+
+          <div style="font-size:18px;font-weight:700;color:#1f3a5f;margin-bottom:2px;">Linear de Intervenções — MG-262</div>
+          <div style="font-size:12.5px;color:#8a94a3;margin-bottom:4px;">Intervenções previstas ao longo do segmento da MG-262 (posteriores ao km 43+800)</div>
+          <div style="font-size:12px;color:#2f6690;font-weight:600;margin-bottom:16px;">Município de referência: Mariana (conforme Tabela 2 do TR)</div>
+
+          <div style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:10px;">
+            <sc-for list="{{ mg262Legend }}" as="lg" hint-placeholder-count="6">
+              <div style="display:flex;align-items:center;gap:6px;">
+                <div style="width:10px;height:10px;border-radius:50%;background:{{ lg.cor }};flex:0 0 10px;"></div>
+                <div style="font-size:11px;color:#5b6774;font-weight:600;">{{ lg.label }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="width:100%;box-sizing:border-box;background:#0f2942;border:1px solid #1f3a5f;border-radius:10px;padding:16px 12px;margin-bottom:20px;overflow-x:auto;display:flex;align-items:center;justify-content:center;min-height:220px;">
+            <div style="display:flex;align-items:center;min-width:5000px;height:140px;">
+              <sc-for list="{{ linMG262Unificado }}" as="mu" hint-placeholder-count="29">
+                <div style="display:flex;flex-direction:column;align-items:center;min-width:130px;flex:0 0 auto;justify-content:center;height:100%;padding:0 8px;">
+                  <div style="font-size:10.5px;font-weight:700;color:#fff;text-align:center;line-height:1.3;max-width:130px;word-wrap:break-word;margin-bottom:10px;" title="{{ mu.nome }}">{{ mu.nome }}</div>
+                  <div style="font-size:9.5px;color:#b5c4d4;margin-bottom:10px;">{{ mu.kmLabel }}</div>
+                  <div style="width:14px;height:14px;border-radius:50%;background:{{ mu.cor }};border:2px solid #fff;box-shadow:0 0 0 1px #0f2942;flex:0 0 14px;"></div>
+                </div>
+                <sc-if value="{{ mu.distToNext }}" hint-placeholder-val="{{ false }}">
+                  <div style="flex:0 0 35px;display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;">
+                    <div style="width:100%;height:3px;background:#4f8fc0;margin-bottom:8px;"></div>
+                    <div style="font-size:9px;color:#b5c4d4;white-space:nowrap;">{{ mu.distToNext }} km</div>
+                  </div>
+                </sc-if>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:30px;">
+          <sc-for list="{{ trCategoriasMG262 }}" as="cat" hint-placeholder-count="6">
+            <div style="background:#fff;border:1px solid {{ cat.corBorda }};border-radius:10px;padding:16px;">
+              <div style="font-size:12px;font-weight:700;color:{{ cat.cor }};margin-bottom:2px;">{{ cat.numero }} {{ cat.titulo }}</div>
+              <div style="font-size:10.5px;color:#8a94a3;margin-bottom:10px;">{{ cat.municipio }}</div>
+              <table style="width:100%;border-collapse:collapse;font-size:11px;">
+                <tr>
+                  <th style="text-align:left;padding:5px 6px;background:#f4f6f8;color:#5b6774;">KM INI.</th>
+                  <th style="text-align:left;padding:5px 6px;background:#f4f6f8;color:#5b6774;">KM FIM</th>
+                  <th style="text-align:left;padding:5px 6px;background:#f4f6f8;color:#5b6774;">EXT.</th>
+                  <th style="text-align:left;padding:5px 6px;background:#f4f6f8;color:#5b6774;">LADO</th>
+                  <th style="text-align:left;padding:5px 6px;background:#f4f6f8;color:#5b6774;">OBS.</th>
+                  <th style="text-align:left;padding:5px 6px;background:#f4f6f8;color:#5b6774;">STATUS</th>
+                </tr>
+                <sc-for list="{{ cat.rows }}" as="r" hint-placeholder-count="4">
+                  <tr>
+                    <td style="padding:5px 6px;border-bottom:1px solid #eef1f4;color:#1f2933;font-weight:600;">{{ r.kmIni }}</td>
+                    <td style="padding:5px 6px;border-bottom:1px solid #eef1f4;color:#5b6774;">{{ r.kmFim }}</td>
+                    <td style="padding:5px 6px;border-bottom:1px solid #eef1f4;color:#5b6774;">{{ r.ext }}</td>
+                    <td style="padding:5px 6px;border-bottom:1px solid #eef1f4;color:#5b6774;">{{ r.lado }}</td>
+                    <td style="padding:5px 6px;border-bottom:1px solid #eef1f4;color:#5b6774;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px;" title="{{ r.obs }}">{{ r.obs }}</td>
+                    <td style="padding:4px 6px;border-bottom:1px solid #eef1f4;"><select value="{{ r.status }}" onChange="{{ r.setStatus }}" style="font-size:10px;font-weight:600;padding:2px 4px;border-radius:6px;border:1px solid transparent;background:{{ r.statusBg }};color:{{ r.statusColor }};cursor:pointer;"><option value="Não iniciado">Não iniciado</option><option value="Em estudo">Em estudo</option><option value="Desenvolvendo">Desenvolvendo</option><option value="Concluído">Concluído</option></select></td>
+                  </tr>
+                </sc-for>
+              </table>
+            </div>
+          </sc-for>
+        </div>
+
+          <div style="font-size:11px;color:#8a94a3;margin-bottom:30px;">As estacas referem-se ao quilômetro da rodovia (estaca quilométrica). Intervenções da MG-262 distribuídas posteriormente ao km 43+800 da BR-356.</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div style="background:#fff;border:1px solid #dde3ea;border-radius:10px;padding:20px;">
+            <div style="font-size:14px;font-weight:700;color:#1f2933;margin-bottom:12px;">Documentos</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #eef1f4;">
+                <span style="font-size:12.5px;color:#1f2933;">Termo de Referência (CRLSA 021/2026.GOP, Rev.3)</span>
+                <span style="font-size:11px;font-weight:700;color:#2f8f4f;background:#eef8f0;border-radius:10px;padding:2px 9px;">Recebido</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #eef1f4;">
+                <span style="font-size:12.5px;color:#5b6774;">Contrato de Concessão e PER (Anexo 2)</span>
+                <span style="font-size:11px;font-weight:700;color:#8a94a3;background:#f4f6f8;border-radius:10px;padding:2px 9px;">Aguardando</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;">
+                <span style="font-size:12.5px;color:#5b6774;">Projeto Funcional existente</span>
+                <span style="font-size:11px;font-weight:700;color:#8a94a3;background:#f4f6f8;border-radius:10px;padding:2px 9px;">Aguardando</span>
+              </div>
+            </div>
+          </div>
+          <div style="background:#fff;border:1px solid #dde3ea;border-radius:10px;padding:20px;">
+            <div style="font-size:14px;font-weight:700;color:#1f2933;margin-bottom:12px;">Prazos e Relatórios (conforme TR)</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div style="font-size:12.5px;color:#5b6774;display:flex;justify-content:space-between;border-bottom:1px solid #eef1f4;padding-bottom:6px;"><span>Reapresentação do Projeto Funcional</span><span style="font-weight:700;color:#1f2933;">30 dias corridos da assinatura</span></div>
+              <div style="font-size:12.5px;color:#5b6774;display:flex;justify-content:space-between;border-bottom:1px solid #eef1f4;padding-bottom:6px;"><span>Elaboração do Projeto Executivo</span><span style="font-weight:700;color:#1f2933;">90 dias após aprovação do Funcional</span></div>
+              <div style="font-size:12.5px;color:#5b6774;display:flex;justify-content:space-between;border-bottom:1px solid #eef1f4;padding-bottom:6px;"><span>Boletim de Medição + relatório fotográfico</span><span style="font-weight:700;color:#1f2933;">Até o dia 5 do mês seguinte</span></div>
+              <div style="font-size:12.5px;color:#5b6774;display:flex;justify-content:space-between;"><span>Pagamento após aprovação da NF</span><span style="font-weight:700;color:#1f2933;">Até 21 dias</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ===================== ANÁLISE ===================== -->
+    <sc-if value="{{ isAnalise }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Análise">
+        <div style="margin-bottom:24px;">
+          <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;color:#2f6690;text-transform:uppercase;margin-bottom:6px;">Análise</div>
+          <h1 style="margin:0 0 8px;font-size:28px;color:#1f3a5f;font-weight:700;">Análise por Disciplina</h1>
+          <p style="margin:0;font-size:14px;color:#5b6774;max-width:680px;line-height:1.6;">
+            Pareceres e pendências recebidos dos órgãos para cada matéria técnica do projeto.
+          </p>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <sc-for list="{{ disciplinas }}" as="disc" hint-placeholder-count="7">
+            <div style="background:#fff;border:1px solid #dde3ea;border-radius:10px;overflow:hidden;">
+              <div onClick="{{ disc.toggle }}" style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;cursor:pointer;gap:12px;">
+                <div style="display:flex;align-items:center;gap:12px;">
+                  <div style="width:34px;height:34px;flex:0 0 34px;border-radius:8px;background:{{ disc.iconBg }};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12.5px;">{{ disc.code }}</div>
+                  <div style="font-size:15.5px;font-weight:700;color:#1f2933;">{{ disc.label }}</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:14px;">
+                  <div onClick="{{ disc.gerarRelatorio }}" style="font-size:12px;font-weight:700;color:#1f3a5f;background:#eef1f4;border:1px solid #dde3ea;padding:8px 14px;border-radius:8px;cursor:pointer;">Gerar Relatório</div>
+                  <div style="font-size:18px;color:#8a94a3;">{{ disc.chevron }}</div>
+                </div>
+              </div>
+              <sc-if value="{{ disc.isOpen }}" hint-placeholder-val="{{ false }}">
+                <div style="padding:0 20px 20px;border-top:1px solid #eef1f4;">
+                  <div style="margin-top:16px;padding:20px;background:#f8f9fb;border:1.5px dashed #c9d2db;border-radius:10px;text-align:center;">
+                    <div style="font-size:12.5px;font-weight:600;color:#8a94a3;">Nenhuma análise cadastrada ainda para esta disciplina.</div>
+                  </div>
+                </div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ===================== LINHA DO TEMPO ===================== -->
+    <sc-if value="{{ isLinhaTempo }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Linha do Tempo">
+        <div style="margin-bottom:24px;">
+          <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;color:#2f6690;text-transform:uppercase;margin-bottom:6px;">Linha do Tempo</div>
+          <h1 style="margin:0;font-size:28px;color:#1f3a5f;font-weight:700;">Linha do Tempo do Projeto</h1>
+        </div>
+        <div style="padding:40px;background:#fff;border:1.5px dashed #c9d2db;border-radius:10px;text-align:center;">
+          <div style="font-size:12.5px;font-weight:600;color:#8a94a3;">Nenhum evento cadastrado ainda.</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ===================== CORRESPONDÊNCIAS/COMUNICAÇÕES ===================== -->
+    <sc-if value="{{ isCorrespondencias }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Correspondências/Comunicações">
+        <div style="margin-bottom:24px;">
+          <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;color:#2f6690;text-transform:uppercase;margin-bottom:6px;">Correspondências/Comunicações</div>
+          <h1 style="margin:0;font-size:28px;color:#1f3a5f;font-weight:700;">Correspondências e Comunicações</h1>
+        </div>
+        <div style="padding:40px;background:#fff;border:1.5px dashed #c9d2db;border-radius:10px;text-align:center;">
+          <div style="font-size:12.5px;font-weight:600;color:#8a94a3;">Nenhuma correspondência cadastrada ainda.</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ===================== CONSULTAS ===================== -->
+    <sc-if value="{{ isConsultas }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Consultas">
+        <div style="margin-bottom:24px;">
+          <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;color:#2f6690;text-transform:uppercase;margin-bottom:6px;">Consultas</div>
+          <h1 style="margin:0;font-size:28px;color:#1f3a5f;font-weight:700;">Consultas</h1>
+        </div>
+        <div style="padding:40px;background:#fff;border:1.5px dashed #c9d2db;border-radius:10px;text-align:center;">
+          <div style="font-size:12.5px;font-weight:600;color:#8a94a3;">Nenhuma consulta cadastrada ainda.</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <!-- ===================== MEDIÇÃO ===================== -->
+    <sc-if value="{{ isMedicao }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Medição">
+        <div style="margin-bottom:24px;">
+          <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;color:#2f6690;text-transform:uppercase;margin-bottom:6px;">Medição</div>
+          <h1 style="margin:0;font-size:28px;color:#1f3a5f;font-weight:700;">Medição</h1>
+        </div>
+        <sc-if value="{{ medicaoLocked }}" hint-placeholder-val="{{ true }}">
+          <div style="max-width:360px;background:#fff;border:1px solid #dde3ea;border-radius:10px;padding:24px;">
+            <div style="font-size:13px;font-weight:700;color:#1f2933;margin-bottom:10px;">Área restrita</div>
+            <input type="password" value="{{ medicaoPasswordDraft }}" onChange="{{ onMedicaoPasswordChange }}" placeholder="Senha" style="width:100%;box-sizing:border-box;font-size:13px;padding:9px 12px;border:1px solid #dde3ea;border-radius:8px;margin-bottom:10px;">
+            <sc-if value="{{ medicaoPasswordError }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:11.5px;color:#c0392b;margin-bottom:10px;">Senha incorreta.</div>
+            </sc-if>
+            <div onClick="{{ onMedicaoPasswordSubmit }}" style="font-size:12.5px;font-weight:700;color:#fff;background:{{ primaryColor }};padding:9px 18px;border-radius:8px;cursor:pointer;width:fit-content;">Entrar</div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ medicaoUnlocked }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:40px;background:#fff;border:1.5px dashed #c9d2db;border-radius:10px;text-align:center;">
+            <div style="font-size:12.5px;font-weight:600;color:#8a94a3;">Itens de medição ainda não cadastrados para este projeto.</div>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <!-- ===================== CONTROLE DE TERCEIROS ===================== -->
+    <sc-if value="{{ isControleTerceiros }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Controle de Terceiros">
+        <div style="margin-bottom:24px;">
+          <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;color:#2f6690;text-transform:uppercase;margin-bottom:6px;">Controle de Terceiros</div>
+          <h1 style="margin:0;font-size:28px;color:#1f3a5f;font-weight:700;">Controle de Terceiros</h1>
+        </div>
+        <sc-if value="{{ terceirosLocked }}" hint-placeholder-val="{{ true }}">
+          <div style="max-width:360px;background:#fff;border:1px solid #dde3ea;border-radius:10px;padding:24px;">
+            <div style="font-size:13px;font-weight:700;color:#1f2933;margin-bottom:10px;">Área restrita</div>
+            <input type="password" value="{{ terceirosPasswordDraft }}" onChange="{{ onTerceirosPasswordChange }}" placeholder="Senha" style="width:100%;box-sizing:border-box;font-size:13px;padding:9px 12px;border:1px solid #dde3ea;border-radius:8px;margin-bottom:10px;">
+            <sc-if value="{{ terceirosPasswordError }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:11.5px;color:#c0392b;margin-bottom:10px;">Senha incorreta.</div>
+            </sc-if>
+            <div onClick="{{ onTerceirosPasswordSubmit }}" style="font-size:12.5px;font-weight:700;color:#fff;background:{{ primaryColor }};padding:9px 18px;border-radius:8px;cursor:pointer;width:fit-content;">Entrar</div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ terceirosUnlocked }}" hint-placeholder-val="{{ false }}">
+          <div style="padding:40px;background:#fff;border:1.5px dashed #c9d2db;border-radius:10px;text-align:center;">
+            <div style="font-size:12.5px;font-weight:600;color:#8a94a3;">Nenhum item de terceiros cadastrado ainda para este projeto.</div>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <!-- ===================== REUNIÃO EXTERNA ===================== -->
+    <sc-if value="{{ isReuniaoExterna }}" hint-placeholder-val="{{ false }}">
+      <div data-screen-label="Reunião Externa">
+        <div style="margin-bottom:24px;">
+          <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;color:#2f6690;text-transform:uppercase;margin-bottom:6px;">Reunião Externa</div>
+          <h1 style="margin:0;font-size:28px;color:#1f3a5f;font-weight:700;">Reunião Externa</h1>
+        </div>
+        <sc-if value="{{ reuniaoLocked }}" hint-placeholder-val="{{ true }}">
+          <div style="max-width:360px;background:#fff;border:1px solid #dde3ea;border-radius:10px;padding:24px;">
+            <div style="font-size:13px;font-weight:700;color:#1f2933;margin-bottom:10px;">Área restrita</div>
+            <input type="password" value="{{ reuniaoPasswordDraft }}" onChange="{{ onReuniaoPasswordChange }}" placeholder="Senha" style="width:100%;box-sizing:border-box;font-size:13px;padding:9px 12px;border:1px solid #dde3ea;border-radius:8px;margin-bottom:10px;">
+            <sc-if value="{{ reuniaoPasswordError }}" hint-placeholder-val="{{ false }}">
+              <div style="font-size:11.5px;color:#c0392b;margin-bottom:10px;">Senha incorreta.</div>
+            </sc-if>
+            <div onClick="{{ onReuniaoPasswordSubmit }}" style="font-size:12.5px;font-weight:700;color:#fff;background:{{ primaryColor }};padding:9px 18px;border-radius:8px;cursor:pointer;width:fit-content;">Entrar</div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ reuniaoUnlocked }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;">
+            <sc-for list="{{ disciplinas }}" as="disc" hint-placeholder-count="7">
+              <div style="font-size:12.5px;font-weight:600;padding:8px 14px;border-radius:20px;background:#fff;border:1px solid #dde3ea;color:#5b6774;">{{ disc.label }}</div>
+            </sc-for>
+          </div>
+          <div style="padding:40px;background:#fff;border:1.5px dashed #c9d2db;border-radius:10px;text-align:center;">
+            <div style="font-size:12.5px;font-weight:600;color:#8a94a3;">Nenhuma análise cadastrada ainda para este projeto.</div>
+          </div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+  </main>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;primaryColor&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#1f3a5f&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  PROJETO = 'rota-liberdade';
+  medicaoSenha = 'consol2026';
+
+  state = {
+    active: 'home',
+    expanded: {},
+    intervencoesOpen: false,
+    kpiFiltro: null,
+    statusMap: {},
+    medicaoPasswordDraft: '', medicaoPasswordError: false, medicaoUnlocked: false,
+    terceirosPasswordDraft: '', terceirosPasswordError: false, terceirosUnlocked: false,
+    reuniaoPasswordDraft: '', reuniaoPasswordError: false, reuniaoUnlocked: false,
+  };
+
+  // Mesma ordem/estrutura de disciplinas usada nos demais projetos (padrão replicado). Nenhuma tem dados ainda.
+  materiaMeta = [
+    { key: 'tracado', code: 'ET', label: 'Estudo de\nTraçado', desc: 'Estudo das alternativas de traçado e escolha da concepção geométrica preliminar.' },
+    { key: 'trafego', code: 'TR', label: 'Estudo de\nTráfego', desc: 'Levantamento e projeção de volumes de tráfego (VMD, classificação veicular).' },
+    { key: 'geologico', code: 'GL', label: 'Estudo\nGeológico', desc: 'Caracterização geológica do trecho e das áreas de interesse.' },
+    { key: 'geot-pav', code: 'GP', label: 'Estudo Geotécnico Pavimentação\ne Proj. Pavimentação', desc: 'Sondagens e dimensionamento da estrutura do pavimento.' },
+    { key: 'geot-terra', code: 'GT', label: 'Estudos Geotécnicos\npara Terraplenagem', desc: 'Investigação geotécnica para cortes, aterros e taludes.' },
+    { key: 'hidrologia', code: 'EH', label: 'Estudos\nHidrológicos', desc: 'Estudos hidrológicos ao longo do traçado.' },
+    { key: 'topografico', code: 'TO', label: 'Estudos\nTopográficos', desc: 'Levantamento planialtimétrico do trecho.' },
+    { key: 'bueiros', code: 'FB', label: 'Fundação\nde Bueiros', desc: 'Dimensionamento das fundações das obras de drenagem transversal.' },
+    { key: 'orcamento', code: 'OR', label: 'Orçamento', desc: 'Composição de custos e orçamento da obra.' },
+    { key: 'sondagem', code: 'PS', label: 'Programação\nde Sondagem', desc: 'Planejamento das campanhas de sondagem geotécnica.' },
+    { key: 'desapropriacao', code: 'DE', label: 'Projeto de\nDesapropriação', desc: 'Levantamento cadastral e processo indenizatório.' },
+    { key: 'drenagem', code: 'DR', label: 'Projeto de\nDrenagem', desc: 'Drenagem superficial e profunda ao longo do traçado.' },
+    { key: 'sinalizacao', code: 'SV', label: 'Projeto de\nSinalização', desc: 'Sinalização horizontal, vertical e dispositivos de segurança.' },
+    { key: 'geometrico', code: 'PG', label: 'Projeto\nGeométrico', desc: 'Traçado em planta, perfil longitudinal e seções transversais definitivos.' },
+    { key: 'oae', code: 'OA', label: 'Projeto\nOAE', desc: 'Obras de arte especiais (pontes e viadutos).' },
+    { key: 'obras', code: 'OC', label: 'Projeto Obras\nComplementares', desc: 'Contenções e demais obras complementares.' },
+    { key: 'terraplenagem', code: 'TE', label: 'Projeto\nTerraplenagem', desc: 'Volumes de corte, aterro e distribuição de materiais.' },
+    { key: 'ambiental', code: 'RA', label: 'Relatório\nAmbiental', desc: 'Diagnóstico e condicionantes ambientais do empreendimento.' },
+  ];
+
+  // Dados reais extraídos do Termo de Referência CRLSA 021/2026.GOP Rev.3 (Tabela 3 — Lista de Intervenções
+  // para os Anos 1, 2 e 3). Nunca inventar/estimar campos vazios na tabela original ("-" mantido como "—").
+  trDisciplinas = [
+    { codigo: '3.1', nome: 'Projeto Geométrico', desc: 'Diretrizes de traçado, projeto horizontal/vertical, seções tipo e modelagem do corredor.' },
+    { codigo: '3.2', nome: 'Projeto de Terraplenagem', desc: 'Cálculo de volumes, distribuição de massas, taludes e classificação de materiais.' },
+    { codigo: '3.3', nome: 'Projeto de Pavimentação', desc: 'Dimensionamento do pavimento da pista nova e especificação de misturas asfálticas.' },
+    { codigo: '3.4', nome: 'Projeto de Drenagem', desc: 'Estudos hidrológicos, drenagem superficial, transversal (OAC) e profunda.' },
+    { codigo: '3.5', nome: 'Projeto de Sinalização', desc: 'Sinalização horizontal, vertical e dispositivos auxiliares de segurança viária.' },
+    { codigo: '3.6', nome: 'Obras Complementares', desc: 'Cercas, paradas de ônibus, acessibilidade, paisagismo e cadastro de interferências.' },
+    { codigo: '3.7', nome: 'Obras de Arte Especiais', desc: 'Pontes, viadutos e passarelas — concepção, projeto estrutural e elementos complementares.' },
+    { codigo: '3.8', nome: 'Projeto de Iluminação', desc: 'Estudos luminotécnicos, travessias urbanas, pontos de ônibus e infraestrutura elétrica.' },
+    { codigo: '3.9', nome: 'Projeto de Interferências', desc: 'Mapeamento, cadastro e remanejamento de redes de serviços públicos.' },
+    { codigo: '3.10', nome: 'Passarelas de Pedestres', desc: 'Projeto estrutural, fundações e detalhamento das passarelas previstas.' },
+    { codigo: '3.11', nome: 'Orçamento', desc: 'Quantitativos, composições de preços, encargos/BDI e cronograma físico-financeiro.' },
+  ];
+
+  trTrechosFaixa = [
+    { kmIni: '61,605', kmFim: '62,958', lado: 'Esquerdo', ext: '1,35', municipio: 'Mariana' },
+    { kmIni: '66,700', kmFim: '70,370', lado: 'Direito', ext: '3,67', municipio: 'Mariana' },
+    { kmIni: '70,630', kmFim: '72,300', lado: 'Esquerdo', ext: '1,67', municipio: 'Mariana' },
+  ];
+
+  trIntervencoes = [
+    { tipo: 'Implantação de acostamento', rodovia: 'MG-262', kmIni: '62,958', kmFim: '66,70', ext: '3,74 km', lado: 'Ambos', obs: 'Largura de 2,5m' },
+    { tipo: 'Implantação de acostamento', rodovia: 'MG-262', kmIni: '70,370', kmFim: '70,63', ext: '0,26 km', lado: '—', obs: '—' },
+    { tipo: 'Implantação de acostamento', rodovia: 'MG-262', kmIni: '72,300', kmFim: '72,70', ext: '0,40 km', lado: '—', obs: '—' },
+    { tipo: 'Interseção em nível — Rótula alongada', rodovia: 'BR-356', kmIni: '32,800', kmFim: '—', ext: '—', lado: '—', obs: '—' },
+    { tipo: 'Interseção em nível — Rótula alongada', rodovia: 'BR-356', kmIni: '42,500', kmFim: '—', ext: '—', lado: '—', obs: '—' },
+    { tipo: 'Interseção em nível — Rótula alongada', rodovia: 'MG-262', kmIni: '58,400', kmFim: '—', ext: '—', lado: '—', obs: '—' },
+    { tipo: 'Interseção em nível — Rótula alongada', rodovia: 'MG-262', kmIni: '66,000', kmFim: '—', ext: '—', lado: '—', obs: '—' },
+    { tipo: 'Interseção em nível — Rótula alongada', rodovia: 'MG-262', kmIni: '72,300', kmFim: '—', ext: '—', lado: '—', obs: '—' },
+    { tipo: 'Passarela', rodovia: 'BR-356', kmIni: '29,450', kmFim: '—', ext: '—', lado: '—', obs: '—' },
+    { tipo: 'Ponto de ônibus', rodovia: 'BR-356', kmIni: '28,400', kmFim: '—', ext: '—', lado: 'Direito', obs: 'Implantação' },
+    { tipo: 'Ponto de ônibus', rodovia: 'BR-356', kmIni: '28,380', kmFim: '—', ext: '—', lado: 'Esquerdo', obs: 'Implantação' },
+    { tipo: 'Ponto de ônibus', rodovia: 'BR-356', kmIni: '29,448', kmFim: '—', ext: '—', lado: 'Direito', obs: 'Implantação' },
+    { tipo: 'Ponto de ônibus', rodovia: 'BR-356', kmIni: '29,448', kmFim: '—', ext: '—', lado: 'Esquerdo', obs: 'Implantação' },
+    { tipo: 'Ponto de ônibus', rodovia: 'BR-356', kmIni: '31,835', kmFim: '—', ext: '—', lado: 'Direito', obs: 'Implantação' },
+    { tipo: 'Ponto de ônibus', rodovia: 'BR-356', kmIni: '31,835', kmFim: '—', ext: '—', lado: 'Direito', obs: 'Reforma' },
+    { tipo: 'Ponto de ônibus', rodovia: 'BR-356', kmIni: '35,211', kmFim: '—', ext: '—', lado: 'Direito', obs: 'Reforma' },
+    { tipo: 'Ponto de ônibus', rodovia: 'BR-356', kmIni: '35,183', kmFim: '—', ext: '—', lado: 'Esquerdo', obs: 'Reforma' },
+    { tipo: 'Ponto de ônibus', rodovia: 'BR-356', kmIni: '40,313', kmFim: '—', ext: '—', lado: 'Esquerdo', obs: 'Implantação' },
+    { tipo: 'Ponto de ônibus', rodovia: 'BR-356', kmIni: '40,484', kmFim: '—', ext: '—', lado: 'Esquerdo', obs: 'Implantação' },
+    { tipo: 'Ponto de ônibus', rodovia: 'BR-356', kmIni: '42,244', kmFim: '—', ext: '—', lado: 'Direito', obs: 'Reforma' },
+    { tipo: 'Ponto de ônibus', rodovia: 'BR-356', kmIni: '42,244', kmFim: '—', ext: '—', lado: 'Esquerdo', obs: 'Reforma' },
+    { tipo: 'Ponto de ônibus', rodovia: 'MG-262', kmIni: '58,724', kmFim: '—', ext: '—', lado: 'Direito', obs: 'Implantação' },
+    { tipo: 'Ponto de ônibus', rodovia: 'MG-262', kmIni: '58,724', kmFim: '—', ext: '—', lado: 'Esquerdo', obs: 'Implantação' },
+    { tipo: 'Ponto de ônibus', rodovia: 'MG-262', kmIni: '66,357', kmFim: '—', ext: '—', lado: 'Direito', obs: 'Reforma' },
+    { tipo: 'Ponto de ônibus', rodovia: 'MG-262', kmIni: '66,324', kmFim: '—', ext: '—', lado: 'Esquerdo', obs: 'Implantação' },
+    { tipo: 'Ponto de ônibus', rodovia: 'MG-262', kmIni: '72,702', kmFim: '—', ext: '—', lado: 'Direito', obs: 'Implantação' },
+    { tipo: 'Ponto de ônibus', rodovia: 'MG-262', kmIni: '72,702', kmFim: '—', ext: '—', lado: 'Esquerdo', obs: 'Implantação' },
+    { tipo: 'Adequação de OAE', rodovia: 'BR-356', kmIni: '36,450', kmFim: '—', ext: '—', lado: '—', obs: 'Alargamento + Reforço — Ponte sobre o Rio das Codornas' },
+    { tipo: 'Adequação de OAE', rodovia: 'BR-356', kmIni: '50,400', kmFim: '—', ext: '—', lado: '—', obs: 'Reforço — Ponte sobre o Rio Eng. Eduardo Gomes Moretzsohn' },
+    { tipo: 'Adequação de OAE', rodovia: 'BR-356', kmIni: '74,300', kmFim: '—', ext: '—', lado: '—', obs: 'Reforço — Ponte' },
+    { tipo: 'Adequação de OAE', rodovia: 'BR-356', kmIni: '93,950', kmFim: '—', ext: '—', lado: '—', obs: 'Alargamento — Galeria' },
+    { tipo: 'Adequação de OAE', rodovia: 'MG-262', kmIni: '4,800', kmFim: '—', ext: '—', lado: '—', obs: 'Alargamento + Reforço — Ponte' },
+    { tipo: 'Adequação de OAE', rodovia: 'MG-262', kmIni: '12,050', kmFim: '—', ext: '—', lado: '—', obs: 'Alargamento + Reforço — Ponte' },
+    { tipo: 'Adequação de OAE', rodovia: 'MG-262', kmIni: '22,650', kmFim: '—', ext: '—', lado: '—', obs: 'Alargamento + Reforço — Ponte' },
+    { tipo: 'Adequação de OAE', rodovia: 'MG-262', kmIni: '28,400', kmFim: '—', ext: '—', lado: '—', obs: 'Alargamento + Reforço — Passagem de Gado' },
+    { tipo: 'Implantação de OAE', rodovia: 'BR-356', kmIni: '29,700', kmFim: '—', ext: '—', lado: '—', obs: 'Passagem Inferior' },
+    { tipo: 'Implantação de OAE', rodovia: 'BR-356', kmIni: '36,450', kmFim: '—', ext: '—', lado: '—', obs: 'Ponte sobre o Rio das Codornas' },
+    { tipo: 'Implantação de OAE', rodovia: 'BR-356', kmIni: '40,600', kmFim: '—', ext: '—', lado: '—', obs: 'Viaduto — Passagem Inferior' },
+    { tipo: 'Melhoria em acesso', rodovia: 'BR-356', kmIni: '32,105', kmFim: '—', ext: '—', lado: 'Esquerdo', obs: 'Acesso simples' },
+    { tipo: 'Melhoria em acesso', rodovia: 'BR-356', kmIni: '34,708', kmFim: '—', ext: '—', lado: 'Direito', obs: 'Acesso simples' },
+    { tipo: 'Melhoria em acesso', rodovia: 'BR-356', kmIni: '35,392', kmFim: '—', ext: '—', lado: 'Esquerdo', obs: 'Acesso simples' },
+    { tipo: 'Melhoria em acesso', rodovia: 'BR-356', kmIni: '38,509', kmFim: '—', ext: '—', lado: 'Direito', obs: 'Acesso simples' },
+    { tipo: 'Melhoria em acesso', rodovia: 'MG-262', kmIni: '55,729', kmFim: '—', ext: '—', lado: 'Esquerdo', obs: 'Acesso simples' },
+    { tipo: 'Melhoria em acesso', rodovia: 'BR-356', kmIni: '34,763', kmFim: '—', ext: '—', lado: 'Esquerdo', obs: 'Faixa de aceleração/desaceleração' },
+    { tipo: 'Melhoria em acesso', rodovia: 'MG-262', kmIni: '65,424', kmFim: '—', ext: '—', lado: 'Direito', obs: 'Faixa de aceleração/desaceleração' },
+    { tipo: 'Melhoria em acesso', rodovia: 'MG-262', kmIni: '66,335', kmFim: '—', ext: '—', lado: 'Direito', obs: 'Faixa de aceleração/desaceleração' },
+    { tipo: 'Melhoria em acesso', rodovia: 'MG-262', kmIni: '66,351', kmFim: '—', ext: '—', lado: 'Esquerdo', obs: 'Faixa de aceleração/desaceleração' },
+    { tipo: 'Melhoria em acesso', rodovia: 'MG-262', kmIni: '68,536', kmFim: '—', ext: '—', lado: 'Direito', obs: 'Faixa de aceleração/desaceleração' },
+    { tipo: 'Adequação de curva crítica', rodovia: 'BR-356', kmIni: '31,990', kmFim: '32,53', ext: '0,54 km', lado: '—', obs: '—' },
+    { tipo: 'Adequação de curva crítica', rodovia: 'BR-356', kmIni: '33,670', kmFim: '34,00', ext: '0,33 km', lado: '—', obs: '—' },
+    { tipo: 'Adequação de curva crítica', rodovia: 'MG-262', kmIni: '60,040', kmFim: '60,21', ext: '0,17 km', lado: '—', obs: '—' },
+    { tipo: 'Adequação de curva crítica', rodovia: 'MG-262', kmIni: '61,900', kmFim: '62,06', ext: '0,16 km', lado: '—', obs: '—' },
+    { tipo: 'Adequação de curva crítica', rodovia: 'MG-262', kmIni: '62,620', kmFim: '62,82', ext: '0,20 km', lado: '—', obs: '—' },
+    { tipo: 'Adequação de curva crítica', rodovia: 'MG-262', kmIni: '62,940', kmFim: '63,08', ext: '0,14 km', lado: '—', obs: '—' },
+    { tipo: 'Adequação de curva crítica', rodovia: 'MG-262', kmIni: '64,620', kmFim: '64,76', ext: '0,14 km', lado: '—', obs: '—' },
+    { tipo: 'Adequação de curva crítica', rodovia: 'MG-262', kmIni: '68,540', kmFim: '69,00', ext: '0,46 km', lado: '—', obs: '—' },
+    { tipo: 'Adequação de curva crítica', rodovia: 'MG-262', kmIni: '69,460', kmFim: '69,62', ext: '0,16 km', lado: '—', obs: '—' },
+    { tipo: 'Adequação de curva crítica', rodovia: 'MG-262', kmIni: '69,800', kmFim: '70,30', ext: '0,50 km', lado: '—', obs: '—' },
+    { tipo: 'Adequação de curva crítica', rodovia: 'MG-262', kmIni: '70,680', kmFim: '71,50', ext: '0,82 km', lado: '—', obs: '—' },
+    { tipo: 'Área de escape', rodovia: 'BR-356', kmIni: '46,000', kmFim: '—', ext: '—', lado: 'Direito', obs: 'Pista de serviço para manutenção e guinchos' },
+  ];
+
+  // "Linear de Intervenções" — transcrito dos diagramas enviados pelo usuário (linear BR-356 geral, 3 grupos
+  // BR-356 e 6 grupos MG-262). Extensões da MG-262/Curvas recalculadas de km final-inicial (bate com o TR
+  // texto e com os diagramas); demais campos (nomes de condomínios/residenciais, distâncias, observações)
+  // são transcrição literal dos diagramas — não fazem parte do texto do TR, só desses diagramas.
+  linCores = { oae: '#e74c3c', acesso: '#2f6690', retorno: '#e74c3c', extremo: '#2f6690', rotula: '#e74c3c', onibus: '#2f6690', variante: '#e74c3c' };
+
+  linBR356Principal = [
+    { ord: 1, km: '29+100', nome: 'Início do trecho', tipo: '—', cor: 'extremo', distAnt: '—', distAcum: '0,00' },
+    { ord: 2, km: '29+600', nome: 'Viaduto (PS)', tipo: 'Obra de Arte Especial', cor: 'oae', distAnt: '0,50', distAcum: '0,50' },
+    { ord: 3, km: '31+100', nome: 'Condomínio Capitão do Mato / Haras Belvedere', tipo: 'Acesso / Interferência', cor: 'acesso', distAnt: '1,50', distAcum: '2,00' },
+    { ord: 4, km: '32+140', nome: 'Condomínio Alameda das Águas', tipo: 'Acesso / Interferência', cor: 'acesso', distAnt: '1,04', distAcum: '3,04' },
+    { ord: 5, km: '32+600', nome: 'Condomínio', tipo: 'Acesso / Interferência', cor: 'acesso', distAnt: '0,46', distAcum: '3,50' },
+    { ord: 6, km: '33+400', nome: 'Residencial Três Vales', tipo: 'Acesso / Interferência', cor: 'acesso', distAnt: '0,80', distAcum: '4,30' },
+    { ord: 7, km: '33+800', nome: 'Retorno Alongado 1', tipo: 'Interseção (Retorno)', cor: 'retorno', distAnt: '0,40', distAcum: '4,70' },
+    { ord: 8, km: '34+600', nome: 'Estância Estoril / Vale dos Pinhais / Estância Alpina', tipo: 'Acesso / Interferência', cor: 'acesso', distAnt: '0,80', distAcum: '5,50' },
+    { ord: 9, km: '35+400', nome: 'Residencial Solar da Lagoa', tipo: 'Acesso / Interferência', cor: 'acesso', distAnt: '0,80', distAcum: '6,30' },
+    { ord: 10, km: '36+450', nome: 'Ponte sobre o Rio Codornas (Alargamento + Reforço)', tipo: 'Obra de Arte Especial', cor: 'oae', distAnt: '0,05*', distAcum: '6,35' },
+    { ord: 11, km: '36+500', nome: 'Início da Variante', tipo: 'Interseção / Variante', cor: 'variante', distAnt: '0,05', distAcum: '6,40' },
+    { ord: 12, km: '40+400', nome: 'CSN Mineração', tipo: 'Acesso / Interferência', cor: 'acesso', distAnt: '3,90', distAcum: '10,30' },
+    { ord: 13, km: '40+400', nome: 'Polícia Militar Rodoviária', tipo: 'Acesso / Interferência', cor: 'acesso', distAnt: '0,00**', distAcum: '10,30' },
+    { ord: 14, km: '40+400', nome: 'Retorno Alongado 2', tipo: 'Interseção (Retorno)', cor: 'retorno', distAnt: '0,00**', distAcum: '10,30' },
+    { ord: 15, km: '42+500', nome: 'Retorno Alongado 3', tipo: 'Interseção (Retorno)', cor: 'retorno', distAnt: '2,10', distAcum: '12,40' },
+    { ord: 16, km: '43+800', nome: 'Fim do trecho', tipo: '—', cor: 'extremo', distAnt: '1,30', distAcum: '14,70' },
+  ];
+
+  linBR356Intersecoes = [
+    { ord: 1, km: '33+800', nome: 'Interseção em nível – Rótula Alongada 1', distAnt: '—', distAcum: '4,70' },
+    { ord: 2, km: '40+400', nome: 'Interseção em nível – Rótula Alongada 2', distAnt: '6,60', distAcum: '11,30' },
+    { ord: 3, km: '40+400', nome: 'Interseção em nível – Rótula Alongada 3', distAnt: '0,00*', distAcum: '11,30' },
+    { ord: 4, km: '42+500', nome: 'Interseção em nível – Rótula Alongada 4', distAnt: '2,10', distAcum: '13,40' },
+    { ord: 5, km: '43+800', nome: 'Interseção em nível – Rótula Alongada 5', distAnt: '1,30', distAcum: '14,70' },
+  ];
+
+  linBR356Passarelas = [
+    { ord: 1, km: '29+450', nome: 'Passarela', distAnt: '—', distAcum: '0,35' },
+  ];
+
+  linBR356Onibus = [
+    { ord: 1, km: '28+400', nome: 'Implantação de Ponto de Ônibus 1', lado: 'Direito', distAnt: '—', distAcum: '-0,70**', obs: 'Implantação Ponto de Ônibus' },
+    { ord: 2, km: '28+380', nome: 'Implantação de Ponto de Ônibus 2', lado: 'Esquerdo', distAnt: '0,02', distAcum: '-0,68', obs: 'Implantação Ponto de Ônibus' },
+    { ord: 3, km: '29+448', nome: 'Implantação de Ponto de Ônibus 3', lado: 'Direito', distAnt: '1,07', distAcum: '0,35', obs: 'Implantação Ponto de Ônibus' },
+    { ord: 4, km: '29+448', nome: 'Implantação de Ponto de Ônibus 4', lado: 'Esquerdo', distAnt: '0,00*', distAcum: '0,35', obs: 'Implantação Ponto de Ônibus' },
+    { ord: 5, km: '31+835', nome: 'Implantação de Ponto de Ônibus 5', lado: 'Direito', distAnt: '2,39', distAcum: '2,74', obs: 'Implantação Ponto de Ônibus' },
+    { ord: 6, km: '31+835', nome: 'Implantação de Ponto de Ônibus 6', lado: 'Direito', distAnt: '0,00**', distAcum: '2,74', obs: 'Reforma Ponto de Ônibus' },
+    { ord: 7, km: '36+450', nome: 'Alargamento + Reforço Ponte sobre o Rio Codornas', lado: '—', distAnt: '4,62', distAcum: '7,36', obs: 'Alargamento + Reforço', cor: 'oae' },
+  ];
+
+  linMG262Acostamentos = [
+    { ord: 1, nome: 'Implantação de acostamento', kmIni: '62+958', kmFim: '66+700', ext: '3,742', lado: 'Ambos' },
+    { ord: 2, nome: 'Implantação de acostamento', kmIni: '70+370', kmFim: '70+630', ext: '0,260', lado: 'Ambos' },
+    { ord: 3, nome: 'Implantação de acostamento', kmIni: '72+300', kmFim: '72+700', ext: '0,400', lado: 'Ambos' },
+  ];
+  linMG262Intersecoes = [
+    { ord: 1, nome: 'Interseção em nível – Rótula Alongada', km: '58+400' },
+    { ord: 2, nome: 'Interseção em nível – Rótula Alongada', km: '66+000' },
+    { ord: 3, nome: 'Interseção em nível – Rótula Alongada', km: '72+300' },
+  ];
+  linMG262Onibus = [
+    { ord: 1, nome: 'Implantação de Ponto de Ônibus', lado: 'Direito', km: '58+724', obs: '—' },
+    { ord: 2, nome: 'Implantação de Ponto de Ônibus', lado: 'Esquerdo', km: '58+724', obs: '—' },
+    { ord: 3, nome: 'Implantação de Ponto de Ônibus', lado: 'Direito', km: '66+357', obs: 'Reforma' },
+    { ord: 4, nome: 'Implantação de Ponto de Ônibus', lado: 'Esquerdo', km: '66+324', obs: '—' },
+    { ord: 5, nome: 'Implantação de Ponto de Ônibus', lado: 'Direito', km: '72+702', obs: '—' },
+    { ord: 6, nome: 'Implantação de Ponto de Ônibus', lado: 'Esquerdo', km: '72+702', obs: '—' },
+  ];
+  linMG262Oae = [
+    { ord: 1, nome: 'Adequação de OAE', km: '4+800', obs: 'Alargamento + Reforço - Ponte' },
+    { ord: 2, nome: 'Adequação de OAE', km: '12+050', obs: 'Alargamento + Reforço - Ponte' },
+    { ord: 3, nome: 'Adequação de OAE', km: '22+650', obs: 'Alargamento + Reforço - Ponte' },
+    { ord: 4, nome: 'Adequação de OAE', km: '28+400', obs: 'Alargamento + Reforço - Passagem de Gado' },
+  ];
+  linMG262Acessos = [
+    { ord: 1, nome: 'Melhorias em acesso', lado: 'Esquerdo', km: '55+729', tipoAcesso: 'Acesso simples' },
+    { ord: 2, nome: 'Melhorias em acesso', lado: 'Direito', km: '65+424', tipoAcesso: 'Acesso com faixa de aceleração e desaceleração' },
+    { ord: 3, nome: 'Melhorias em acesso', lado: 'Direito', km: '66+335', tipoAcesso: 'Acesso com faixa de aceleração e desaceleração' },
+    { ord: 4, nome: 'Melhorias em acesso', lado: 'Esquerdo', km: '66+351', tipoAcesso: 'Acesso com faixa de aceleração e desaceleração' },
+    { ord: 5, nome: 'Melhorias em acesso', lado: 'Direito', km: '68+536', tipoAcesso: 'Acesso com faixa de aceleração e desaceleração' },
+  ];
+  linMG262Curvas = [
+    { ord: 1, nome: 'Adequação de curva 1', kmIni: '60+040', kmFim: '60+210', ext: '0,170' },
+    { ord: 2, nome: 'Adequação de curva 2', kmIni: '61+900', kmFim: '62+060', ext: '0,160' },
+    { ord: 3, nome: 'Adequação de curva 3', kmIni: '62+620', kmFim: '62+820', ext: '0,200' },
+    { ord: 4, nome: 'Adequação de curva 4', kmIni: '62+940', kmFim: '63+080', ext: '0,140' },
+    { ord: 5, nome: 'Adequação de curva 5', kmIni: '64+620', kmFim: '64+760', ext: '0,140' },
+    { ord: 6, nome: 'Adequação de curva 6', kmIni: '68+540', kmFim: '69+000', ext: '0,460' },
+    { ord: 7, nome: 'Adequação de curva 7', kmIni: '69+460', kmFim: '69+620', ext: '0,160' },
+    { ord: 8, nome: 'Adequação de curva 8', kmIni: '69+800', kmFim: '70+300', ext: '0,500' },
+    { ord: 9, nome: 'Adequação de curva 9', kmIni: '70+680', kmFim: '71+500', ext: '0,820' },
+  ];
+
+  buildLinTimeline(rows) {
+    return rows.map((r, i) => ({ km: r.km, nome: r.nome, cor: this.linCores[r.cor] || '#4f8fc0', distToNext: i < rows.length - 1 ? rows[i + 1].distAnt : null }));
+  }
+
+  linRowsWithColor(rows) {
+    return rows.map(r => ({ ...r, corHex: this.linCores[r.cor] || '#1f2933' }));
+  }
+
+  kmToNum(km) {
+    if (!km) return 0;
+    const parts = String(km).split('+');
+    return parseFloat(parts[0]) + (parts[1] ? parseFloat(parts[1]) / 1000 : 0);
+  }
+
+  mg262CatColor = { acostamento: '#b5541f', intersecao: '#d98a3d', onibus: '#2f8f4f', oae: '#2f6690', acesso: '#c0392b', curva: '#7b4fa0' };
+  mg262CatLabel = { acostamento: 'Acostamento', intersecao: 'Interseção', onibus: 'Ponto de Ônibus', oae: 'Adequação de OAE', acesso: 'Melhoria de Acesso', curva: 'Curva Crítica' };
+
+  buildLinMG262Unificado() {
+    const items = [];
+    this.linMG262Acostamentos.forEach(r => items.push({ nome: r.nome, km: r.kmIni, kmLabel: r.kmIni + ' a ' + r.kmFim, cat: 'acostamento' }));
+    this.linMG262Intersecoes.forEach(r => items.push({ nome: r.nome, km: r.km, kmLabel: r.km, cat: 'intersecao' }));
+    this.linMG262Onibus.forEach(r => items.push({ nome: r.nome + ' (' + r.lado + ')', km: r.km, kmLabel: r.km, cat: 'onibus' }));
+    this.linMG262Oae.forEach(r => items.push({ nome: r.obs, km: r.km, kmLabel: r.km, cat: 'oae' }));
+    this.linMG262Acessos.forEach(r => items.push({ nome: r.nome + ' (' + r.lado + ')', km: r.km, kmLabel: r.km, cat: 'acesso' }));
+    this.linMG262Curvas.forEach(r => items.push({ nome: r.nome, km: r.kmIni, kmLabel: r.kmIni + ' a ' + r.kmFim, cat: 'curva' }));
+    items.sort((a, b) => this.kmToNum(a.km) - this.kmToNum(b.km));
+    return items.map((it, i) => {
+      const distToNext = i < items.length - 1 ? (this.kmToNum(items[i + 1].km) - this.kmToNum(it.km)).toFixed(2).replace('.', ',') : null;
+      return { ...it, cor: this.mg262CatColor[it.cat], distToNext };
+    });
+  }
+
+  buildObrasDestaqueBR356() {
+    const nomes = ['Viaduto (PS)', 'Retorno Alongado 1', 'Ponte sobre o Rio Codornas (Alargamento + Reforço)', 'Início da Variante', 'Retorno Alongado 2', 'Retorno Alongado 3'];
+    const itens = nomes.map(n => this.linBR356Principal.find(r => r.nome === n)).filter(Boolean);
+    const shades = ['#c0392b', '#e05a45', '#8f2418', '#d64545', '#a52a1f', '#e87a63'];
+    const total = itens.length;
+    let acc = 0;
+    const slices = itens.map((it, i) => {
+      const start = (acc / total) * 360;
+      acc += 1;
+      const end = (acc / total) * 360;
+      return { nome: it.nome, km: it.km, color: shades[i % shades.length], start, end, pct: Math.round(100 / total) };
+    });
+    const gradient = 'conic-gradient(' + slices.map(s => s.color + ' ' + s.start.toFixed(1) + 'deg ' + s.end.toFixed(1) + 'deg').join(', ') + ')';
+    return { gradient, legend: slices, total };
+  }
+
+  STATUS_META = {
+    'Não iniciado': { bg: '#f4f6f8', color: '#5b6774' },
+    'Em estudo': { bg: '#eaf1f7', color: '#2f6690' },
+    'Desenvolvendo': { bg: '#fdf1e8', color: '#b5541f' },
+    'Concluído': { bg: '#eef8f0', color: '#2f8f4f' },
+  };
+
+  setStatusFor(id, value) {
+    this.setState(s => ({ statusMap: { ...s.statusMap, [id]: value } }));
+  }
+
+  withStatus(rows, prefix) {
+    return rows.map((r, i) => {
+      const id = prefix + '-' + (r.ord != null ? r.ord : i);
+      const status = this.state.statusMap[id] || 'Não iniciado';
+      const meta = this.STATUS_META[status];
+      return { ...r, status, statusBg: meta.bg, statusColor: meta.color, setStatus: (e) => this.setStatusFor(id, e.target.value) };
+    });
+  }
+
+  // Categorias padronizadas dos cards por tipo de intervenção (mesma ordem/numeração pras duas
+  // rodovias). Fonte única: trIntervencoes (Tabela 3 do TR) — nunca listas digitadas à parte, pra
+  // status e conteúdo nunca ficarem dessincronizados entre a tabela mestre e os cards.
+  CATEGORIAS_INTERV = [
+    { tipos: ['Implantação de acostamento'], numero: '①', titulo: 'Implantação de Acostamentos', cor: '#b5541f', corBorda: '#f0dcc4' },
+    { tipos: ['Interseção em nível — Rótula alongada'], numero: '②', titulo: 'Interseções em Nível — Rótula Alongada', cor: '#b5541f', corBorda: '#f0dcc4' },
+    { tipos: ['Ponto de ônibus'], numero: '③', titulo: 'Pontos de Ônibus', cor: '#2f8f4f', corBorda: '#cfe9d6' },
+    { tipos: ['Adequação de OAE', 'Implantação de OAE'], numero: '④', titulo: 'Adequações/Implantações de OAE (Pontes/Viadutos)', cor: '#2f6690', corBorda: '#d7e4ee' },
+    { tipos: ['Melhoria em acesso'], numero: '⑤', titulo: 'Melhorias em Acessos', cor: '#c0392b', corBorda: '#f2d3d3' },
+    { tipos: ['Adequação de curva crítica'], numero: '⑥', titulo: 'Adequações de Curvas Críticas', cor: '#7b4fa0', corBorda: '#e3d6ee' },
+    { tipos: ['Passarela'], numero: '⑦', titulo: 'Passarelas', cor: '#0f8a72', corBorda: '#cbe8e0' },
+    { tipos: ['Área de escape'], numero: '⑧', titulo: 'Áreas de Escape', cor: '#8a5a2f', corBorda: '#f0e0cc' },
+  ];
+
+  categoriasPorRodovia(tiComStatus, rodovia, municipio) {
+    return this.CATEGORIAS_INTERV
+      .map(cat => ({ ...cat, municipio, rows: tiComStatus.filter(r => r.rodovia === rodovia && cat.tipos.includes(r.tipo)) }))
+      .filter(cat => cat.rows.length > 0);
+  }
+
+  toggleCard(key) {
+    this.setState(s => ({ expanded: { ...s.expanded, [key]: !s.expanded[key] } }));
+  }
+
+  setActive(key) { this.setState({ active: key }); }
+
+  buildRelatorioShellHtml(title, bodyHtml) {
+    return '<!DOCTYPE html><html><head><meta charset="utf-8"><title>' + title + '</title><style>'
+      + '@page{size:210mm 297mm;margin-top:3cm;margin-left:3cm;margin-right:2cm;margin-bottom:2cm;}'
+      + 'body{font-family:Arial,sans-serif;font-size:11pt;color:#000;}'
+      + 'h1,h2{color:#1f3a5f;} p{text-align:justify;}'
+      + '</style></head><body>' + bodyHtml + '</body></html>';
+  }
+
+  openRelatorioWindow(html) {
+    const w = window.open('', '_blank');
+    if (!w) return;
+    w.document.write(html);
+    w.document.close();
+    setTimeout(() => w.print(), 300);
+  }
+
+  generateRelatorioDisciplina(label) {
+    const body = '<h1>Relatório - ' + label + '</h1>'
+      + '<p>Projeto: Rota da Liberdade · Rodovias: BR-356/BR-262</p>'
+      + '<p>Nenhuma análise cadastrada ainda para esta disciplina.</p>';
+    this.openRelatorioWindow(this.buildRelatorioShellHtml('Relatório - ' + label, body));
+  }
+
+  onMedicaoPasswordChange(e) { this.setState({ medicaoPasswordDraft: e.target.value }); }
+  submitMedicaoPassword() {
+    if (this.state.medicaoPasswordDraft === this.medicaoSenha) this.setState({ medicaoUnlocked: true, medicaoPasswordError: false });
+    else this.setState({ medicaoPasswordError: true });
+  }
+  onTerceirosPasswordChange(e) { this.setState({ terceirosPasswordDraft: e.target.value }); }
+  submitTerceirosPassword() {
+    if (this.state.terceirosPasswordDraft === this.medicaoSenha) this.setState({ terceirosUnlocked: true, terceirosPasswordError: false });
+    else this.setState({ terceirosPasswordError: true });
+  }
+  onReuniaoPasswordChange(e) { this.setState({ reuniaoPasswordDraft: e.target.value }); }
+  submitReuniaoPassword() {
+    if (this.state.reuniaoPasswordDraft === this.medicaoSenha) this.setState({ reuniaoUnlocked: true, reuniaoPasswordError: false });
+    else this.setState({ reuniaoPasswordError: true });
+  }
+
+  renderVals() {
+    const primaryColor = this.props.primaryColor ?? '#1f3a5f';
+    const active = this.state.active;
+    this.trIntervencoesComStatus = this.withStatus(this.trIntervencoes, 'trinterv');
+    const navDefs = [
+      { key: 'home', code: 'VG', label: 'Visão Geral' },
+      { key: 'analise', code: 'AN', label: 'Análise' },
+      { key: 'linha-tempo', code: 'LT', label: 'Linha do Tempo' },
+      { key: 'correspondencias', code: 'CC', label: 'Correspondências/\nComunicações' },
+      { key: 'consultas', code: 'CO', label: 'Consultas' },
+      { key: 'medicao', code: 'ME', label: 'Medição' },
+      { key: 'controle-terceiros', code: 'CT', label: 'Controle de\nTerceiros' },
+      { key: 'reuniao-externa', code: 'RE', label: 'Reunião Externa' },
+    ];
+
+    return {
+      primaryColor,
+      onVoltarProjetos: this.props.onVoltarProjetos ?? null,
+      navItems: navDefs.map(n => ({
+        key: n.key, code: n.code, label: n.label,
+        bg: active === n.key ? '#2f6690' : 'transparent',
+        iconBg: active === n.key ? '#4f8fc0' : 'rgba(255,255,255,0.12)',
+        select: () => this.setActive(n.key),
+      })),
+      isHome: active === 'home',
+      isAnalise: active === 'analise',
+      isLinhaTempo: active === 'linha-tempo',
+      isCorrespondencias: active === 'correspondencias',
+      isConsultas: active === 'consultas',
+      isMedicao: active === 'medicao',
+      isControleTerceiros: active === 'controle-terceiros',
+      isReuniaoExterna: active === 'reuniao-externa',
+
+      trKpis: (() => {
+        const curvas = this.trIntervencoes.filter(i => i.tipo === 'Adequação de curva crítica');
+        const somaExtCurvas = curvas.reduce((s, c) => s + parseFloat((c.ext || '0 km').replace(' km', '').replace(',', '.')), 0);
+        const oae = this.trIntervencoes.filter(i => i.tipo.includes('OAE'));
+        return [
+          { label: 'Duplicação BR-356', value: '14,70 km' },
+          { label: '3ª Faixa MG-262', value: '6,69 km' },
+          { label: 'Intervenções Pontuais', value: String(this.trIntervencoes.length) },
+          { label: 'Curvas Críticas', value: `${curvas.length} curvas`, sub: `${somaExtCurvas.toFixed(2).replace('.', ',')} km`, hasSub: true, clickable: false },
+          { label: 'OAE', value: `${oae.length} OAE`, sub: 'com intervenção', hasSub: true, clickable: true,
+            onClick: () => this.setState(s => ({ intervencoesOpen: true, kpiFiltro: s.kpiFiltro === 'oae' ? null : 'oae' })) },
+        ];
+      })(),
+      intervencoesOpen: this.state.intervencoesOpen,
+      toggleIntervencoes: () => this.setState(s => ({ intervencoesOpen: !s.intervencoesOpen })),
+      intervencoesChevron: this.state.intervencoesOpen ? '▲' : '▼',
+      trTrechosFaixa: this.trTrechosFaixa,
+      trDisciplinas: this.trDisciplinas,
+      trIntervencoes: this.state.kpiFiltro === 'oae' ? this.trIntervencoesComStatus.filter(i => i.tipo.includes('OAE')) : this.trIntervencoesComStatus,
+      trCategoriasBR356: this.categoriasPorRodovia(this.trIntervencoesComStatus, 'BR-356', 'Ouro Preto/Mariana (Lote 07, conforme TR)'),
+      trCategoriasMG262: this.categoriasPorRodovia(this.trIntervencoesComStatus, 'MG-262', 'Mariana'),
+      hasFiltroAtivo: this.state.kpiFiltro === 'oae',
+      filtroAtivoLabel: this.state.kpiFiltro === 'oae' ? `Mostrando apenas OAE (${this.trIntervencoes.filter(i => i.tipo.includes('OAE')).length})` : '',
+      limparFiltro: () => this.setState({ kpiFiltro: null }),
+
+
+      obrasDestaqueBR356: this.buildObrasDestaqueBR356(),
+      linBR356PrincipalTl: this.buildLinTimeline(this.linBR356Principal),
+      linBR356Principal: this.withStatus(this.linRowsWithColor(this.linBR356Principal), 'br356-principal'),
+      linBR356IntersecoesTl: this.buildLinTimeline(this.linBR356Intersecoes),
+      linBR356Intersecoes: this.withStatus(this.linBR356Intersecoes, 'br356-intersecoes'),
+      linBR356PassarelasTl: this.buildLinTimeline(this.linBR356Passarelas),
+      linBR356Passarelas: this.withStatus(this.linBR356Passarelas, 'br356-passarelas'),
+      linBR356OnibusTl: this.buildLinTimeline(this.linBR356Onibus),
+      linBR356Onibus: this.withStatus(this.linRowsWithColor(this.linBR356Onibus), 'br356-onibus'),
+      linMG262Acostamentos: this.withStatus(this.linMG262Acostamentos, 'mg262-acostamentos'),
+      linMG262Intersecoes: this.withStatus(this.linMG262Intersecoes, 'mg262-intersecoes'),
+      linMG262Onibus: this.withStatus(this.linMG262Onibus, 'mg262-onibus'),
+      linMG262Oae: this.withStatus(this.linMG262Oae, 'mg262-oae'),
+      linMG262Acessos: this.withStatus(this.linMG262Acessos, 'mg262-acessos'),
+      linMG262Curvas: this.withStatus(this.linMG262Curvas, 'mg262-curvas'),
+      linMG262Unificado: this.buildLinMG262Unificado(),
+      mg262Legend: Object.keys(this.mg262CatLabel).map(k => ({ cor: this.mg262CatColor[k], label: this.mg262CatLabel[k] })),
+
+      disciplinas: this.materiaMeta.map(m => ({
+        key: m.key, code: m.code, label: m.label,
+        iconBg: primaryColor,
+        toggle: () => this.toggleCard('disc-' + m.key),
+        isOpen: !!this.state.expanded['disc-' + m.key],
+        chevron: this.state.expanded['disc-' + m.key] ? '▲' : '▼',
+        gerarRelatorio: (e) => { if (e && e.stopPropagation) e.stopPropagation(); this.generateRelatorioDisciplina(m.label.replace('\n', ' ')); },
+      })),
+
+      medicaoLocked: !this.state.medicaoUnlocked,
+      medicaoUnlocked: this.state.medicaoUnlocked,
+      medicaoPasswordDraft: this.state.medicaoPasswordDraft,
+      medicaoPasswordError: this.state.medicaoPasswordError,
+      onMedicaoPasswordChange: (e) => this.onMedicaoPasswordChange(e),
+      onMedicaoPasswordSubmit: () => this.submitMedicaoPassword(),
+
+      terceirosLocked: !this.state.terceirosUnlocked,
+      terceirosUnlocked: this.state.terceirosUnlocked,
+      terceirosPasswordDraft: this.state.terceirosPasswordDraft,
+      terceirosPasswordError: this.state.terceirosPasswordError,
+      onTerceirosPasswordChange: (e) => this.onTerceirosPasswordChange(e),
+      onTerceirosPasswordSubmit: () => this.submitTerceirosPassword(),
+
+      reuniaoLocked: !this.state.reuniaoUnlocked,
+      reuniaoUnlocked: this.state.reuniaoUnlocked,
+      reuniaoPasswordDraft: this.state.reuniaoPasswordDraft,
+      reuniaoPasswordError: this.state.reuniaoPasswordError,
+      onReuniaoPasswordChange: (e) => this.onReuniaoPasswordChange(e),
+      onReuniaoPasswordSubmit: () => this.submitReuniaoPassword(),
+    };
+  }
+}
+
+</script>
+</body>
+</html>

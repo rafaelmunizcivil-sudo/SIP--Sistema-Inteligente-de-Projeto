@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+
+<helmet>
+  <style>
+    body { margin: 0; font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    a { color: #2f6690; }
+    a:hover { color: #1f3a5f; }
+  </style>
+  <template id="__bundler_thumbnail">
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <rect width="200" height="200" fill="#1f3a5f"></rect>
+      <text x="100" y="112" font-size="48" font-weight="700" fill="#fff" text-anchor="middle" font-family="Arial, sans-serif">NM</text>
+    </svg>
+  </template>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="./doc-page.js"></script>
+</helmet>
+
+<div style="min-height:100vh;background:#eef1f4;color:#1f2933;padding:32px 24px;box-sizing:border-box;">
+  <div style="max-width:720px;margin:0 auto;">
+
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
+      <div style="background:#1f3a5f;color:#fff;border-radius:8px;padding:8px 12px;font-weight:700;font-size:13px;">{{ projetoBadge }}</div>
+      <div style="font-size:13px;font-weight:600;color:#5b6774;">Nova Medição — Cronograma Físico-Financeiro ({{ projetoLabel }})</div>
+    </div>
+
+    <sc-if value="{{ isSemDados }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#fff5f4;border:1px solid #f0c9c0;border-radius:10px;padding:20px 24px;max-width:480px;">
+        <div style="font-size:14px;font-weight:700;color:#9b2c22;margin-bottom:6px;">Itens de medição ainda não cadastrados</div>
+        <p style="margin:0;font-size:13px;color:#5b6774;line-height:1.6;">Este projeto ({{ projetoLabel }}) ainda não tem a planilha-base de itens de medição carregada no sistema. Para não gravar valores contra a lista errada de itens, o lançamento aqui está bloqueado até essa base ser cadastrada.</p>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isPassword }}" hint-placeholder-val="{{ true }}">
+      <div style="background:#fff;border:1px solid #eef1f4;border-radius:10px;padding:28px;max-width:380px;">
+        <div style="font-size:15px;font-weight:700;color:#1f3a5f;margin-bottom:6px;">Área restrita</div>
+        <p style="margin:0 0 18px;font-size:13px;color:#5b6774;line-height:1.6;">Digite a senha da aba Medição para lançar uma nova medição mensal.</p>
+        <div style="font-size:10.5px;color:#8a94a3;text-transform:uppercase;margin-bottom:6px;">Senha</div>
+        <input type="password" value="{{ passwordDraft }}" onChange="{{ onPasswordChange }}" onKeyDown="{{ onPasswordKeyDown }}" placeholder="Senha de acesso" style="width:100%;font-size:13px;font-family:inherit;color:#1f2933;border:1px solid #dde3ea;border-radius:6px;padding:9px 12px;box-sizing:border-box;margin-bottom:12px;">
+        <sc-if value="{{ showPasswordError }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:11.5px;color:#c0392b;margin-bottom:10px;">Senha incorreta.</div>
+        </sc-if>
+        <div onClick="{{ onPasswordSubmit }}" style="font-size:12.5px;font-weight:700;color:#fff;background:#1f3a5f;padding:9px 18px;border-radius:8px;cursor:pointer;width:fit-content;">Entrar</div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isForm }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#fff;border:1px solid #eef1f4;border-radius:10px;padding:28px;">
+        <div style="font-size:18px;font-weight:700;color:#1f3a5f;margin-bottom:6px;">Lançar medição mensal</div>
+        <p style="margin:0 0 22px;font-size:13px;color:#5b6774;line-height:1.6;">Anexe o Boletim de Medição oficial (DER-MG). O mês de referência e os valores medidos por item são extraídos automaticamente da tabela do boletim — não é preciso informar o mês manualmente.</p>
+
+        <div style="margin-bottom:18px;">
+          <div style="font-size:10.5px;color:#8a94a3;text-transform:uppercase;margin-bottom:6px;">Responsável pelo lançamento</div>
+          <input value="{{ nomeResponsavel }}" onChange="{{ onNomeChange }}" placeholder="Seu nome" style="width:100%;font-size:13.5px;font-family:inherit;color:#1f2933;border:1px solid #dde3ea;border-radius:6px;padding:9px 12px;box-sizing:border-box;">
+        </div>
+
+        <div style="margin:18px 0;">
+          <div style="font-size:10.5px;color:#8a94a3;text-transform:uppercase;margin-bottom:6px;">Boletim de Medição oficial (DER-MG, .pdf)</div>
+          <input type="file" accept=".pdf" multiple="multiple" onChange="{{ onPdfFileChange }}" style="font-size:13px;">
+          <div style="font-size:11px;color:#8a94a3;margin-top:6px;">Pode selecionar vários boletins de uma vez (um por mês) — cada um é lido e agrupado automaticamente pelo mês indicado no próprio PDF.</div>
+        </div>
+
+        <sc-if value="{{ isParsingPdf }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:12.5px;color:#5b6774;margin-bottom:14px;">Lendo o PDF…</div>
+        </sc-if>
+
+        <sc-if value="{{ parseError }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:12.5px;color:#c0392b;background:#fbeaea;border:1px solid #f2d3d3;border-radius:8px;padding:10px 14px;margin-bottom:14px;">{{ parseError }}</div>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isPreview }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#fff;border:1px solid #eef1f4;border-radius:10px;padding:28px;">
+        <div style="font-size:18px;font-weight:700;color:#1f3a5f;margin-bottom:4px;">Conferir antes de gravar</div>
+        <p style="margin:0 0 18px;font-size:13px;color:#5b6774;">Meses: <strong>{{ mesesEnvolvidosLabel }}</strong> · {{ previewCount }} itens serão atualizados.</p>
+
+        <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;max-height:420px;overflow-y:auto;">
+          <sc-for list="{{ previewRows }}" as="p" hint-placeholder-count="6">
+            <div style="background:#f8f9fb;border:1px solid #eef1f4;border-radius:8px;padding:12px 14px;">
+              <div style="display:flex;justify-content:space-between;gap:12px;margin-bottom:6px;">
+                <div style="font-size:12.5px;font-weight:700;color:#1f2933;">{{ p.numero }}. {{ p.descricao }} <span style="font-size:10px;color:#8a94a3;font-weight:600;">({{ p.mesLabel }})</span></div>
+                <div style="font-size:12.5px;font-weight:700;color:#2f8f4f;white-space:nowrap;">{{ p.valorFmt }}</div>
+              </div>
+              <div style="font-size:11px;color:#8a94a3;">Total já medido: {{ p.totalJaMedidoAntesFmt }} → <strong style="color:#1f2933;">{{ p.totalJaMedidoDepoisFmt }}</strong> ({{ p.pctAntes }}% → <strong>{{ p.pctDepois }}%</strong>)</div>
+            </div>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ unmatchedCount }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:12px;color:#b5541f;background:#fdf1e8;border:1px solid #f0dcc4;border-radius:8px;padding:10px 14px;margin-bottom:16px;">{{ unmatchedCount }} linha(s) da planilha não corresponderam a nenhum item cadastrado e foram ignoradas.</div>
+        </sc-if>
+
+        <div style="display:flex;gap:10px;">
+          <div onClick="{{ onConfirm }}" style="font-size:12.5px;font-weight:700;color:#fff;background:#2f8f4f;padding:10px 20px;border-radius:8px;cursor:pointer;">Confirmar e gravar</div>
+          <div onClick="{{ onCancelPreview }}" style="font-size:12.5px;font-weight:600;color:#5b6774;padding:10px 16px;border-radius:8px;cursor:pointer;">Cancelar</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isSaving }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#fff;border:1px solid #eef1f4;border-radius:10px;padding:40px;text-align:center;">
+        <div style="font-size:13.5px;font-weight:600;color:#5b6774;">Gravando…</div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isSuccess }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#fff;border:1px solid #eef1f4;border-radius:10px;padding:28px;margin-bottom:20px;">
+        <div style="font-size:18px;font-weight:700;color:#2f8f4f;margin-bottom:6px;">Medição gravada com sucesso</div>
+        <p style="margin:0 0 16px;font-size:13px;color:#5b6774;">{{ previewCount }} itens atualizados para {{ mesesEnvolvidosLabel }}. O relatório abaixo já reflete só o que foi medido neste lançamento.</p>
+        <div style="display:flex;gap:10px;">
+          <div onClick="{{ onPrint }}" style="font-size:12.5px;font-weight:700;color:#fff;background:#1f3a5f;padding:9px 18px;border-radius:8px;cursor:pointer;">Imprimir / Salvar PDF</div>
+          <div onClick="{{ onNovaMedicao }}" style="font-size:12.5px;font-weight:600;color:#5b6774;padding:9px 16px;border-radius:8px;cursor:pointer;">Lançar outro mês</div>
+        </div>
+      </div>
+
+      <style>doc-page:not(:defined){visibility:hidden}</style>
+      <doc-page size="a4" margin="2cm">
+        <div slot="footer" style="font-family:'Arial Narrow',Arial,sans-serif;font-size:8pt;color:#1F497D;text-align:center;border-top:1px solid #1F497D;padding-top:6px;">
+          Rua Santa Fé, 100. Sala 102 - Bloco A - Bairro Sion - CEP 30.320-130 - Belo Horizonte/MG . (31) 3271 3940 e-mail: consol@consol.eng.br
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-bottom:24px;">
+          <img src="assets/consol-logo.png" style="height:34px;" alt="Consol Engenheiros Consultores">
+        </div>
+        <h1 style="font-size:18px;color:#1f3a5f;margin:0 0 4px;">Relatório de Medição Mensal</h1>
+        <p style="margin:0 0 20px;font-size:12px;color:#5b6774;">Rodovia {{ projetoBadge }} · Trecho {{ projetoLabel }} · Meses de referência: {{ mesesEnvolvidosLabel }} · Lançado por: {{ nomeResponsavelFinal }} em {{ dataLancamento }}</p>
+        <p style="font-size:13px;line-height:1.7;color:#1f2933;">{{ relatorioTexto }}</p>
+        <table style="width:100%;border-collapse:collapse;margin-top:16px;font-size:12px;">
+          <thead>
+            <tr>
+              <th style="text-align:left;border-bottom:2px solid #1f3a5f;padding:6px 4px;color:#1f3a5f;">Item</th>
+              <th style="text-align:left;border-bottom:2px solid #1f3a5f;padding:6px 4px;color:#1f3a5f;">Descrição</th>
+              <th style="text-align:left;border-bottom:2px solid #1f3a5f;padding:6px 4px;color:#1f3a5f;">Mês</th>
+              <th style="text-align:right;border-bottom:2px solid #1f3a5f;padding:6px 4px;color:#1f3a5f;">Valor Medido</th>
+            </tr>
+          </thead>
+          <tbody>
+            <sc-for list="{{ previewRows }}" as="p" hint-placeholder-count="6">
+              <tr>
+                <td style="padding:5px 4px;border-bottom:1px solid #eef1f4;">{{ p.numero }}</td>
+                <td style="padding:5px 4px;border-bottom:1px solid #eef1f4;">{{ p.descricao }}</td>
+                <td style="padding:5px 4px;border-bottom:1px solid #eef1f4;">{{ p.mesLabel }}</td>
+                <td style="padding:5px 4px;border-bottom:1px solid #eef1f4;text-align:right;">{{ p.valorFmt }}</td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+        <p style="margin-top:16px;font-size:13px;font-weight:700;color:#1f3a5f;">Total medido neste lançamento: {{ totalMesFmt }}</p>
+      </doc-page>
+    </sc-if>
+
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+
+class Component extends DCLogic {
+  state = {
+    screen: 'password', passwordDraft: '', passwordError: false,
+    mes: 'junho', nome: '',
+    parseError: '', previewRows: [], previewNumeros: [],
+    unmatchedCount: 0, isParsingPdf: false,
+  };
+
+  mesesNomeParaKey = { janeiro: 'janeiro', fevereiro: 'fevereiro', março: 'marco', marco: 'marco', abril: 'abril', maio: 'maio', junho: 'junho', julho: 'julho', agosto: 'agosto', setembro: 'setembro', outubro: 'outubro', novembro: 'novembro', dezembro: 'dezembro' };
+
+  // Extrai a tabela de itens (ref, descrição, valor medido nesta medição) de um Boletim de Medição oficial DER-MG.
+  // Mesma lógica usada para reconstruir o histórico 1ª-13ª: acha as linhas "01.00.00.NNN CÓDIGO ...",
+  // junta quebras de página/linha, e lê os últimos campos numéricos (a coluna "QUANTIDADE FINANCEIRO" da medição atual, antes do bloco ACUMULADO).
+  parseBoletimPdfText(t) {
+    const lines = t.split('\n');
+    const itemLineRe = /^(\d{2}\.\d{2}\.\d{2}\.\d{3})\s+(\S+)\s+(.*)$/;
+    let rows = [];
+    let cur = null;
+    for (const line of lines) {
+      const m = line.match(itemLineRe);
+      if (m) {
+        if (cur) rows.push(cur);
+        cur = { ref: m[1], code: m[2], rest: m[3] };
+      } else if (cur && line.trim() && !/^Total obra/.test(line) && !/^\d{2}\s/.test(line)) {
+        cur.rest += ' ' + line.trim();
+      }
+    }
+    if (cur) rows.push(cur);
+    for (const r of rows) {
+      r.rest = r.rest.split(/--\s*\d+\s*of\s*\d+\s*--/)[0].split(/TOTAL DOS SERVIÇOS/)[0].trim();
+    }
+    const numRe = /^(.*?)\s+([A-Za-zÀ-ÿ²³0-9]{1,6})\s+([\d.,]+)\s+([\d.,]+)\s+([\d.,]+)\s+([\d.,]+)\s+([\d.,]+)\s+([\d.,]+)\s+([\d.,]+)\s+([\d.,]+)%\s*$/;
+    const toNum = s => parseFloat(s.replace(/\./g, '').replace(',', '.'));
+    return rows.map((r, idx) => {
+      const m = r.rest.match(numRe);
+      if (!m) return { idx, ERROR: r.rest };
+      return { idx, descricao: m[1].trim(), valorMedAtual: toNum(m[6]) };
+    });
+  }
+
+  parseBoletimHeader(t) {
+    const m = t.match(/MEDIÇÃO\s+\d+ª\s+medição\s*-\s*parcial\s*-\s*([a-zçã]+)\s*\/\s*(\d{4})/i);
+    if (!m) return null;
+    const mesNome = m[1].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    return { mesKey: this.mesesNomeParaKey[mesNome] || null, ano: m[2] };
+  }
+
+  senha = 'consol2026';
+
+  projetoMetaData = {
+    'trinta-reis': { badge: 'MG-259', rodovia: 'Serro – Trinta Reis' },
+    'aracuai': { badge: 'LMG-678', rodovia: 'Araçuaí – Novo Cruzeiro' },
+    'rubim': { badge: 'MG-406', rodovia: 'Rubim – Rio do Prado' },
+  };
+
+  projeto() {
+    if (!this._projeto) {
+      const p = new URLSearchParams(window.location.search).get('projeto');
+      this._projeto = (p && this.projetoMetaData[p]) ? p : 'trinta-reis';
+    }
+    return this._projeto;
+  }
+
+  projetoMeta() { return this.projetoMetaData[this.projeto()] || this.projetoMetaData['trinta-reis']; }
+
+  // Rubim tem a base de itens carregada (65 itens, extraída dos 28 Boletins de Medição DER-MG
+  // reais 1ª-30ª, nov/2023-mai/2026) — habilitado para lançamentos futuros (31ª em diante).
+  // Araçuaí ainda não tem planilha-base carregada, então continua bloqueado.
+  hasDados() { return ['trinta-reis', 'rubim', 'aracuai'].includes(this.projeto()) && this.medicaoBaseData().length > 0; }
+
+  // Base de itens por projeto (numero, descricao, unidade, totalContrato, totalReal, totalJaMedidoBase).
+  medicaoBaseDataByProjeto = {
+    'trinta-reis': [{"numero":1,"descricao":"Coordenação","unidade":"u","totalContrato":87136.95,"totalReal":87136.95,"totalJaMedidoBase":18298.75},{"numero":2,"descricao":"Administração","unidade":"u","totalContrato":134180.05,"totalReal":134180.05,"totalJaMedidoBase":28177.81},{"numero":3,"descricao":"Apoio Logíst - Veíc. 1.0 Turbo ou similar, c/motorista","unidade":"km","totalContrato":7950,"totalReal":7950,"totalJaMedidoBase":3927.3},{"numero":4,"descricao":"Veíc. Tipo Van, 12 Passageiros, com Motorista","unidade":"km","totalContrato":6744,"totalReal":6744,"totalJaMedidoBase":0},{"numero":5,"descricao":"Visita ao Trecho em Fase de Projeto","unidade":"u","totalContrato":29089.26,"totalReal":29089.26,"totalJaMedidoBase":15853.64},{"numero":6,"descricao":"Orçamento da Obra - Trecho","unidade":"u","totalContrato":4042.1,"totalReal":4042.1,"totalJaMedidoBase":0},{"numero":7,"descricao":"Orçamento da Obra - OAE","unidade":"u","totalContrato":3556.37,"totalReal":3556.37,"totalJaMedidoBase":0},{"numero":8,"descricao":"Diagnóstico Preliminar de Segurança Viária","unidade":"km","totalContrato":10647.945,"totalReal":10647.945,"totalJaMedidoBase":10647.94},{"numero":9,"descricao":"Estudo de Tráfego (Cont.Volumétrica e Classificatória)","unidade":"u","totalContrato":31002.37,"totalReal":31002.37,"totalJaMedidoBase":31002.37},{"numero":10,"descricao":"Estudo de Tráfego (Pesquisa Origem/Destino)","unidade":"u","totalContrato":16028.28,"totalReal":16028.28,"totalJaMedidoBase":0},{"numero":11,"descricao":"Estudos Geológicos","unidade":"u","totalContrato":24569.96,"totalReal":24569.96,"totalJaMedidoBase":24569.96},{"numero":12,"descricao":"Estudos de Traçado","unidade":"km","totalContrato":55125.945,"totalReal":55125.945,"totalJaMedidoBase":55125.94},{"numero":13,"descricao":"Estudos Topográficos","unidade":"km","totalContrato":300942.18,"totalReal":300942.18,"totalJaMedidoBase":150471.09},{"numero":14,"descricao":"Estudos Hidrológicos","unidade":"km","totalContrato":29503.53,"totalReal":29503.53,"totalJaMedidoBase":0},{"numero":15,"descricao":"Est. Hidrológicos para OAE c/ compr. 50m <L=<100m","unidade":"u","totalContrato":15942.04,"totalReal":15942.04,"totalJaMedidoBase":0},{"numero":16,"descricao":"Estudos Geotécnicos","unidade":"km","totalContrato":248149.44,"totalReal":248149.44,"totalJaMedidoBase":19930.73},{"numero":17,"descricao":"Levant.Deflect.(Do e linhas de influência) FWD","unidade":"km","totalContrato":12859.875,"totalReal":12859.875,"totalJaMedidoBase":0},{"numero":18,"descricao":"Levantamento de Irregularidade (IRI)","unidade":"km","totalContrato":9851.31,"totalReal":9851.31,"totalJaMedidoBase":0},{"numero":19,"descricao":"Levantamento do Índice de Gravidade Global - IGG","unidade":"km","totalContrato":4254.39,"totalReal":4254.39,"totalJaMedidoBase":0},{"numero":20,"descricao":"Levant.de Irreg. Transv.(Transv. de Perfilóg.a Laser) - Flecha","unidade":"km","totalContrato":9222.885,"totalReal":9222.885,"totalJaMedidoBase":0},{"numero":21,"descricao":"Mobilização e Desmobilização de Equipes e Equipamentos de Sondagem para Coleta de Amostras das Camadas do Pavimento (Valor Fixo)","unidade":"u","totalContrato":6981.42,"totalReal":6981.42,"totalJaMedidoBase":0},{"numero":22,"descricao":"Sond.p/Coleta de Amost.das Camadas do Pavimento","unidade":"m","totalContrato":40336.399999999994,"totalReal":40336.399999999994,"totalJaMedidoBase":0},{"numero":23,"descricao":"Estudo de Camada do Pavimento","unidade":"km","totalContrato":73746.225,"totalReal":73746.225,"totalJaMedidoBase":0},{"numero":24,"descricao":"Diagnóstico Preliminar de OAE (OAE) L=< 50m","unidade":"u","totalContrato":5001.95,"totalReal":5001.95,"totalJaMedidoBase":0},{"numero":25,"descricao":"Mobilização para Sondagem Mista","unidade":"u","totalContrato":5794.58,"totalReal":5794.58,"totalJaMedidoBase":0},{"numero":26,"descricao":"Sondagem Mista em Solo","unidade":"m","totalContrato":29769,"totalReal":29769,"totalJaMedidoBase":0},{"numero":27,"descricao":"Sondagem mista em Rocha","unidade":"m","totalContrato":25570.8,"totalReal":25570.8,"totalJaMedidoBase":0},{"numero":28,"descricao":"Taxa de Instalação por furo para Sondagem mista","unidade":"u","totalContrato":5237.259999999999,"totalReal":5237.259999999999,"totalJaMedidoBase":0},{"numero":29,"descricao":"Mobilização para Sondagem a Percussão","unidade":"u","totalContrato":4398.29,"totalReal":4398.29,"totalJaMedidoBase":0},{"numero":30,"descricao":"Sondagem a Percussão","unidade":"m","totalContrato":40408.2,"totalReal":40408.2,"totalJaMedidoBase":0},{"numero":31,"descricao":"Taxa de Instalação por Furo para Sondagem a Percussão","unidade":"u","totalContrato":7605.12,"totalReal":7605.12,"totalJaMedidoBase":0},{"numero":32,"descricao":"Mobil. para Sondagem a Penetrômetro Dinâmico Leve","unidade":"u","totalContrato":2605.46,"totalReal":2605.46,"totalJaMedidoBase":0},{"numero":33,"descricao":"Sondagem a Penetrômetro Dinâmico Leve","unidade":"m","totalContrato":15138.9,"totalReal":15138.9,"totalJaMedidoBase":0},{"numero":34,"descricao":"Sondagem a Trado  para Delineamento da Superfície Rochosa ao Nível do Subleito","unidade":"m","totalContrato":13359.15,"totalReal":13359.15,"totalJaMedidoBase":0},{"numero":35,"descricao":"Estudos e Projetos Ambientais -  RCA","unidade":"u","totalContrato":37403.21,"totalReal":37403.21,"totalJaMedidoBase":0},{"numero":36,"descricao":"Estudos e Projetos Ambientais -  PCA com PRAD","unidade":"u","totalContrato":39489.86,"totalReal":39489.86,"totalJaMedidoBase":0},{"numero":37,"descricao":"Estudos e Projetos Ambientais - PIA com Inventário Florestal/Fitosociológico","unidade":"u","totalContrato":21625.81,"totalReal":21625.81,"totalJaMedidoBase":0},{"numero":38,"descricao":"Est. e Proj. Amb. - PTRF incluindo o Proj.de Compens.de APPs e Corte de Ameaçadas de Extinção","unidade":"u","totalContrato":10034.6,"totalReal":10034.6,"totalJaMedidoBase":0},{"numero":39,"descricao":"Proj. Exec.de Compens. Florest. em Área de Mata Atlânt.","unidade":"u","totalContrato":10034.6,"totalReal":10034.6,"totalJaMedidoBase":0},{"numero":40,"descricao":"Estudos e Projetos Ambientais - Estudo de Alternativa Técnica e Locacional","unidade":"u","totalContrato":2016.14,"totalReal":2016.14,"totalJaMedidoBase":0},{"numero":41,"descricao":"Estudos e Projetos Ambientais - Estudo de Critério Locacional Reserva da Biosfera","unidade":"u","totalContrato":4431.06,"totalReal":4431.06,"totalJaMedidoBase":0},{"numero":42,"descricao":"Estudos e Projetos Ambientais - Estudo de Critério Locacional - Áreas Prioritárias para a Conservação","unidade":"u","totalContrato":4431.06,"totalReal":4431.06,"totalJaMedidoBase":0},{"numero":43,"descricao":"Projeto Geométrico","unidade":"km","totalContrato":69461.595,"totalReal":69461.595,"totalJaMedidoBase":40309.77},{"numero":44,"descricao":"Projeto Geotécnico e de Terraplenagem","unidade":"km","totalContrato":49328.055,"totalReal":49328.055,"totalJaMedidoBase":0},{"numero":45,"descricao":"Projeto de Drenagem","unidade":"km","totalContrato":56654.01,"totalReal":56654.01,"totalJaMedidoBase":0},{"numero":46,"descricao":"Projeto de Pavimentação","unidade":"km","totalContrato":54706.05,"totalReal":54706.05,"totalJaMedidoBase":0},{"numero":47,"descricao":"Projeto de Obra-de-Arte-Especial","unidade":"m2","totalContrato":67432.31999999999,"totalReal":67432.31999999999,"totalJaMedidoBase":0},{"numero":48,"descricao":"Projeto de Bueiro Celular com Fundação Profunda","unidade":"u","totalContrato":12842,"totalReal":12842,"totalJaMedidoBase":0},{"numero":49,"descricao":"Projeto de Interseção no Mesmo Plano","unidade":"u","totalContrato":22666.92,"totalReal":22666.92,"totalJaMedidoBase":6290.07},{"numero":50,"descricao":"Projeto de Segurança Viária","unidade":"km","totalContrato":37545.48,"totalReal":37545.48,"totalJaMedidoBase":0},{"numero":51,"descricao":"Projeto de Desapropriação","unidade":"km","totalContrato":43958.565,"totalReal":43958.565,"totalJaMedidoBase":0},{"numero":52,"descricao":"Projeto de Desapropriação - Busca de Registro em Cartório","unidade":"u","totalContrato":4235.33,"totalReal":4235.33,"totalJaMedidoBase":0},{"numero":53,"descricao":"Projeto de desapropriação - Certidão Negativa de Registro","unidade":"u","totalContrato":5662.860000000001,"totalReal":5662.860000000001,"totalJaMedidoBase":0},{"numero":54,"descricao":"Projeto de Obras Complementares","unidade":"km","totalContrato":14623.245,"totalReal":14623.245,"totalJaMedidoBase":0},{"numero":55,"descricao":"Proj.de Estabilização de Aterro sobre Solos Compressíveis","unidade":"u","totalContrato":13337.44,"totalReal":13337.44,"totalJaMedidoBase":0},{"numero":56,"descricao":"Projeto de Estabilização de Maciços","unidade":"u","totalContrato":18293.12,"totalReal":18293.12,"totalJaMedidoBase":0},{"numero":57,"descricao":"Minuta do Projeto de Execução (A3)","unidade":"vias","totalContrato":514.5,"totalReal":514.5,"totalJaMedidoBase":0},{"numero":58,"descricao":"Minuta do Relatório de Projeto (A4)","unidade":"vias","totalContrato":256.20000000000005,"totalReal":256.20000000000005,"totalJaMedidoBase":0},{"numero":59,"descricao":"Minuta dos Estudos Geotécnicos - Anexo 3B (A4)","unidade":"vias","totalContrato":256.20000000000005,"totalReal":256.20000000000005,"totalJaMedidoBase":0},{"numero":60,"descricao":"Min. Notas de Serviço e Cálc.de Volumes - Anexo 3D (A4)","unidade":"vias","totalContrato":256.20000000000005,"totalReal":256.20000000000005,"totalJaMedidoBase":0},{"numero":61,"descricao":"Minuta do Projeto de Execução de OAE (A1)","unidade":"vias","totalContrato":537.54,"totalReal":537.54,"totalJaMedidoBase":0},{"numero":62,"descricao":"Min. Memória de Cálculo da Obra de Arte Especial (A4)","unidade":"vias","totalContrato":128.10000000000002,"totalReal":128.10000000000002,"totalJaMedidoBase":0},{"numero":63,"descricao":"Minuta do Projeto de Desapropriação - Anexo 3A (A4)","unidade":"vias","totalContrato":128.10000000000002,"totalReal":128.10000000000002,"totalJaMedidoBase":0},{"numero":64,"descricao":"Imp. Defin. do Projeto de Execução (A3)","unidade":"vias","totalContrato":514.5,"totalReal":514.5,"totalJaMedidoBase":0},{"numero":65,"descricao":"Imp. Defin. do Relatório de Proj.e Docum.p/conc. (A4)","unidade":"vias","totalContrato":256.20000000000005,"totalReal":256.20000000000005,"totalJaMedidoBase":0},{"numero":66,"descricao":"Imp. Defin. dos Estudos Geotécnicos - Anexo 3B (A4)","unidade":"vias","totalContrato":256.20000000000005,"totalReal":256.20000000000005,"totalJaMedidoBase":0},{"numero":67,"descricao":"Imp. Defin. das Notas de Serv. e Cálc.Vol. Anexo 3D (A4)","unidade":"vias","totalContrato":256.20000000000005,"totalReal":256.20000000000005,"totalJaMedidoBase":0},{"numero":68,"descricao":"Imp. Defin. da Memória Justificativa ( A4)","unidade":"vias","totalContrato":256.20000000000005,"totalReal":256.20000000000005,"totalJaMedidoBase":0},{"numero":69,"descricao":"Imp. Defin. do Projeto de Execução de OAE (A1 - Sulfite)","unidade":"vias","totalContrato":1075.08,"totalReal":1075.08,"totalJaMedidoBase":0},{"numero":70,"descricao":"Imp. Defin. do Projeto de Execução de OAE (A1 - Vegetal)","unidade":"Form","totalContrato":114.84,"totalReal":114.84,"totalJaMedidoBase":0},{"numero":71,"descricao":"Imp. Defin. da Memória de Cálculo de OAE (A4)","unidade":"vias","totalContrato":256.20000000000005,"totalReal":256.20000000000005,"totalJaMedidoBase":0},{"numero":72,"descricao":"Imp. Defin. do Proj.de Desapropriação - Anexo 3A (A4)","unidade":"vias","totalContrato":256.20000000000005,"totalReal":256.20000000000005,"totalJaMedidoBase":0},{"numero":73,"descricao":"Imp. Defin. do Orçamento da Obra (A4)","unidade":"vias","totalContrato":256.20000000000005,"totalReal":256.20000000000005,"totalJaMedidoBase":0},{"numero":74,"descricao":"Projeto Completo Gravado em Meio Digital","unidade":"vias","totalContrato":104.69999999999999,"totalReal":104.69999999999999,"totalJaMedidoBase":0}],
+    'rubim': [{"numero":1,"descricao":"Coordenação","unidade":"U","totalContrato":86011.77,"totalReal":86011.77,"totalJaMedidoBase":30448.17},{"numero":2,"descricao":"Administração","unidade":"U","totalContrato":81557.54,"totalReal":81557.54,"totalJaMedidoBase":28871.37},{"numero":3,"descricao":"Apoio Logístico - Veículo 1.0 Turbo ou similar, com motorista","unidade":"km","totalContrato":18174.0,"totalReal":18174.0,"totalJaMedidoBase":5181.92},{"numero":4,"descricao":"Veículo Tipo Van, 12 passageiros, com motorista","unidade":"km","totalContrato":11200.0,"totalReal":11200.0,"totalJaMedidoBase":0},{"numero":5,"descricao":"Visita ao trecho em fase de projeto","unidade":"U","totalContrato":34830.93,"totalReal":34830.93,"totalJaMedidoBase":17415.46},{"numero":6,"descricao":"Orçamento da Obra - Trecho","unidade":"U","totalContrato":3136.4,"totalReal":3136.4,"totalJaMedidoBase":0},{"numero":7,"descricao":"Orçamento da Obra - OAE","unidade":"U","totalContrato":5453.25,"totalReal":5453.25,"totalJaMedidoBase":0},{"numero":8,"descricao":"Diagnóstico Preliminar de Segurança Viária","unidade":"km","totalContrato":9619.92,"totalReal":9619.92,"totalJaMedidoBase":9619.92},{"numero":9,"descricao":"Estudo de tráfego - (contagem volumétrica e classificatória)","unidade":"U","totalContrato":14253.1,"totalReal":14253.1,"totalJaMedidoBase":14253.1},{"numero":10,"descricao":"Estudo de tráfego (pesquisa origem/destino)","unidade":"U","totalContrato":15492.5,"totalReal":15492.5,"totalJaMedidoBase":15492.5},{"numero":11,"descricao":"Estudos Geológicos","unidade":"U","totalContrato":19954.34,"totalReal":19954.34,"totalJaMedidoBase":19954.34},{"numero":12,"descricao":"Estudos de Traçado","unidade":"km","totalContrato":37391.04,"totalReal":37391.04,"totalJaMedidoBase":37391.04},{"numero":13,"descricao":"Estudos topográficos","unidade":"km","totalContrato":293288.76,"totalReal":293288.76,"totalJaMedidoBase":117315.5},{"numero":14,"descricao":"Estudos hidrológicos","unidade":"km","totalContrato":23631.84,"totalReal":23631.84,"totalJaMedidoBase":16542.28},{"numero":15,"descricao":"Estudos hidrológicos para Obra de Arte Especial com comprimento L=<50m","unidade":"U","totalContrato":70414.64,"totalReal":70414.64,"totalJaMedidoBase":4576.95},{"numero":16,"descricao":"Estudos Geotécnicos","unidade":"km","totalContrato":199375.56,"totalReal":199375.56,"totalJaMedidoBase":155512.93},{"numero":17,"descricao":"Diagnóstico preliminar de Obra-de-Arte-Especial (OAE) L =< 50m","unidade":"U","totalContrato":34396.16,"totalReal":34396.16,"totalJaMedidoBase":0},{"numero":18,"descricao":"Mobilização para Sondagem mista","unidade":"U","totalContrato":4647.75,"totalReal":4647.75,"totalJaMedidoBase":0},{"numero":19,"descricao":"Sondagem mista em solo","unidade":"m","totalContrato":47407.5,"totalReal":47407.5,"totalJaMedidoBase":0},{"numero":20,"descricao":"Sondagem mista em rocha","unidade":"m","totalContrato":49080.6,"totalReal":49080.6,"totalJaMedidoBase":0},{"numero":21,"descricao":"Taxa de instalação por furo para Sondagem mista","unidade":"U","totalContrato":9518.56,"totalReal":9518.56,"totalJaMedidoBase":0},{"numero":22,"descricao":"Mobilização para Sondagem a Percussão","unidade":"U","totalContrato":3656.23,"totalReal":3656.23,"totalJaMedidoBase":3656.23},{"numero":23,"descricao":"Sondagem a Percussão","unidade":"m","totalContrato":46850.4,"totalReal":46850.4,"totalJaMedidoBase":31427.94},{"numero":24,"descricao":"Taxa de instalação por furo para Sondagem a Percussão","unidade":"U","totalContrato":8031.42,"totalReal":8031.42,"totalJaMedidoBase":8031.42},{"numero":25,"descricao":"Mobilização para Sondagem a Penetrômetro Dinâmico Leve","unidade":"U","totalContrato":1859.1,"totalReal":1859.1,"totalJaMedidoBase":0},{"numero":26,"descricao":"Sondagem a Penetrômetro Dinâmico Leve","unidade":"m","totalContrato":13387.68,"totalReal":13387.68,"totalJaMedidoBase":0},{"numero":27,"descricao":"Sondagem a Trado para delineamento da superfície rochosa ao nível do subleito","unidade":"m","totalContrato":11599.2,"totalReal":11599.2,"totalJaMedidoBase":3396.63},{"numero":28,"descricao":"Estudos e Projetos Ambientais - Relatório Ambiental Simplificado","unidade":"U","totalContrato":10886.12,"totalReal":10886.12,"totalJaMedidoBase":0},{"numero":29,"descricao":"Estudos e Projetos Ambientais - PIA com Inventário Florestal/Fitosociológico","unidade":"U","totalContrato":18696.89,"totalReal":18696.89,"totalJaMedidoBase":0},{"numero":30,"descricao":"Estudos e Projetos Ambientais - Campanha de monitoramento/inventariamento da fauna","unidade":"U","totalContrato":41986.45,"totalReal":41986.45,"totalJaMedidoBase":0},{"numero":31,"descricao":"Estudos e Projetos Ambientais - Projeto Técnico de Reconstituição da Flora - PTRF - incluindo o Projeto de Compensação de APPs e Corte de Ameaçadas de extinção","unidade":"U","totalContrato":11099.82,"totalReal":11099.82,"totalJaMedidoBase":0},{"numero":32,"descricao":"Projeto executivo de compensação florestal em área de Mata Atlântica","unidade":"U","totalContrato":11099.82,"totalReal":11099.82,"totalJaMedidoBase":0},{"numero":33,"descricao":"Estudos e Projetos Ambientais - Estudo de alternativa técnica e locacional","unidade":"U","totalContrato":2509.12,"totalReal":2509.12,"totalJaMedidoBase":0},{"numero":34,"descricao":"Projeto Geométrico","unidade":"km","totalContrato":52110.36,"totalReal":52110.36,"totalJaMedidoBase":38648.51},{"numero":35,"descricao":"Projeto Geotécnico e de Terraplenagem","unidade":"km","totalContrato":38728.08,"totalReal":38728.08,"totalJaMedidoBase":5809.21},{"numero":36,"descricao":"Projeto de Drenagem","unidade":"km","totalContrato":37828.44,"totalReal":37828.44,"totalJaMedidoBase":4539.41},{"numero":37,"descricao":"Projeto de Pavimentação","unidade":"km","totalContrato":42846.48,"totalReal":42846.48,"totalJaMedidoBase":31349.34},{"numero":38,"descricao":"Projeto de Obra-de-Arte-Especial","unidade":"m2","totalContrato":218657.4,"totalReal":218657.4,"totalJaMedidoBase":0},{"numero":39,"descricao":"Projeto de bueiro celular com fundação profunda","unidade":"U","totalContrato":10161.03,"totalReal":10161.03,"totalJaMedidoBase":0},{"numero":40,"descricao":"Projeto de interseção no mesmo plano","unidade":"U","totalContrato":17254.68,"totalReal":17254.68,"totalJaMedidoBase":4112.36},{"numero":41,"descricao":"Projeto de Segurança Viária","unidade":"km","totalContrato":35348.4,"totalReal":35348.4,"totalJaMedidoBase":24743.88},{"numero":42,"descricao":"Projeto de Desapropriação","unidade":"km","totalContrato":41006.16,"totalReal":41006.16,"totalJaMedidoBase":0},{"numero":43,"descricao":"Projeto de Desapropriação - Busca de registro em cartório","unidade":"U","totalContrato":4462.56,"totalReal":4462.56,"totalJaMedidoBase":0},{"numero":44,"descricao":"Projeto de desapropriação - Certidão negativa de registro","unidade":"U","totalContrato":3926.88,"totalReal":3926.88,"totalJaMedidoBase":0},{"numero":45,"descricao":"Projeto de Obras Complementares","unidade":"km","totalContrato":10710.36,"totalReal":10710.36,"totalJaMedidoBase":8568.28},{"numero":46,"descricao":"Projeto de Estabilização de Aterro sobre Solos Compressíveis","unidade":"U","totalContrato":10483.72,"totalReal":10483.72,"totalJaMedidoBase":0},{"numero":47,"descricao":"Projeto de Estabilização de Maciços","unidade":"U","totalContrato":13458.28,"totalReal":13458.28,"totalJaMedidoBase":0},{"numero":48,"descricao":"Minuta do Projeto de Execução (Formato A3)","unidade":"vias","totalContrato":312.3,"totalReal":312.3,"totalJaMedidoBase":0},{"numero":49,"descricao":"Minuta do Relatório de Projeto (Formato A4)","unidade":"vias","totalContrato":156.18,"totalReal":156.18,"totalJaMedidoBase":0},{"numero":50,"descricao":"Minuta dos Estudos Geotécnicos - Anexo 3B (Formato A4)","unidade":"vias","totalContrato":156.18,"totalReal":156.18,"totalJaMedidoBase":0},{"numero":51,"descricao":"Minuta das Notas de Serviço e Cálculo de Volumes - Anexo 3D (Formato A4)","unidade":"vias","totalContrato":156.18,"totalReal":156.18,"totalJaMedidoBase":0},{"numero":52,"descricao":"Minuta do projeto de execução de Obra de Arte Especial (Formato A1)","unidade":"vias","totalContrato":535.41,"totalReal":535.41,"totalJaMedidoBase":0},{"numero":53,"descricao":"Minuta da Memória de Cálculo da Obra de Arte Especial (Formato A4)","unidade":"vias","totalContrato":78.09,"totalReal":78.09,"totalJaMedidoBase":0},{"numero":54,"descricao":"Minuta do Projeto de Desapropriação - Anexo 3A ( Formato A4)","unidade":"vias","totalContrato":78.09,"totalReal":78.09,"totalJaMedidoBase":0},{"numero":55,"descricao":"Impressão Definitiva do Projeto de Execução (Formato A3)","unidade":"vias","totalContrato":312.3,"totalReal":312.3,"totalJaMedidoBase":0},{"numero":56,"descricao":"Impressão Definitiva do Relatório de Projeto e Documentos para concorrência (Formato A4)","unidade":"vias","totalContrato":156.18,"totalReal":156.18,"totalJaMedidoBase":0},{"numero":57,"descricao":"Impressão Definitiva dos Estudos Geotécnicos - Anexo 3B (Formato A4)","unidade":"vias","totalContrato":156.18,"totalReal":156.18,"totalJaMedidoBase":0},{"numero":58,"descricao":"Impressão Definitiva das Notas de Serviço e Cálculo de Volumes - Anexo 3D (Formato A4)","unidade":"vias","totalContrato":156.18,"totalReal":156.18,"totalJaMedidoBase":0},{"numero":59,"descricao":"Impressão Definitiva da Memória Justificativa (Formato A4)","unidade":"vias","totalContrato":156.18,"totalReal":156.18,"totalJaMedidoBase":0},{"numero":60,"descricao":"Impressão Definitiva do Projeto de Execução de Obras- de-Arte-Especiais (Formato A1 - Sulfite)","unidade":"vias","totalContrato":1070.82,"totalReal":1070.82,"totalJaMedidoBase":0},{"numero":61,"descricao":"Impressão definitiva do Projeto de Execução de Obras- Format de-Arte-Especiais (Formato A1 - Vegetal)","unidade":null,"totalContrato":856.32,"totalReal":856.32,"totalJaMedidoBase":0},{"numero":62,"descricao":"Impressão Definitiva da Memória de Cálculo de Obra-de- Arte-Especial (Formato A4)","unidade":"vias","totalContrato":156.18,"totalReal":156.18,"totalJaMedidoBase":0},{"numero":63,"descricao":"Impressão Definitiva do Projeto de Desapropriação - Anexo 3A (Formato A4)","unidade":"vias","totalContrato":156.18,"totalReal":156.18,"totalJaMedidoBase":0},{"numero":64,"descricao":"Impressão Definitiva do Orçamento da Obra (Formato A4 )","unidade":"vias","totalContrato":156.18,"totalReal":156.18,"totalJaMedidoBase":0},{"numero":65,"descricao":"Projeto Completo gravado em meio digital","unidade":"vias","totalContrato":89.25,"totalReal":89.25,"totalJaMedidoBase":0}],
+    'aracuai': [{"numero":1,"descricao":"Coordenação","unidade":"U","totalContrato":158790.96,"totalReal":158790.96,"totalJaMedidoBase":76060.86},{"numero":2,"descricao":"Administração","unidade":"U","totalContrato":201568.1,"totalReal":201568.1,"totalJaMedidoBase":96551.11},{"numero":3,"descricao":"Veículo tipo gol 1.6, quatro portas, ou similar, com motorista","unidade":"km","totalContrato":13980,"totalReal":13980,"totalJaMedidoBase":13304.3},{"numero":4,"descricao":"Veículo Tipo Van, 12 passageiros, com motorista","unidade":"km","totalContrato":8400,"totalReal":8400,"totalJaMedidoBase":0},{"numero":5,"descricao":"Visita ao trecho em fase de projeto","unidade":"U","totalContrato":44639.35,"totalReal":44639.35,"totalJaMedidoBase":39282.62},{"numero":6,"descricao":"Orçamento da Obra - Trecho","unidade":"U","totalContrato":3512.76,"totalReal":3512.76,"totalJaMedidoBase":0},{"numero":7,"descricao":"Orçamento da Obra - OAE","unidade":"un","totalContrato":7296.62,"totalReal":7296.62,"totalJaMedidoBase":0},{"numero":8,"descricao":"Diagnóstico Preliminar de Segurança Viária","unidade":"km","totalContrato":9619.59,"totalReal":9619.59,"totalJaMedidoBase":9619.59},{"numero":9,"descricao":"Estudo de tráfego (contagem volumétrica e classificatória)","unidade":"U","totalContrato":24788,"totalReal":24788,"totalJaMedidoBase":24788},{"numero":10,"descricao":"Estudos Geológicos","unidade":"U","totalContrato":48088.72,"totalReal":48088.72,"totalJaMedidoBase":48088.72},{"numero":11,"descricao":"Estudos de Traçado","unidade":"km","totalContrato":95954.04,"totalReal":95954.04,"totalJaMedidoBase":95954.04},{"numero":12,"descricao":"Estudos topográficos","unidade":"km","totalContrato":706232.07,"totalReal":706232.07,"totalJaMedidoBase":423739.24},{"numero":13,"descricao":"Estudos hidrológicos","unidade":"km","totalContrato":55247.61,"totalReal":55247.61,"totalJaMedidoBase":44198.08},{"numero":14,"descricao":"Estudos hidrológicos para Obra de Arte Especial com comprimento L=<50m","unidade":"U","totalContrato":107900.13,"totalReal":107900.13,"totalJaMedidoBase":13280.01},{"numero":15,"descricao":"Estudos Geotécnicos","unidade":"km","totalContrato":440561.91,"totalReal":440561.91,"totalJaMedidoBase":343638.28},{"numero":16,"descricao":"Diagnóstico preliminar de Obra-de-Arte-Especial (OAE) L=< 50m","unidade":"U","totalContrato":59436.52,"totalReal":59436.52,"totalJaMedidoBase":0},{"numero":17,"descricao":"Mobilização para Sondagem mista","unidade":"U","totalContrato":4647.75,"totalReal":4647.75,"totalJaMedidoBase":4647.75},{"numero":18,"descricao":"Sondagem mista em solo","unidade":"m","totalContrato":73745,"totalReal":73745,"totalJaMedidoBase":12368.09},{"numero":19,"descricao":"Sondagem mista em rocha","unidade":"m","totalContrato":76347.6,"totalReal":76347.6,"totalJaMedidoBase":19086.9},{"numero":20,"descricao":"Taxa de instalação por furo para Sondagem mista","unidade":"U","totalContrato":14872.75,"totalReal":14872.75,"totalJaMedidoBase":4164.37},{"numero":21,"descricao":"Mobilização para Sondagem a Percussão","unidade":"U","totalContrato":3656.23,"totalReal":3656.23,"totalJaMedidoBase":3656.23},{"numero":22,"descricao":"Sondagem a Percussão","unidade":"m","totalContrato":113221.8,"totalReal":113221.8,"totalJaMedidoBase":103279.1},{"numero":23,"descricao":"Taxa de instalação por furo para Sondagem a Percussão","unidade":"U","totalContrato":19632.36,"totalReal":19632.36,"totalJaMedidoBase":19632.36},{"numero":24,"descricao":"Mobilização para Sondagem a Penetrômetro DinâmicoLeve","unidade":"U","totalContrato":1859.1,"totalReal":1859.1,"totalJaMedidoBase":0},{"numero":25,"descricao":"Sondagem a Penetrômetro Dinâmico Leve","unidade":"m","totalContrato":32353.56,"totalReal":32353.56,"totalJaMedidoBase":0},{"numero":26,"descricao":"Sondagem a Trado  para delineamento da superfície rochosa ao nível do subleito","unidade":"m","totalContrato":28031.4,"totalReal":28031.4,"totalJaMedidoBase":11173.25},{"numero":27,"descricao":"Estudos e Projetos Ambientais - Relatório de Controle Ambiental - RCA","unidade":"U","totalContrato":39570.01,"totalReal":39570.01,"totalJaMedidoBase":0},{"numero":28,"descricao":"Estudos e Projetos Ambientais - Plano de Controle Ambiental - PCA com PRAD","unidade":"U","totalContrato":36570.67,"totalReal":36570.67,"totalJaMedidoBase":0},{"numero":29,"descricao":"Estudos e Projetos Ambientais - PIA com Inventário Florestal/Fitosociológico","unidade":"U","totalContrato":20748.21,"totalReal":20748.21,"totalJaMedidoBase":0},{"numero":30,"descricao":"Estudos e Projetos Ambientais - Campanha de monitoramento/inventariamento da fauna","unidade":"U","totalContrato":83972.9,"totalReal":83972.9,"totalJaMedidoBase":0},{"numero":31,"descricao":"Estudos e Projetos Ambientais - Projeto Técnico de Reconstituição da Flora - PTRF incluindo o Projeto de Compensação de APPs e Corte de Ameaçadas de extinção","unidade":"U","totalContrato":11099.82,"totalReal":11099.82,"totalJaMedidoBase":0},{"numero":32,"descricao":"Projeto executivo de compensação florestal em área de Mata Atlântica","unidade":"U","totalContrato":11099.82,"totalReal":11099.82,"totalJaMedidoBase":0},{"numero":33,"descricao":"Estudos e Projetos Ambientais - Estudos de prospecção espeleológica","unidade":"U","totalContrato":45721.7,"totalReal":45721.7,"totalJaMedidoBase":0},{"numero":34,"descricao":"Estudos e Projetos Ambientais - Mapeamento de cavidades e Avaliação de impactos","unidade":"un","totalContrato":7123.72,"totalReal":7123.72,"totalJaMedidoBase":0},{"numero":35,"descricao":"Estudos e Projetos Ambientais - Estudo de alternativa técnica e locacional","unidade":"U","totalContrato":2509.12,"totalReal":2509.12,"totalJaMedidoBase":0},{"numero":36,"descricao":"Projeto Geométrico","unidade":"km","totalContrato":140592.87,"totalReal":140592.87,"totalJaMedidoBase":105800.17},{"numero":37,"descricao":"Projeto Geotécnico e de Terraplenagem","unidade":"km","totalContrato":95918.37,"totalReal":95918.37,"totalJaMedidoBase":16361.24},{"numero":38,"descricao":"Projeto de Drenagem","unidade":"km","totalContrato":94813.47,"totalReal":94813.47,"totalJaMedidoBase":23703.36},{"numero":39,"descricao":"Projeto de Pavimentação","unidade":"km","totalContrato":103246.38,"totalReal":103246.38,"totalJaMedidoBase":76877.01},{"numero":40,"descricao":"Projeto de Obra-de-Arte-Especial","unidade":"m2","totalContrato":341039.4,"totalReal":341039.4,"totalJaMedidoBase":65584.5},{"numero":41,"descricao":"Projeto de bueiro celular com fundação profunda","unidade":"U","totalContrato":20518.32,"totalReal":20518.32,"totalJaMedidoBase":0},{"numero":42,"descricao":"Projeto de interseção no mesmo plano","unidade":"U","totalContrato":45861.7,"totalReal":45861.7,"totalJaMedidoBase":6191.32},{"numero":43,"descricao":"Projeto de Segurança Viária","unidade":"km","totalContrato":80083.5,"totalReal":80083.5,"totalJaMedidoBase":27338.85},{"numero":44,"descricao":"Projeto de Desapropriação","unidade":"km","totalContrato":87338.43,"totalReal":87338.43,"totalJaMedidoBase":34935.37},{"numero":45,"descricao":"Projeto de Desapropriação - Busca de registro em cartório","unidade":"U","totalContrato":5695.21,"totalReal":5695.21,"totalJaMedidoBase":0},{"numero":46,"descricao":"Projeto de desapropriação - Certidão negativa de registro","unidade":"U","totalContrato":10919.33,"totalReal":10919.33,"totalJaMedidoBase":0},{"numero":47,"descricao":"Projeto de Obras Complementares","unidade":"km","totalContrato":23160.27,"totalReal":23160.27,"totalJaMedidoBase":18528.21},{"numero":48,"descricao":"Projeto de Estabilização de Aterro sobre Solos Compressíveis","unidade":"U","totalContrato":23588.37,"totalReal":23588.37,"totalJaMedidoBase":0},{"numero":49,"descricao":"Projeto de Estabilização de Maciços","unidade":"U","totalContrato":30281.13,"totalReal":30281.13,"totalJaMedidoBase":0},{"numero":50,"descricao":"Minuta do Projeto de Execução (Formato A3)","unidade":"vias","totalContrato":312.3,"totalReal":312.3,"totalJaMedidoBase":0},{"numero":51,"descricao":"Minuta do Relatório de Projeto (Formato A4)","unidade":"vias","totalContrato":156.18,"totalReal":156.18,"totalJaMedidoBase":0},{"numero":52,"descricao":"Minuta dos Estudos Geotécnicos - Anexo 3B (Formato A4)","unidade":"vias","totalContrato":156.18,"totalReal":156.18,"totalJaMedidoBase":0},{"numero":53,"descricao":"Minuta das Notas de Serviço e Cálculo de Volumes - Anexo 3D (Formato A4)","unidade":"vias","totalContrato":156.18,"totalReal":156.18,"totalJaMedidoBase":0},{"numero":54,"descricao":"Minuta do projeto de execução de Obra de Arte Especial (Formato A1)","unidade":"vias","totalContrato":535.41,"totalReal":535.41,"totalJaMedidoBase":0},{"numero":55,"descricao":"Minuta da Memória de Cálculo da Obra de Arte Especial (Formato A4)","unidade":"vias","totalContrato":78.09,"totalReal":78.09,"totalJaMedidoBase":0},{"numero":56,"descricao":"Minuta do Projeto de Desapropriação - Anexo 3A (Formato A4)","unidade":"vias","totalContrato":78.09,"totalReal":78.09,"totalJaMedidoBase":0},{"numero":57,"descricao":"Impressão Definitiva do Projeto de Execução (Formato A3)","unidade":"vias","totalContrato":312.3,"totalReal":312.3,"totalJaMedidoBase":0},{"numero":58,"descricao":"Impressão Definitiva do Relatório de Projeto e Documentos para concorrência (Formato A4)","unidade":"vias","totalContrato":156.18,"totalReal":156.18,"totalJaMedidoBase":0},{"numero":59,"descricao":"Impressão Definitiva dos Estudos Geotécnicos - Anexo 3B (Formato A4)","unidade":"vias","totalContrato":156.18,"totalReal":156.18,"totalJaMedidoBase":0},{"numero":60,"descricao":"Impressão Definitiva das Notas de Serviço e Cálculo de Volumes - Anexo 3D (Formato A4)","unidade":"vias","totalContrato":156.18,"totalReal":156.18,"totalJaMedidoBase":0},{"numero":61,"descricao":"Impressão Definitiva da Memória Justificativa (Formato A4)","unidade":"vias","totalContrato":156.18,"totalReal":156.18,"totalJaMedidoBase":0},{"numero":62,"descricao":"Impressão Definitiva do Projeto de Execução de Obras-de-Arte-Especiais (Formato A1 - Sulfite)","unidade":"vias","totalContrato":1070.82,"totalReal":1070.82,"totalJaMedidoBase":0},{"numero":63,"descricao":"Impressão definitiva do Projeto de Execução de Obras-de-Arte-Especiais (Formato A1 - Vegetal)","unidade":"Format","totalContrato":1391.52,"totalReal":1391.52,"totalJaMedidoBase":0},{"numero":64,"descricao":"Impressão Definitiva da Memória de Cálculo de Obra-de-Arte-Especial (Formato A4)","unidade":"vias","totalContrato":156.18,"totalReal":156.18,"totalJaMedidoBase":0},{"numero":65,"descricao":"Impressão Definitiva do Projeto de Desapropriação - Anexo 3A (Formato A4)","unidade":"vias","totalContrato":156.18,"totalReal":156.18,"totalJaMedidoBase":0},{"numero":66,"descricao":"Impressão Definitiva do Orçamento da Obra (Formato A4)","unidade":"vias","totalContrato":156.18,"totalReal":156.18,"totalJaMedidoBase":0},{"numero":67,"descricao":"Projeto Completo gravado em meio digital","unidade":"vias","totalContrato":89.25,"totalReal":89.25,"totalJaMedidoBase":0}],
+  };
+
+  medicaoBaseData() { return this.medicaoBaseDataByProjeto[this.projeto()] || []; }
+;
+
+  mesesLabel = { junho: 'Junho/26', julho: 'Julho/26', agosto: 'Agosto/26', setembro: 'Setembro/26', outubro: 'Outubro/26', novembro: 'Novembro/26', dezembro: 'Dezembro/26' };
+
+  fmtMoney(n) {
+    if (n === null || n === undefined || isNaN(n)) return '—';
+    return 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  onPasswordChange(e) { this.setState({ passwordDraft: e.target.value, passwordError: false }); }
+  onPasswordKeyDown(e) { if (e && e.key === 'Enter') this.submitPassword(); }
+  submitPassword() {
+    if (this.state.passwordDraft === this.senha) this.setState({ screen: 'form' });
+    else this.setState({ passwordError: true });
+  }
+
+  onMesChange(e) { this.setState({ mes: e.target.value }); }
+  onNomeChange(e) { this.setState({ nome: e.target.value }); }
+
+  async onFileChange(e) {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    this.setState({ parseError: '' });
+    try {
+      const { parseXlsxFile } = await import('./xlsx-lite.js');
+      const parsed = await parseXlsxFile(file);
+      if (!parsed.length) {
+        this.setState({ parseError: 'Não encontrei nenhuma linha válida (Item + Valor) na planilha.' });
+        return;
+      }
+      const byNumero = {};
+      this.medicaoBaseData().forEach(i => byNumero[i.numero] = i);
+      const rows = [];
+      let unmatched = 0;
+      parsed.forEach(p => {
+        const base = byNumero[p.numero];
+        if (!base) { unmatched++; return; }
+        const antes = base.totalJaMedidoBase;
+        const depois = antes + p.valor;
+        const pctAntes = base.totalReal ? Math.round((antes / base.totalReal) * 100) : 0;
+        const pctDepois = base.totalReal ? Math.round((depois / base.totalReal) * 100) : 0;
+        rows.push({
+          numero: base.numero, descricao: base.descricao, valor: p.valor,
+          valorFmt: this.fmtMoney(p.valor),
+          totalJaMedidoAntesFmt: this.fmtMoney(antes), totalJaMedidoDepoisFmt: this.fmtMoney(depois),
+          pctAntes, pctDepois,
+        });
+      });
+      rows.sort((a, b) => a.numero - b.numero);
+      this.setState({ screen: 'preview', previewRows: rows, unmatchedCount: unmatched });
+    } catch (err) {
+      console.error(err);
+      this.setState({ parseError: 'Não consegui ler esse arquivo: ' + err.message });
+    }
+  }
+
+  async onPdfFileChange(e) {
+    const files = e.target.files ? Array.from(e.target.files) : [];
+    if (!files.length) return;
+    this.setState({ parseError: '', isParsingPdf: true });
+    try {
+      const { PDFParse } = await import('https://cdn.jsdelivr.net/npm/pdf-parse@2.4.5/dist/pdf-parse/web/pdf-parse.es.js');
+      PDFParse.setWorker('https://cdn.jsdelivr.net/npm/pdf-parse@2.4.5/dist/pdf-parse/web/pdf.worker.min.mjs');
+      let allRows = [];
+      let unmatched = 0;
+      const mesesVistos = new Set();
+      const errosArquivos = [];
+      for (const file of files) {
+        const buf = await file.arrayBuffer();
+        const parser = new PDFParse({ data: new Uint8Array(buf) });
+        const result = await parser.getText();
+        const parsedRows = this.parseBoletimPdfText(result.text);
+        const header = this.parseBoletimHeader(result.text);
+        const errors = parsedRows.filter(r => r.ERROR);
+        if (!parsedRows.length || errors.length > parsedRows.length / 2) {
+          errosArquivos.push(file.name + ': não reconheci a tabela de itens.');
+          continue;
+        }
+        if (!header || !header.mesKey || !this.mesesLabel[header.mesKey]) {
+          errosArquivos.push(file.name + ': não identifiquei o mês de referência (ou é um mês fora do intervalo aceito).');
+          continue;
+        }
+        if (mesesVistos.has(header.mesKey)) {
+          errosArquivos.push(file.name + ': mês ' + this.mesesLabel[header.mesKey] + ' repetido entre os arquivos anexados — ignorado.');
+          continue;
+        }
+        mesesVistos.add(header.mesKey);
+        parsedRows.forEach(p => {
+          if (p.ERROR) { unmatched++; return; }
+          const base = this.medicaoBaseData()[p.idx];
+          if (!base || !p.valorMedAtual) return;
+          const antes = base.totalJaMedidoBase;
+          const depois = antes + p.valorMedAtual;
+          const pctAntes = base.totalReal ? Math.round((antes / base.totalReal) * 100) : 0;
+          const pctDepois = base.totalReal ? Math.round((depois / base.totalReal) * 100) : 0;
+          allRows.push({
+            numero: base.numero, descricao: base.descricao, valor: p.valorMedAtual,
+            valorFmt: this.fmtMoney(p.valorMedAtual),
+            totalJaMedidoAntesFmt: this.fmtMoney(antes), totalJaMedidoDepoisFmt: this.fmtMoney(depois),
+            pctAntes, pctDepois, mes: header.mesKey, mesLabel: this.mesesLabel[header.mesKey],
+          });
+        });
+      }
+      if (!allRows.length) {
+        this.setState({ parseError: (errosArquivos.length ? errosArquivos.join(' ') : 'Nenhum arquivo teve itens com valor medido (medição zerada?).'), isParsingPdf: false });
+        return;
+      }
+      this.setState({ screen: 'preview', previewRows: allRows, unmatchedCount: unmatched, isParsingPdf: false, parseError: errosArquivos.join(' ') });
+    } catch (err) {
+      console.error(err);
+      this.setState({ parseError: 'Não consegui ler os PDFs: ' + err.message, isParsingPdf: false });
+    }
+  }
+
+  onCancelPreview() { this.setState({ screen: 'form', previewRows: [], unmatchedCount: 0 }); }
+
+  waitForFirebase(attempt, cb) {
+    if (window.firebase && firebase.firestore) {
+      if (!firebase.apps || !firebase.apps.length) {
+        firebase.initializeApp({
+          apiKey: "AIzaSyDNBXkzFJFAsOKefmBesSWmwRHgS0i7ACA",
+          authDomain: "sip-sistema-intelig-de-projeto.firebaseapp.com",
+          projectId: "sip-sistema-intelig-de-projeto",
+          storageBucket: "sip-sistema-intelig-de-projeto.firebasestorage.app",
+          messagingSenderId: "957059964424",
+          appId: "1:957059964424:web:30ba5c315b713c2c05bbbd"
+        });
+      }
+      cb();
+      return;
+    }
+    if (attempt > 100) return;
+    setTimeout(() => this.waitForFirebase(attempt + 1, cb), 100);
+  }
+
+  onConfirm() {
+    this.setState({ screen: 'saving' });
+    this.waitForFirebase(0, () => {
+      const db = firebase.firestore();
+      const batch = db.batch();
+      const nome = this.state.nome || 'Não informado';
+      const projeto = this.projeto();
+      this.state.previewRows.forEach(r => {
+        const mes = r.mes || this.state.mes;
+        const ref = db.collection('medicaoReal').doc('item' + r.numero + '_' + mes + '_' + projeto);
+        batch.set(ref, { numero: r.numero, mes, valorMedido: r.valor, nome, projeto, criadoEm: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true });
+      });
+      batch.commit().then(() => {
+        this.setState({ screen: 'success', dataLancamentoVal: new Date().toLocaleDateString('pt-BR') });
+      }).catch(err => {
+        console.error(err);
+        this.setState({ screen: 'preview', parseError: 'Erro ao gravar: ' + err.message });
+      });
+    });
+  }
+
+  onNovaMedicao() {
+    this.setState({ screen: 'form', previewRows: [], unmatchedCount: 0, nome: '' });
+  }
+
+  onPrint() { window.print(); }
+
+  renderVals() {
+    const mesesOptions = Object.keys(this.mesesLabel).map(k => ({ value: k, label: this.mesesLabel[k] }));
+    const previewRows = this.state.previewRows;
+    const totalMes = previewRows.reduce((s, r) => s + r.valor, 0);
+    const nomes = [...new Set(previewRows.map(r => r.descricao))];
+    const mesesEnvolvidos = [...new Set(previewRows.map(r => r.mesLabel || this.mesesLabel[this.state.mes]))];
+    const mesesEnvolvidosLabel = mesesEnvolvidos.join(', ');
+    const listaTexto = previewRows.length <= 6
+      ? previewRows.map(r => r.descricao).join(', ')
+      : previewRows.slice(0, 6).map(r => r.descricao).join(', ') + ' e outros ' + (previewRows.length - 6) + ' itens';
+    const relatorioTexto = previewRows.length
+      ? 'Em ' + mesesEnvolvidosLabel + ', foram registradas medições em ' + previewRows.length + ' item(ns) do orçamento da obra do trecho ' + this.projetoMeta().rodovia + ' (' + this.projetoMeta().badge + '), totalizando ' + this.fmtMoney(totalMes) + '. Os serviços contemplados neste lançamento foram: ' + listaTexto + '.'
+      : '';
+
+    return {
+      isPassword: this.state.screen === 'password' && this.hasDados(),
+      isForm: this.state.screen === 'form' && this.hasDados(),
+      isPreview: this.state.screen === 'preview' && this.hasDados(),
+      isSaving: this.state.screen === 'saving' && this.hasDados(),
+      isSuccess: this.state.screen === 'success' && this.hasDados(),
+      isSemDados: !this.hasDados(),
+      projetoBadge: this.projetoMeta().badge,
+      projetoLabel: this.projetoMeta().rodovia,
+      passwordDraft: this.state.passwordDraft,
+      showPasswordError: this.state.passwordError,
+      onPasswordChange: (e) => this.onPasswordChange(e),
+      onPasswordKeyDown: (e) => this.onPasswordKeyDown(e),
+      onPasswordSubmit: () => this.submitPassword(),
+      mesesOptions, mesSelecionado: this.state.mes,
+      mesLabelSelecionado: this.mesesLabel[this.state.mes],
+      mesesEnvolvidosLabel,
+      onMesChange: (e) => this.onMesChange(e),
+      nomeResponsavel: this.state.nome,
+      onNomeChange: (e) => this.onNomeChange(e),
+      onFileChange: (e) => this.onFileChange(e),
+      onPdfFileChange: (e) => this.onPdfFileChange(e),
+      isParsingPdf: !!this.state.isParsingPdf,
+      parseError: this.state.parseError,
+      previewRows, previewCount: previewRows.length,
+      unmatchedCount: this.state.unmatchedCount,
+      onConfirm: () => this.onConfirm(),
+      onCancelPreview: () => this.onCancelPreview(),
+      onNovaMedicao: () => this.onNovaMedicao(),
+      onPrint: () => this.onPrint(),
+      nomeResponsavelFinal: this.state.nome || 'Não informado',
+      dataLancamento: this.state.dataLancamentoVal || '',
+      relatorioTexto,
+      totalMesFmt: this.fmtMoney(totalMes),
+    };
+  }
+}
+
+</script>
+</body>
+</html>
