@@ -879,10 +879,18 @@ class Component extends DCLogic {
       { key: 'reuniao-externa', code: 'RE', label: 'Reunião Externa' },
     ];
 
+    // Mesmo padrão usado nos projetos DER-MG (Trinta Reis, Araçuaí, Rubim): esconde do modo
+    // cliente as abas internas/operacionais. Estrutura pronta mesmo sem cliente ativo ainda
+    // usando este projeto (só o DER-MG tem acesso cliente ligado de verdade hoje).
+    const ABAS_ESCONDIDAS_CLIENTE = ['correspondencias', 'consultas', 'controle-terceiros', 'reuniao-externa', 'linha-tempo'];
+    const navDefsFiltrados = this.props.isClienteMode
+      ? navDefs.filter(n => !ABAS_ESCONDIDAS_CLIENTE.includes(n.key))
+      : navDefs;
+
     return {
       primaryColor,
       onVoltarProjetos: this.props.onVoltarProjetos ?? null,
-      navItems: navDefs.map(n => ({
+      navItems: navDefsFiltrados.map(n => ({
         key: n.key, code: n.code, label: n.label,
         bg: active === n.key ? '#2f6690' : 'transparent',
         iconBg: active === n.key ? '#4f8fc0' : 'rgba(255,255,255,0.12)',

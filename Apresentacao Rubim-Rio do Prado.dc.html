@@ -6461,7 +6461,7 @@ class Component extends DCLogic {
     ];
 
     // Cliente (via Acesso Cliente) não vê abas internas/confidenciais. CONSOL sempre vê tudo (padrão seguro).
-    const ABAS_ESCONDIDAS_CLIENTE = ['disciplinas', 'avisos', 'consultas', 'controle-terceiros', 'reuniao-externa'];
+    const ABAS_ESCONDIDAS_CLIENTE = ['disciplinas', 'avisos', 'consultas', 'controle-terceiros', 'reuniao-externa', 'linha-tempo'];
     const navItemsFiltrados = this.props.isClienteMode
       ? navItems.filter(item => !ABAS_ESCONDIDAS_CLIENTE.includes(item.key))
       : navItems;
