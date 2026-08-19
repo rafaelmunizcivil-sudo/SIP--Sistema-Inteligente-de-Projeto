@@ -122,7 +122,7 @@
         <sc-if value="{{ hasSenhaConsolErro }}" hint-placeholder-val="{{ false }}">
           <div style="color:#ff6b81;font-size:12.5px;">{{ senhaConsolErro }}</div>
         </sc-if>
-        <div sc-camel-on-click="{{ confirmSenhaConsol }}" class="sip-btn-primary" style="cursor:pointer;background:#0066ff;color:#fff;font-weight:700;font-size:14px;padding:12px 32px;border-radius:8px;margin-top:6px;">Entrar</div>
+        <div sc-camel-on-click="{{ confirmSenhaConsol }}" class="sip-btn-primary" style="cursor:pointer;background:#0066ff;color:#fff;font-weight:700;font-size:14px;padding:12px 32px;border-radius:8px;margin-top:6px;opacity:{{ senhaConsolLoadingOpacity }};">{{ senhaConsolBtnLabel }}</div>
         <div sc-camel-on-click="{{ voltarAcessoFromSenha }}" style="cursor:pointer;color:rgba(255,255,255,0.5);font-size:13px;margin-top:10px;">← Voltar</div>
       </div>
     </div>
@@ -134,6 +134,9 @@
       <div style="position:relative;z-index:2;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:40px;text-align:center;">
         <div style="font-size:12px;font-weight:700;letter-spacing:0.15em;color:#8fb4ff;">ACESSO RESTRITO</div>
         <div style="font-size:22px;font-weight:800;color:#fff;margin-bottom:6px;">Área do Cliente</div>
+        <div style="width:260px;">
+          <input type="text" value="{{ usuarioClienteInput }}" sc-camel-on-change="{{ setUsuarioClienteInput }}" placeholder="Usuário" style="width:100%;padding:12px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.06);color:#fff;font-size:14px;text-align:center;box-sizing:border-box;">
+        </div>
         <div style="position:relative;width:260px;">
           <input type="{{ senhaClienteInputType }}" value="{{ senhaClienteInput }}" sc-camel-on-change="{{ setSenhaClienteInput }}" placeholder="Digite a senha" style="width:100%;padding:12px 42px 12px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.06);color:#fff;font-size:14px;text-align:center;box-sizing:border-box;">
           <sc-if value="{{ senhaClienteVisible }}" hint-placeholder-val="{{ false }}">
@@ -150,7 +153,7 @@
         <sc-if value="{{ hasSenhaClienteErro }}" hint-placeholder-val="{{ false }}">
           <div style="color:#ff6b81;font-size:12.5px;">{{ senhaClienteErro }}</div>
         </sc-if>
-        <div sc-camel-on-click="{{ confirmSenhaCliente }}" class="sip-btn-primary" style="cursor:pointer;background:#0066ff;color:#fff;font-weight:700;font-size:14px;padding:12px 32px;border-radius:8px;margin-top:6px;">Entrar</div>
+        <div sc-camel-on-click="{{ confirmSenhaCliente }}" class="sip-btn-primary" style="cursor:pointer;background:#0066ff;color:#fff;font-weight:700;font-size:14px;padding:12px 32px;border-radius:8px;margin-top:6px;opacity:{{ senhaClienteLoadingOpacity }};">{{ senhaClienteBtnLabel }}</div>
         <div sc-camel-on-click="{{ voltarAcessoFromSenhaCliente }}" style="cursor:pointer;color:rgba(255,255,255,0.5);font-size:13px;margin-top:10px;">← Voltar</div>
       </div>
     </div>
@@ -444,10 +447,13 @@ class Component extends DCLogic {
     senhaConsolInput: '',
     senhaConsolErro: '',
     senhaConsolVisible: false,
+    senhaConsolLoading: false,
     showSenhaCliente: false,
+    usuarioClienteInput: '',
     senhaClienteInput: '',
     senhaClienteErro: '',
     senhaClienteVisible: false,
+    senhaClienteLoading: false,
     clienteAtivo: null,
     clienteNome: '',
     clienteTipos: [],
@@ -655,12 +661,18 @@ class Component extends DCLogic {
     this.setState({ senhaConsolVisible: !this.state.senhaConsolVisible });
   }
 
-  confirmSenhaConsol() {
-    const SENHA_CONSOL = 'Projeto102';
-    if (this.state.senhaConsolInput === SENHA_CONSOL) {
-      this.setState({ showSenhaConsol: false, entered: true, wantsEnter: true, clienteAtivo: null, clienteNome: '', clienteTipos: [], senhaConsolInput: '', senhaConsolErro: '' });
-    } else {
-      this.setState({ senhaConsolErro: 'Senha incorreta. Tente novamente.', senhaConsolInput: '' });
+  async confirmSenhaConsol() {
+    if (this.state.senhaConsolLoading) return;
+    if (!this.state.senhaConsolInput) {
+      this.setState({ senhaConsolErro: 'Digite a senha.' });
+      return;
+    }
+    this.setState({ senhaConsolLoading: true, senhaConsolErro: '' });
+    try {
+      await firebase.auth().signInWithEmailAndPassword('consol@sip-consol.interno', this.state.senhaConsolInput);
+      this.setState({ showSenhaConsol: false, entered: true, wantsEnter: true, clienteAtivo: null, clienteNome: '', clienteTipos: [], senhaConsolInput: '', senhaConsolErro: '', senhaConsolLoading: false });
+    } catch (e) {
+      this.setState({ senhaConsolErro: 'Senha incorreta. Tente novamente.', senhaConsolInput: '', senhaConsolLoading: false });
     }
   }
 
@@ -669,7 +681,11 @@ class Component extends DCLogic {
   }
 
   selectCliente() {
-    this.setState({ showAcesso: false, showSenhaCliente: true, senhaClienteInput: '', senhaClienteErro: '' });
+    this.setState({ showAcesso: false, showSenhaCliente: true, usuarioClienteInput: '', senhaClienteInput: '', senhaClienteErro: '' });
+  }
+
+  setUsuarioClienteInput(e) {
+    this.setState({ usuarioClienteInput: e.target.value, senhaClienteErro: '' });
   }
 
   setSenhaClienteInput(e) {
@@ -680,31 +696,38 @@ class Component extends DCLogic {
     this.setState({ senhaClienteVisible: !this.state.senhaClienteVisible });
   }
 
-  confirmSenhaCliente() {
+  async confirmSenhaCliente() {
+    if (this.state.senhaClienteLoading) return;
     const CLIENTES = {
-      'DER-MG': { id: 'der-mg', nome: 'DER-MG', tipos: ['mg-259', 'aracuai-nc', 'rubim-rp'] },
-      'DER-PR': { id: 'der-pr', nome: 'DER-PR', tipos: [] },
-      'Liberdade': { id: 'rota-liberdade', nome: 'Rota da Liberdade', tipos: [] },
+      'der-mg': { nome: 'DER-MG', tipos: ['mg-259', 'aracuai-nc', 'rubim-rp'] },
+      'der-pr': { nome: 'DER-PR', tipos: [] },
+      'rota-liberdade': { nome: 'Rota da Liberdade', tipos: [] },
     };
-    const cliente = CLIENTES[this.state.senhaClienteInput];
-    if (cliente) {
+    const usuario = (this.state.usuarioClienteInput || '').trim().toLowerCase();
+    const cliente = CLIENTES[usuario];
+    if (!usuario || !this.state.senhaClienteInput) {
+      this.setState({ senhaClienteErro: 'Preencha usuário e senha.' });
+      return;
+    }
+    if (!cliente) {
+      this.setState({ senhaClienteErro: 'Usuário ou senha incorretos.', senhaClienteInput: '' });
+      return;
+    }
+    this.setState({ senhaClienteLoading: true, senhaClienteErro: '' });
+    try {
+      await firebase.auth().signInWithEmailAndPassword(usuario + '@sip-consol.interno', this.state.senhaClienteInput);
       this.setState({
-        showSenhaCliente: false,
-        entered: true,
-        wantsEnter: true,
-        clienteAtivo: cliente.id,
-        clienteNome: cliente.nome,
-        clienteTipos: cliente.tipos,
-        senhaClienteInput: '',
-        senhaClienteErro: '',
+        showSenhaCliente: false, entered: true, wantsEnter: true,
+        clienteAtivo: usuario, clienteNome: cliente.nome, clienteTipos: cliente.tipos,
+        usuarioClienteInput: '', senhaClienteInput: '', senhaClienteErro: '', senhaClienteLoading: false,
       });
-    } else {
-      this.setState({ senhaClienteErro: 'Senha incorreta. Tente novamente.', senhaClienteInput: '' });
+    } catch (e) {
+      this.setState({ senhaClienteErro: 'Usuário ou senha incorretos.', senhaClienteInput: '', senhaClienteLoading: false });
     }
   }
 
   voltarAcessoFromSenhaCliente() {
-    this.setState({ showSenhaCliente: false, showAcesso: true, senhaClienteInput: '', senhaClienteErro: '' });
+    this.setState({ showSenhaCliente: false, showAcesso: true, usuarioClienteInput: '', senhaClienteInput: '', senhaClienteErro: '' });
   }
 
   resetHero() {
@@ -1171,18 +1194,24 @@ class Component extends DCLogic {
       senhaConsolVisible: this.state.senhaConsolVisible,
       senhaConsolHidden: !this.state.senhaConsolVisible,
       senhaConsolInputType: this.state.senhaConsolVisible ? 'text' : 'password',
+      senhaConsolLoadingOpacity: this.state.senhaConsolLoading ? '0.6' : '1',
+      senhaConsolBtnLabel: this.state.senhaConsolLoading ? 'Entrando...' : 'Entrar',
       toggleSenhaConsolVisible: () => this.toggleSenhaConsolVisible(),
       setSenhaConsolInput: (e) => this.setSenhaConsolInput(e),
       confirmSenhaConsol: () => this.confirmSenhaConsol(),
       voltarAcessoFromSenha: () => this.voltarAcessoFromSenha(),
       isSenhaClienteView: authResolved && !this.state.entered && this.state.showSenhaCliente,
+      usuarioClienteInput: this.state.usuarioClienteInput,
       senhaClienteInput: this.state.senhaClienteInput,
       senhaClienteErro: this.state.senhaClienteErro,
       hasSenhaClienteErro: !!this.state.senhaClienteErro,
       senhaClienteVisible: this.state.senhaClienteVisible,
       senhaClienteHidden: !this.state.senhaClienteVisible,
       senhaClienteInputType: this.state.senhaClienteVisible ? 'text' : 'password',
+      senhaClienteLoadingOpacity: this.state.senhaClienteLoading ? '0.6' : '1',
+      senhaClienteBtnLabel: this.state.senhaClienteLoading ? 'Entrando...' : 'Entrar',
       toggleSenhaClienteVisible: () => this.toggleSenhaClienteVisible(),
+      setUsuarioClienteInput: (e) => this.setUsuarioClienteInput(e),
       setSenhaClienteInput: (e) => this.setSenhaClienteInput(e),
       confirmSenhaCliente: () => this.confirmSenhaCliente(),
       voltarAcessoFromSenhaCliente: () => this.voltarAcessoFromSenhaCliente(),
