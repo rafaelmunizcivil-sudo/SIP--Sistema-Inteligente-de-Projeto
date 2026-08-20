@@ -321,14 +321,37 @@
                           </div>
                         </div>
 
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px;">
+                        <div style="display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:22px;">
                           <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:18px;">
-                            <div style="font-size:12px;font-weight:700;color:#9fb3c8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:16px;">Questionamentos por Análise</div>
+                            <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:16px;">
+                              <div style="font-size:12px;font-weight:700;color:#9fb3c8;text-transform:uppercase;letter-spacing:0.05em;">Questionamentos por Análise</div>
+                              <div style="display:flex;align-items:center;gap:12px;">
+                                <div style="display:flex;align-items:center;gap:4px;"><div style="width:8px;height:8px;border-radius:2px;background:#1f3a5f;"></div><div style="font-size:9.5px;color:#9fb3c8;">Total</div></div>
+                                <div style="display:flex;align-items:center;gap:4px;"><div style="width:8px;height:8px;border-radius:2px;background:#e05a4e;"></div><div style="font-size:9.5px;color:#9fb3c8;">Novos</div></div>
+                                <div style="display:flex;align-items:center;gap:4px;"><div style="width:8px;height:8px;border-radius:2px;background:#4f8fc0;"></div><div style="font-size:9.5px;color:#9fb3c8;">Atendidos</div></div>
+                              </div>
+                            </div>
                             <div style="display:flex;align-items:flex-end;gap:14px;height:140px;">
                               <sc-for list="{{ disc.dashboard.questionamentosChartV }}" as="q" hint-placeholder-count="5">
-                                <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;">
-                                  <div style="font-size:12px;font-weight:700;color:#fff;">{{ q.total }}</div>
-                                  <div style="width:26px;background:{{ q.color }};border-radius:4px 4px 0 0;height:{{ q.hPct }}%;min-height:3px;"></div>
+                                <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;min-width:0;">
+                                  <div style="display:flex;align-items:flex-end;gap:3px;height:100%;">
+                                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:100%;">
+                                      <div style="font-size:10px;font-weight:700;color:#fff;">{{ q.total }}</div>
+                                      <div style="width:13px;background:{{ q.color }};border-radius:3px 3px 0 0;height:{{ q.hPct }}%;min-height:3px;"></div>
+                                    </div>
+                                    <sc-if value="{{ q.temNovo }}" hint-placeholder-val="{{ true }}">
+                                      <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:100%;">
+                                        <div style="font-size:10px;font-weight:700;color:#e05a4e;">{{ q.novo }}</div>
+                                        <div style="width:13px;background:#e05a4e;border-radius:3px 3px 0 0;height:{{ q.novoHPct }}%;min-height:3px;"></div>
+                                      </div>
+                                    </sc-if>
+                                    <sc-if value="{{ q.temAtendido }}" hint-placeholder-val="{{ true }}">
+                                      <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:100%;">
+                                        <div style="font-size:10px;font-weight:700;color:#4f8fc0;">{{ q.atendido }}</div>
+                                        <div style="width:13px;background:#4f8fc0;border-radius:3px 3px 0 0;height:{{ q.atendidoHPct }}%;min-height:3px;"></div>
+                                      </div>
+                                    </sc-if>
+                                  </div>
                                   <div style="font-size:10.5px;color:#9fb3c8;">A{{ q.numero }}</div>
                                 </div>
                               </sc-for>
@@ -340,7 +363,7 @@
                             <div style="display:flex;flex-direction:column;gap:10px;">
                               <sc-for list="{{ disc.dashboard.assuntosChart }}" as="a" hint-placeholder-count="6">
                                 <div style="display:flex;align-items:center;gap:8px;">
-                                  <div style="font-size:11px;color:#d7e4ee;width:100px;flex:0 0 100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="{{ a.label }}">{{ a.label }}</div>
+                                  <div style="font-size:11px;color:#d7e4ee;width:280px;flex:0 0 280px;line-height:1.3;" title="{{ a.label }}">{{ a.label }}</div>
                                   <div style="flex:1;background:rgba(255,255,255,0.1);border-radius:4px;height:14px;position:relative;overflow:hidden;">
                                     <div style="height:100%;background:#4f8fc0;border-radius:4px;width:{{ a.barPct }}%;"></div>
                                   </div>
@@ -351,7 +374,8 @@
                           </div>
                         </div>
 
-                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start;">
+                        <div style="display:grid;grid-template-columns:{{ comparativoGridCols }};gap:16px;align-items:start;">
+                          <sc-if value="{{ mostrarComparativoSequencial }}" hint-placeholder-val="{{ true }}">
                           <div>
                             <div style="font-size:12px;font-weight:700;color:#9fb3c8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px;">Comparativo Sequencial</div>
                             <div style="display:flex;flex-direction:column;gap:12px;">
@@ -377,6 +401,7 @@
                               </sc-for>
                             </div>
                           </div>
+                          </sc-if>
 
                           <div>
                             <div style="font-size:12px;font-weight:700;color:#9fb3c8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px;">Itens Repetidos</div>
@@ -786,12 +811,35 @@
 
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px;">
               <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:18px;">
-                <div style="font-size:12px;font-weight:700;color:#9fb3c8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:16px;">Questionamentos por Análise</div>
+                <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:16px;">
+                  <div style="font-size:12px;font-weight:700;color:#9fb3c8;text-transform:uppercase;letter-spacing:0.05em;">Questionamentos por Análise</div>
+                  <div style="display:flex;align-items:center;gap:12px;">
+                    <div style="display:flex;align-items:center;gap:4px;"><div style="width:8px;height:8px;border-radius:2px;background:#1f3a5f;"></div><div style="font-size:9.5px;color:#9fb3c8;">Total</div></div>
+                    <div style="display:flex;align-items:center;gap:4px;"><div style="width:8px;height:8px;border-radius:2px;background:#e05a4e;"></div><div style="font-size:9.5px;color:#9fb3c8;">Novos</div></div>
+                    <div style="display:flex;align-items:center;gap:4px;"><div style="width:8px;height:8px;border-radius:2px;background:#4f8fc0;"></div><div style="font-size:9.5px;color:#9fb3c8;">Atendidos</div></div>
+                  </div>
+                </div>
                 <div style="display:flex;align-items:flex-end;gap:14px;height:140px;">
                   <sc-for list="{{ externaDashboard.questionamentosChartV }}" as="q" hint-placeholder-count="5">
-                    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;">
-                      <div style="font-size:12px;font-weight:700;color:#fff;">{{ q.total }}</div>
-                      <div style="width:26px;background:{{ q.color }};border-radius:4px 4px 0 0;height:{{ q.hPct }}%;min-height:3px;"></div>
+                    <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;min-width:0;">
+                      <div style="display:flex;align-items:flex-end;gap:3px;height:100%;">
+                        <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:100%;">
+                          <div style="font-size:10px;font-weight:700;color:#fff;">{{ q.total }}</div>
+                          <div style="width:13px;background:{{ q.color }};border-radius:3px 3px 0 0;height:{{ q.hPct }}%;min-height:3px;"></div>
+                        </div>
+                        <sc-if value="{{ q.temNovo }}" hint-placeholder-val="{{ true }}">
+                          <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:100%;">
+                            <div style="font-size:10px;font-weight:700;color:#e05a4e;">{{ q.novo }}</div>
+                            <div style="width:13px;background:#e05a4e;border-radius:3px 3px 0 0;height:{{ q.novoHPct }}%;min-height:3px;"></div>
+                          </div>
+                        </sc-if>
+                        <sc-if value="{{ q.temAtendido }}" hint-placeholder-val="{{ true }}">
+                          <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;height:100%;">
+                            <div style="font-size:10px;font-weight:700;color:#4f8fc0;">{{ q.atendido }}</div>
+                            <div style="width:13px;background:#4f8fc0;border-radius:3px 3px 0 0;height:{{ q.atendidoHPct }}%;min-height:3px;"></div>
+                          </div>
+                        </sc-if>
+                      </div>
                       <div style="font-size:10.5px;color:#9fb3c8;">A{{ q.numero }}</div>
                     </div>
                   </sc-for>
@@ -1062,7 +1110,7 @@
 
         <input value="{{ medicao.search }}" onChange="{{ medicao.onSearchChange }}" placeholder="Buscar por descrição do serviço..." style="width:100%;font-size:13px;font-family:inherit;color:#1f2933;border:1px solid #dde3ea;border-radius:8px;padding:10px 14px;box-sizing:border-box;margin-bottom:10px;">
 
-        <div onClick="{{ onToggleDescricoes }}" style="width: 100%; box-sizing: border-box; text-align: left; font-size: 14px; font-weight: 700; color: {{ primaryColor }}; background: #fff; border: 1px solid {{ primaryColor }}; padding: 10px 14px; border-radius: 8px; cursor: pointer; margin-bottom: 16px">Descrição dos Itens ({{ medicao.totalItens }})</div>
+        <div onClick="{{ onToggleDescricoes }}" style="width: 100%; box-sizing: border-box; text-align: left; font-size: 14px; font-weight: 700; color: {{ primaryColor }}; background: #fff; border: 1px solid {{ primaryColor }}; padding: 10px 14px; border-radius: 8px; cursor: pointer; margin-bottom: 16px">Itens de Serviço ({{ medicao.totalItens }})</div>
 
         <sc-if value="{{ medicaoShowDescricoes }}" hint-placeholder-val="{{ false }}">
         <sc-if value="{{ medicao.hasRows }}" hint-placeholder-val="{{ true }}">
@@ -1306,7 +1354,7 @@
 
           <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:18px;margin-top:16px;">
             <div style="font-size:10px;font-weight:700;color:#7fb3d9;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px;">Nível Gerencial</div>
-            <div style="font-size:12px;font-weight:700;color:#9fb3c8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Situação das Descrições do Contrato ({{ medicaoDashboard.gerencial.totalDescricoes }} descrições)</div>
+            <div style="font-size:12px;font-weight:700;color:#9fb3c8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Situação dos Itens de Serviço do Contrato ({{ medicaoDashboard.gerencial.totalDescricoes }} itens)</div>
             <div style="font-size:10.5px;color:#8a94a3;margin-bottom:14px;">Visão por descrição de serviço (item do contrato) — complementa, sem repetir, a análise por disciplina acima.</div>
 
             <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
@@ -1324,12 +1372,12 @@
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:20px;">
               <div style="background:rgba(47,143,79,0.12);border:1px solid rgba(47,143,79,0.35);border-radius:8px;padding:14px 16px;">
                 <div style="font-size:10px;color:#8fd3a0;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:6px;">Impacto Financeiro das Concluídas</div>
-                <div style="font-size:13px;color:#d7e4ee;margin-bottom:2px;">{{ medicaoDashboard.gerencial.qtdConcluidas }} de {{ medicaoDashboard.gerencial.totalDescricoes }} descrições concluídas representam</div>
+                <div style="font-size:13px;color:#d7e4ee;margin-bottom:2px;">{{ medicaoDashboard.gerencial.qtdConcluidas }} de {{ medicaoDashboard.gerencial.totalDescricoes }} itens concluídos representam</div>
                 <div style="font-size:19px;font-weight:700;color:#fff;">{{ medicaoDashboard.gerencial.valorConcluidasFmt }}</div>
                 <div style="font-size:13px;font-weight:700;color:#8fd3a0;">{{ medicaoDashboard.gerencial.pctValorConcluidas }}% do valor do contrato</div>
               </div>
               <div style="background:rgba(181,84,31,0.12);border:1px solid rgba(181,84,31,0.35);border-radius:8px;padding:14px 16px;">
-                <div style="font-size:10px;color:#f0a35a;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Top 5 — Maior Saldo a Medir (por descrição)</div>
+                <div style="font-size:10px;color:#f0a35a;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Top 5 — Maior Saldo a Medir (por item de serviço)</div>
                 <sc-if value="{{ medicaoDashboard.gerencial.hasTop5Saldo }}" hint-placeholder-val="{{ true }}">
                   <div style="display:flex;flex-direction:column;gap:7px;">
                     <sc-for list="{{ medicaoDashboard.gerencial.top5SaldoDescricoesFmt }}" as="tp" hint-placeholder-count="5">
@@ -1344,7 +1392,7 @@
             </div>
 
             <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;">
-              <div>
+              <div style="background:rgba(47,143,79,0.12);border:1px solid rgba(47,143,79,0.35);border-radius:8px;padding:14px 16px;min-width:0;">
                 <div style="font-size:10.5px;font-weight:700;color:#8fd3a0;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Concluídas (100%)</div>
                 <sc-if value="{{ medicaoDashboard.gerencial.hasConcluidas }}" hint-placeholder-val="{{ true }}">
                   <div style="display:flex;flex-direction:column;gap:8px;max-height:220px;overflow-y:auto;">
@@ -1357,7 +1405,7 @@
                   </div>
                 </sc-if>
               </div>
-              <div>
+              <div style="background:rgba(79,143,192,0.12);border:1px solid rgba(79,143,192,0.35);border-radius:8px;padding:14px 16px;min-width:0;">
                 <div style="font-size:10.5px;font-weight:700;color:#7fb3d9;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Próximas da Conclusão (≥80%)</div>
                 <sc-if value="{{ medicaoDashboard.gerencial.hasProximas }}" hint-placeholder-val="{{ true }}">
                   <div style="display:flex;flex-direction:column;gap:8px;max-height:220px;overflow-y:auto;">
@@ -1370,7 +1418,7 @@
                   </div>
                 </sc-if>
               </div>
-              <div>
+              <div style="background:rgba(224,101,90,0.12);border:1px solid rgba(224,101,90,0.35);border-radius:8px;padding:14px 16px;min-width:0;">
                 <div style="font-size:10.5px;font-weight:700;color:#e0655a;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px;">Críticas (&lt;20%)</div>
                 <sc-if value="{{ medicaoDashboard.gerencial.hasCriticas }}" hint-placeholder-val="{{ true }}">
                   <div style="display:flex;flex-direction:column;gap:8px;max-height:220px;overflow-y:auto;">
@@ -1389,6 +1437,7 @@
             </div>
           </div>
 
+          <sc-if value="{{ mostrarProjecaoFaturamento }}" hint-placeholder-val="{{ true }}">
           <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:18px;margin-top:16px;">
             <div style="font-size:12px;font-weight:700;color:#9fb3c8;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:4px;">Projeção de Faturamento — Próximas 3 Medições</div>
             <div style="font-size:10.5px;color:#8a94a3;margin-bottom:8px;">Estimativa (não contratual) com base na média dos incrementos reais por medição, projetada para as próximas 3 medições (M+1, M+2, M+3). % = fatia acumulada nessas medições, não sobre o total do contrato.</div>
@@ -1438,6 +1487,7 @@
               </div>
             </sc-if>
           </div>
+          </sc-if>
         </div>
         </sc-if>
       </div>
@@ -3263,7 +3313,20 @@ class Component extends DCLogic {
     const barMax = Math.max(...totals, 1);
     const questionamentosChart = totals.map((t, i) => ({ numero: i + 1, total: t, barPct: Math.round((t / barMax) * 100) }));
     const evolColors = ['#4f8fc0', '#4f8fc0', '#4f8fc0', '#4f8fc0', '#e05a4e'];
-    const questionamentosChartV = totals.map((t, i) => ({ numero: i + 1, total: t, hPct: Math.round((t / barMax) * 100), color: t === barMax ? '#e05a4e' : '#4f8fc0' }));
+    // Barras agrupadas: Total (sempre) + Novos (a própria análise, exceto a 1ª — nela o total já é 100% novo)
+    // + Atendidos (valor que está registrado no cartão da análise SEGUINTE, pois é lá que a resposta do
+    // órgão a estes itens é lançada; a última análise disponível ainda não tem isso, fica pronta pra
+    // quando a próxima análise for cadastrada).
+    const questionamentosChartV = totals.map((t, i) => {
+      const temNovo = i > 0;
+      const proximoAtendido = (i + 1 < tallies.length) ? tallies[i + 1].atendido : null;
+      const temAtendido = proximoAtendido !== null;
+      return {
+        numero: i + 1, total: t, hPct: Math.round((t / barMax) * 100), color: '#1f3a5f',
+        temNovo, novo: tallies[i].novo, novoHPct: temNovo ? Math.round((tallies[i].novo / barMax) * 100) : 0,
+        temAtendido, atendido: proximoAtendido || 0, atendidoHPct: temAtendido ? Math.round((proximoAtendido / barMax) * 100) : 0,
+      };
+    });
 
     // Assuntos: aggregate item counts per document label across all análises
     const labelTotals = {};
@@ -4360,6 +4423,13 @@ class Component extends DCLogic {
       externaNoDashboard: !!this.state.externaMateria && this.state.externaMateria !== 'geometria',
       isAvisos: active === 'avisos',
       isConsultas: active === 'consultas',
+      // Comparativo Sequencial (aba Análise): visível só pra CONSOL, escondido do modo cliente
+      // (dados desse card ainda em revisão, ver conversa com Rafael). Quando escondido, "Itens
+      // Repetidos" ocupa a largura toda em vez de deixar um vão vazio.
+      mostrarComparativoSequencial: !this.props.isClienteMode,
+      comparativoGridCols: this.props.isClienteMode ? '1fr' : '1fr 1fr',
+      // Projeção de Faturamento (aba Medição): informação interna da CONSOL, escondida do cliente.
+      mostrarProjecaoFaturamento: !this.props.isClienteMode,
       isMedicao: active === 'medicao',
       onGerarRelatorioMedicao: () => this.generateRelatorioMedicao(),
       medicaoLocked: !this.state.medicaoUnlocked && !this.props.isClienteMode,
