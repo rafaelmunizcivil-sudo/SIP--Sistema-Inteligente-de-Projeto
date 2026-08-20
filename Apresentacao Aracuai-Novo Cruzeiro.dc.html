@@ -391,7 +391,7 @@
                             <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:16px;">
                               <div style="font-size:12px;font-weight:700;color:#9fb3c8;text-transform:uppercase;letter-spacing:0.05em;">Questionamentos por Análise</div>
                               <div style="display:flex;align-items:center;gap:12px;">
-                                <div style="display:flex;align-items:center;gap:4px;"><div style="width:8px;height:8px;border-radius:2px;background:#1f3a5f;"></div><div style="font-size:9.5px;color:#9fb3c8;">Total</div></div>
+                                <div style="display:flex;align-items:center;gap:4px;"><div style="width:8px;height:8px;border-radius:2px;background:#aeb8c4;"></div><div style="font-size:9.5px;color:#9fb3c8;">Total</div></div>
                                 <div style="display:flex;align-items:center;gap:4px;"><div style="width:8px;height:8px;border-radius:2px;background:#e05a4e;"></div><div style="font-size:9.5px;color:#9fb3c8;">Novos</div></div>
                                 <div style="display:flex;align-items:center;gap:4px;"><div style="width:8px;height:8px;border-radius:2px;background:#4f8fc0;"></div><div style="font-size:9.5px;color:#9fb3c8;">Atendidos</div></div>
                               </div>
@@ -957,7 +957,7 @@
                 <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:16px;">
                   <div style="font-size:12px;font-weight:700;color:#9fb3c8;text-transform:uppercase;letter-spacing:0.05em;">Questionamentos por Análise</div>
                   <div style="display:flex;align-items:center;gap:12px;">
-                    <div style="display:flex;align-items:center;gap:4px;"><div style="width:8px;height:8px;border-radius:2px;background:#1f3a5f;"></div><div style="font-size:9.5px;color:#9fb3c8;">Total</div></div>
+                    <div style="display:flex;align-items:center;gap:4px;"><div style="width:8px;height:8px;border-radius:2px;background:#aeb8c4;"></div><div style="font-size:9.5px;color:#9fb3c8;">Total</div></div>
                     <div style="display:flex;align-items:center;gap:4px;"><div style="width:8px;height:8px;border-radius:2px;background:#e05a4e;"></div><div style="font-size:9.5px;color:#9fb3c8;">Novos</div></div>
                     <div style="display:flex;align-items:center;gap:4px;"><div style="width:8px;height:8px;border-radius:2px;background:#4f8fc0;"></div><div style="font-size:9.5px;color:#9fb3c8;">Atendidos</div></div>
                   </div>
@@ -7175,7 +7175,7 @@ class Component extends DCLogic {
       const proximoAtendido = (i + 1 < tallies.length) ? tallies[i + 1].atendido : null;
       const temAtendido = proximoAtendido !== null;
       return {
-        numero: realNumeros[i], total: t, hPct: Math.round((t / barMax) * 100), color: '#1f3a5f',
+        numero: realNumeros[i], total: t, hPct: Math.round((t / barMax) * 100), color: '#aeb8c4',
         temNovo, novo: tallies[i].novo, novoHPct: temNovo ? Math.round((tallies[i].novo / barMax) * 100) : 0,
         temAtendido, atendido: proximoAtendido || 0, atendidoHPct: temAtendido ? Math.round((proximoAtendido / barMax) * 100) : 0,
       };
@@ -7803,7 +7803,7 @@ class Component extends DCLogic {
       const isDren = m.key === 'drenagem';
       const analises = m.key === 'geometria' ? this.buildGeoAnalises() : (m.key === 'sinalizacao' ? this.buildSinalAnalises() : (m.key === 'hidrologia' ? this.buildHidroAnalises() : (isPav ? this.buildPavAnalises(this.state.pavLote || 'lote1') : (isDren ? this.buildDrenAnalises(this.state.drenLote || 'lote1') : []))));
       const dashboard = m.key === 'geometria' ? this.buildGeoDashboard() : (m.key === 'sinalizacao' ? this.buildSinalDashboard() : (m.key === 'hidrologia' ? this.buildHidroDashboard() : (isPav ? this.buildPavDashboard(this.state.pavLote || 'lote1') : (isDren ? this.buildDrenDashboard(this.state.drenLote || 'lote1') : null))));
-      const observacoes = m.key === 'geometria' ? this.buildGeoObservacoes() : (m.key === 'sinalizacao' ? this.buildSinalObservacoes() : (m.key === 'hidrologia' ? this.buildHidroObservacoes() : (isPav ? this.buildPavObservacoes(this.state.pavLote || 'lote1') : (isDren ? this.buildDrenObservacoes(this.state.drenLote || 'lote1') : null))));
+      const observacoes = this.props.isClienteMode ? null : (m.key === 'geometria' ? this.buildGeoObservacoes() : (m.key === 'sinalizacao' ? this.buildSinalObservacoes() : (m.key === 'hidrologia' ? this.buildHidroObservacoes() : (isPav ? this.buildPavObservacoes(this.state.pavLote || 'lote1') : (isDren ? this.buildDrenObservacoes(this.state.drenLote || 'lote1') : null)))));
       const loteButtons = isPav ? this.buildPavLoteButtons() : (isDren ? this.buildDrenLoteButtons() : []);
       return {
         key: m.key, code: m.code, label: m.label,
