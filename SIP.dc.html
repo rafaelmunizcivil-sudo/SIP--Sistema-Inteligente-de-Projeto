@@ -661,6 +661,33 @@ class Component extends DCLogic {
     this.setState({ senhaConsolVisible: !this.state.senhaConsolVisible });
   }
 
+  // Tenta logar; se o erro for técnico/passageiro (rede, cache velho, servidor lento) — não
+  // "senha errada" de verdade — tenta de novo automaticamente uma vez antes de desistir.
+  // Isso evita que falhas momentâneas (ex: cache do GitHub Pages) apareçam pro usuário como
+  // "senha incorreta", quando na real é só uma instabilidade passageira.
+  async signInComRetry(email, senha) {
+    const ERROS_DE_SENHA = ['auth/wrong-password', 'auth/user-not-found', 'auth/invalid-credential', 'auth/invalid-email'];
+    try {
+      await firebase.auth().signInWithEmailAndPassword(email, senha);
+      return { ok: true };
+    } catch (e1) {
+      if (ERROS_DE_SENHA.includes(e1.code)) {
+        return { ok: false, motivo: 'senha' };
+      }
+      // erro técnico (rede, cache, timeout) — espera meio segundo e tenta mais uma vez
+      await new Promise(r => setTimeout(r, 700));
+      try {
+        await firebase.auth().signInWithEmailAndPassword(email, senha);
+        return { ok: true };
+      } catch (e2) {
+        if (ERROS_DE_SENHA.includes(e2.code)) {
+          return { ok: false, motivo: 'senha' };
+        }
+        return { ok: false, motivo: 'tecnico' };
+      }
+    }
+  }
+
   async confirmSenhaConsol() {
     if (this.state.senhaConsolLoading) return;
     if (!this.state.senhaConsolInput) {
@@ -668,11 +695,13 @@ class Component extends DCLogic {
       return;
     }
     this.setState({ senhaConsolLoading: true, senhaConsolErro: '' });
-    try {
-      await firebase.auth().signInWithEmailAndPassword('consol@sip-consol.interno', this.state.senhaConsolInput);
+    const resultado = await this.signInComRetry('consol@sip-consol.interno', this.state.senhaConsolInput);
+    if (resultado.ok) {
       this.setState({ showSenhaConsol: false, entered: true, wantsEnter: true, clienteAtivo: null, clienteNome: '', clienteTipos: [], senhaConsolInput: '', senhaConsolErro: '', senhaConsolLoading: false });
-    } catch (e) {
+    } else if (resultado.motivo === 'senha') {
       this.setState({ senhaConsolErro: 'Senha incorreta. Tente novamente.', senhaConsolInput: '', senhaConsolLoading: false });
+    } else {
+      this.setState({ senhaConsolErro: 'Falha de conexão. Verifique sua internet e tente novamente em instantes.', senhaConsolLoading: false });
     }
   }
 
@@ -703,7 +732,7 @@ class Component extends DCLogic {
       'der-pr': { nome: 'DER-PR', tipos: [] },
       'rota-liberdade': { nome: 'Rota da Liberdade', tipos: [] },
     };
-    const usuario = (this.state.usuarioClienteInput || '').trim().toLowerCase();
+    const usuario = (this.state.usuarioClienteInput || '').trim().toLowerCase().replace('@sip-consol.interno', '');
     const cliente = CLIENTES[usuario];
     if (!usuario || !this.state.senhaClienteInput) {
       this.setState({ senhaClienteErro: 'Preencha usuário e senha.' });
@@ -714,15 +743,17 @@ class Component extends DCLogic {
       return;
     }
     this.setState({ senhaClienteLoading: true, senhaClienteErro: '' });
-    try {
-      await firebase.auth().signInWithEmailAndPassword(usuario + '@sip-consol.interno', this.state.senhaClienteInput);
+    const resultado = await this.signInComRetry(usuario + '@sip-consol.interno', this.state.senhaClienteInput);
+    if (resultado.ok) {
       this.setState({
         showSenhaCliente: false, entered: true, wantsEnter: true,
         clienteAtivo: usuario, clienteNome: cliente.nome, clienteTipos: cliente.tipos,
         usuarioClienteInput: '', senhaClienteInput: '', senhaClienteErro: '', senhaClienteLoading: false,
       });
-    } catch (e) {
+    } else if (resultado.motivo === 'senha') {
       this.setState({ senhaClienteErro: 'Usuário ou senha incorretos.', senhaClienteInput: '', senhaClienteLoading: false });
+    } else {
+      this.setState({ senhaClienteErro: 'Falha de conexão. Verifique sua internet e tente novamente em instantes.', senhaClienteLoading: false });
     }
   }
 
