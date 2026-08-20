@@ -662,28 +662,25 @@ class Component extends DCLogic {
   }
 
   // Tenta logar; se o erro for técnico/passageiro (rede, cache velho, servidor lento) — não
-  // "senha errada" de verdade — tenta de novo automaticamente uma vez antes de desistir.
+  // "senha errada" de verdade — tenta de novo automaticamente até 2 vezes antes de desistir.
   // Isso evita que falhas momentâneas (ex: cache do GitHub Pages) apareçam pro usuário como
   // "senha incorreta", quando na real é só uma instabilidade passageira.
   async signInComRetry(email, senha) {
     const ERROS_DE_SENHA = ['auth/wrong-password', 'auth/user-not-found', 'auth/invalid-credential', 'auth/invalid-email'];
-    try {
-      await firebase.auth().signInWithEmailAndPassword(email, senha);
-      return { ok: true };
-    } catch (e1) {
-      if (ERROS_DE_SENHA.includes(e1.code)) {
-        return { ok: false, motivo: 'senha' };
-      }
-      // erro técnico (rede, cache, timeout) — espera meio segundo e tenta mais uma vez
-      await new Promise(r => setTimeout(r, 700));
+    const TENTATIVAS = 3;
+    for (let i = 1; i <= TENTATIVAS; i++) {
       try {
         await firebase.auth().signInWithEmailAndPassword(email, senha);
         return { ok: true };
-      } catch (e2) {
-        if (ERROS_DE_SENHA.includes(e2.code)) {
+      } catch (e) {
+        if (ERROS_DE_SENHA.includes(e.code)) {
           return { ok: false, motivo: 'senha' };
         }
-        return { ok: false, motivo: 'tecnico' };
+        if (i < TENTATIVAS) {
+          await new Promise(r => setTimeout(r, 900 * i));
+        } else {
+          return { ok: false, motivo: 'tecnico' };
+        }
       }
     }
   }
@@ -730,7 +727,7 @@ class Component extends DCLogic {
     const CLIENTES = {
       'der-mg': { nome: 'DER-MG', tipos: ['mg-259', 'aracuai-nc', 'rubim-rp'] },
       'der-pr': { nome: 'DER-PR', tipos: [] },
-      'rota-liberdade': { nome: 'Rota da Liberdade', tipos: [] },
+      'rota-liberdade': { nome: 'Rota da Liberdade', tipos: ['rota-liberdade'] },
     };
     const usuario = (this.state.usuarioClienteInput || '').trim().toLowerCase().replace('@sip-consol.interno', '');
     const cliente = CLIENTES[usuario];
