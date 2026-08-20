@@ -22,21 +22,10 @@
       <text x="100" y="112" font-size="54" font-weight="700" fill="#fff" text-anchor="middle" font-family="Arial, sans-serif">RL</text>
     </svg>
   </template>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-  <script>
-    if (!window.__sipFirebaseApp) {
-      window.__sipFirebaseApp = firebase.initializeApp({
-        apiKey: "AIzaSyDNBXkzFJFAsOKefmBesSWmwRHgS0i7ACA",
-        authDomain: "sip-sistema-intelig-de-projeto.firebaseapp.com",
-        projectId: "sip-sistema-intelig-de-projeto",
-        storageBucket: "sip-sistema-intelig-de-projeto.firebasestorage.app",
-        messagingSenderId: "957059964424",
-        appId: "1:957059964424:web:30ba5c315b713c2c05bbbd"
-      });
-    }
-  </script>
+  <!-- Firebase é carregado e inicializado pelo SIP.dc.html (que já embrulha este componente via
+       dc-import). Carregar de novo aqui causava o aviso "Firebase is already defined in the
+       global scope" e deixava o login instável — por isso removido. O método waitForFirebase()
+       da classe cuida de esperar o Firebase ficar pronto, com segurança, sem duplicar nada. -->
 </helmet>
 
 <div style="display:flex;min-height:100vh;background:#eef1f4;color:#1f2933;">
