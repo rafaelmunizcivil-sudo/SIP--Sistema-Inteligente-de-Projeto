@@ -698,7 +698,7 @@ class Component extends DCLogic {
     } else if (resultado.motivo === 'senha') {
       this.setState({ senhaConsolErro: 'Senha incorreta. Tente novamente.', senhaConsolInput: '', senhaConsolLoading: false });
     } else {
-      this.setState({ senhaConsolErro: 'Falha de conexão. Verifique sua internet e tente novamente em instantes.', senhaConsolLoading: false });
+      this.setState({ senhaConsolErro: 'Falha de conexão. Atualize a página forçando o recarregamento (aperte Ctrl+Shift+R) e tente novamente.', senhaConsolLoading: false });
     }
   }
 
@@ -756,7 +756,7 @@ class Component extends DCLogic {
     } else if (resultado.motivo === 'senha') {
       this.setState({ senhaClienteErro: 'Usuário ou senha incorretos.', senhaClienteInput: '', senhaClienteLoading: false });
     } else {
-      this.setState({ senhaClienteErro: 'Falha de conexão. Verifique sua internet e tente novamente em instantes.', senhaClienteLoading: false });
+      this.setState({ senhaClienteErro: 'Falha de conexão. Atualize a página forçando o recarregamento (aperte Ctrl+Shift+R) e tente novamente.', senhaClienteLoading: false });
     }
   }
 

@@ -548,11 +548,41 @@ class Component extends DCLogic {
     return firebase.firestore();
   }
 
+  // Garante que o Firebase está pronto e inicializado antes de qualquer uso do Firestore.
+  // Esse componente é carregado dentro do SIP.dc.html (via dc-import), e não dá pra confiar
+  // que o "pai" já terminou de inicializar o Firebase no momento em que este componente monta
+  // — por isso essa checagem própria, no mesmo padrão já usado e comprovado no NovaMedicao.dc.html.
+  waitForFirebase(attempt) {
+    return new Promise((resolve) => {
+      const tenta = (n) => {
+        if (window.firebase && firebase.firestore) {
+          if (!firebase.apps || !firebase.apps.length) {
+            firebase.initializeApp({
+              apiKey: "AIzaSyDNBXkzFJFAsOKefmBesSWmwRHgS0i7ACA",
+              authDomain: "sip-sistema-intelig-de-projeto.firebaseapp.com",
+              projectId: "sip-sistema-intelig-de-projeto",
+              storageBucket: "sip-sistema-intelig-de-projeto.firebasestorage.app",
+              messagingSenderId: "957059964424",
+              appId: "1:957059964424:web:30ba5c315b713c2c05bbbd"
+            });
+          }
+          resolve(true);
+          return;
+        }
+        if (n > 100) { resolve(false); return; }
+        setTimeout(() => tenta(n + 1), 100);
+      };
+      tenta(attempt || 0);
+    });
+  }
+
   async componentDidMount() {
     // Carrega o status de cada intervenção salvo no Firestore, pra ficar igual em qualquer
     // sessão (CONSOL ou Cliente, qualquer navegador/dispositivo) — antes, o status só existia
     // na memória temporária da própria sessão, por isso não sincronizava de verdade.
     try {
+      const pronto = await this.waitForFirebase();
+      if (!pronto) return;
       const snap = await this.db().collection('intervencaoStatus').where('projeto', '==', this.PROJETO).get();
       const mapa = {};
       snap.forEach(doc => { mapa[doc.id] = doc.data().status; });
@@ -827,8 +857,10 @@ class Component extends DCLogic {
     'Concluído': { bg: '#eef8f0', color: '#2f8f4f' },
   };
 
-  setStatusFor(id, value) {
+  async setStatusFor(id, value) {
     this.setState(s => ({ statusMap: { ...s.statusMap, [id]: value } }));
+    const pronto = await this.waitForFirebase();
+    if (!pronto) return;
     this.db().collection('intervencaoStatus').doc(id).set({ projeto: this.PROJETO, status: value, atualizadoEm: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true })
       .catch(e => console.error('Falha ao salvar status:', e));
   }
