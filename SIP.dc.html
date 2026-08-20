@@ -742,10 +742,16 @@ class Component extends DCLogic {
     this.setState({ senhaClienteLoading: true, senhaClienteErro: '' });
     const resultado = await this.signInComRetry(usuario + '@sip-consol.interno', this.state.senhaClienteInput);
     if (resultado.ok) {
+      // Se o cliente só tem 1 projeto visível pra ele, não faz sentido mostrar uma lista de
+      // escolha com 1 item só — vai direto pra dentro do projeto.
+      const projetosVisiveis = (this.state.projetos || []).filter(p => cliente.tipos.includes(p.tipo));
+      const autoAbrir = projetosVisiveis.length === 1;
       this.setState({
         showSenhaCliente: false, entered: true, wantsEnter: true,
         clienteAtivo: usuario, clienteNome: cliente.nome, clienteTipos: cliente.tipos,
         usuarioClienteInput: '', senhaClienteInput: '', senhaClienteErro: '', senhaClienteLoading: false,
+        view: autoAbrir ? 'projeto' : 'projetos',
+        selectedProjetoId: autoAbrir ? projetosVisiveis[0].id : null,
       });
     } else if (resultado.motivo === 'senha') {
       this.setState({ senhaClienteErro: 'Usuário ou senha incorretos.', senhaClienteInput: '', senhaClienteLoading: false });

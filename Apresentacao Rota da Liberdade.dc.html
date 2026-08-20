@@ -544,6 +544,26 @@ class Component extends DCLogic {
   PROJETO = 'rota-liberdade';
   medicaoSenha = 'consol2026';
 
+  db() {
+    return firebase.firestore();
+  }
+
+  async componentDidMount() {
+    // Carrega o status de cada intervenção salvo no Firestore, pra ficar igual em qualquer
+    // sessão (CONSOL ou Cliente, qualquer navegador/dispositivo) — antes, o status só existia
+    // na memória temporária da própria sessão, por isso não sincronizava de verdade.
+    try {
+      const snap = await this.db().collection('intervencaoStatus').where('projeto', '==', this.PROJETO).get();
+      const mapa = {};
+      snap.forEach(doc => { mapa[doc.id] = doc.data().status; });
+      if (Object.keys(mapa).length) {
+        this.setState(s => ({ statusMap: { ...s.statusMap, ...mapa } }));
+      }
+    } catch (e) {
+      console.error('Falha ao carregar status das intervenções:', e);
+    }
+  }
+
   state = {
     active: 'home',
     expanded: {},
@@ -809,6 +829,8 @@ class Component extends DCLogic {
 
   setStatusFor(id, value) {
     this.setState(s => ({ statusMap: { ...s.statusMap, [id]: value } }));
+    this.db().collection('intervencaoStatus').doc(id).set({ projeto: this.PROJETO, status: value, atualizadoEm: firebase.firestore.FieldValue.serverTimestamp() }, { merge: true })
+      .catch(e => console.error('Falha ao salvar status:', e));
   }
 
   withStatus(rows, prefix) {
@@ -907,7 +929,10 @@ class Component extends DCLogic {
     // Mesmo padrão usado nos projetos DER-MG (Trinta Reis, Araçuaí, Rubim): esconde do modo
     // cliente as abas internas/operacionais. Estrutura pronta mesmo sem cliente ativo ainda
     // usando este projeto (só o DER-MG tem acesso cliente ligado de verdade hoje).
-    const ABAS_ESCONDIDAS_CLIENTE = ['correspondencias', 'consultas', 'controle-terceiros', 'reuniao-externa', 'linha-tempo'];
+    // Análise e Medição ainda não têm dado nenhum lançado pra este projeto (é novo) — escondidas
+    // do cliente por enquanto. Quando essas áreas forem alimentadas, é só tirar 'analise' e
+    // 'medicao' desta lista pra elas passarem a aparecer, igual já acontece no DER-MG.
+    const ABAS_ESCONDIDAS_CLIENTE = ['correspondencias', 'consultas', 'controle-terceiros', 'reuniao-externa', 'linha-tempo', 'analise', 'medicao'];
     const navDefsFiltrados = this.props.isClienteMode
       ? navDefs.filter(n => !ABAS_ESCONDIDAS_CLIENTE.includes(n.key))
       : navDefs;
