@@ -156,7 +156,14 @@
                 <td style="padding:8px 12px;border-bottom:1px solid #eef1f4;height:32px;color:#5b6774;">{{ isv.ext }}</td>
                 <td style="padding:8px 12px;border-bottom:1px solid #eef1f4;height:32px;color:#5b6774;">{{ isv.lado }}</td>
                 <td style="padding:8px 12px;border-bottom:1px solid #eef1f4;height:32px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#5b6774;" title="{{ isv.obs }}">{{ isv.obs }}</td>
-                <td style="padding:5px 12px;border-bottom:1px solid #eef1f4;height:32px;"><select value="{{ isv.status }}" onChange="{{ isv.setStatus }}" style="font-size:10.5px;font-weight:600;padding:3px 6px;border-radius:6px;border:1px solid transparent;background:{{ isv.statusBg }};color:{{ isv.statusColor }};cursor:pointer;width:100%;"><option value="Não iniciado">Não iniciado</option><option value="Em estudo">Em estudo</option><option value="Desenvolvendo">Desenvolvendo</option><option value="Concluído">Concluído</option></select></td>
+                <td style="padding:5px 12px;border-bottom:1px solid #eef1f4;height:32px;">
+                  <sc-if value="{{ podeEditarStatus }}" hint-placeholder-val="{{ true }}">
+                    <select value="{{ isv.status }}" onChange="{{ isv.setStatus }}" style="font-size:10.5px;font-weight:600;padding:3px 6px;border-radius:6px;border:1px solid transparent;background:{{ isv.statusBg }};color:{{ isv.statusColor }};cursor:pointer;width:100%;"><option value="Não iniciado">Não iniciado</option><option value="Em estudo">Em estudo</option><option value="Desenvolvendo">Desenvolvendo</option><option value="Concluído">Concluído</option></select>
+                  </sc-if>
+                  <sc-if value="{{ naoPodeEditarStatus }}" hint-placeholder-val="{{ false }}">
+                    <div style="font-size:10.5px;font-weight:600;padding:3px 6px;border-radius:6px;background:{{ isv.statusBg }};color:{{ isv.statusColor }};width:100%;box-sizing:border-box;text-align:center;">{{ isv.status }}</div>
+                  </sc-if>
+                </td>
               </tr>
             </sc-for>
           </table>
@@ -258,7 +265,14 @@
                     <td style="padding:5px 6px;border-bottom:1px solid #eef1f4;color:#5b6774;">{{ r.ext }}</td>
                     <td style="padding:5px 6px;border-bottom:1px solid #eef1f4;color:#5b6774;">{{ r.lado }}</td>
                     <td style="padding:5px 6px;border-bottom:1px solid #eef1f4;color:#5b6774;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px;" title="{{ r.obs }}">{{ r.obs }}</td>
-                    <td style="padding:4px 6px;border-bottom:1px solid #eef1f4;"><select value="{{ r.status }}" onChange="{{ r.setStatus }}" style="font-size:10px;font-weight:600;padding:2px 4px;border-radius:6px;border:1px solid transparent;background:{{ r.statusBg }};color:{{ r.statusColor }};cursor:pointer;"><option value="Não iniciado">Não iniciado</option><option value="Em estudo">Em estudo</option><option value="Desenvolvendo">Desenvolvendo</option><option value="Concluído">Concluído</option></select></td>
+                    <td style="padding:4px 6px;border-bottom:1px solid #eef1f4;">
+                      <sc-if value="{{ podeEditarStatus }}" hint-placeholder-val="{{ true }}">
+                        <select value="{{ r.status }}" onChange="{{ r.setStatus }}" style="font-size:10px;font-weight:600;padding:2px 4px;border-radius:6px;border:1px solid transparent;background:{{ r.statusBg }};color:{{ r.statusColor }};cursor:pointer;"><option value="Não iniciado">Não iniciado</option><option value="Em estudo">Em estudo</option><option value="Desenvolvendo">Desenvolvendo</option><option value="Concluído">Concluído</option></select>
+                      </sc-if>
+                      <sc-if value="{{ naoPodeEditarStatus }}" hint-placeholder-val="{{ false }}">
+                        <div style="font-size:10px;font-weight:600;padding:2px 4px;border-radius:6px;background:{{ r.statusBg }};color:{{ r.statusColor }};text-align:center;">{{ r.status }}</div>
+                      </sc-if>
+                    </td>
                   </tr>
                 </sc-for>
               </table>
@@ -317,7 +331,14 @@
                     <td style="padding:5px 6px;border-bottom:1px solid #eef1f4;color:#5b6774;">{{ r.ext }}</td>
                     <td style="padding:5px 6px;border-bottom:1px solid #eef1f4;color:#5b6774;">{{ r.lado }}</td>
                     <td style="padding:5px 6px;border-bottom:1px solid #eef1f4;color:#5b6774;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:110px;" title="{{ r.obs }}">{{ r.obs }}</td>
-                    <td style="padding:4px 6px;border-bottom:1px solid #eef1f4;"><select value="{{ r.status }}" onChange="{{ r.setStatus }}" style="font-size:10px;font-weight:600;padding:2px 4px;border-radius:6px;border:1px solid transparent;background:{{ r.statusBg }};color:{{ r.statusColor }};cursor:pointer;"><option value="Não iniciado">Não iniciado</option><option value="Em estudo">Em estudo</option><option value="Desenvolvendo">Desenvolvendo</option><option value="Concluído">Concluído</option></select></td>
+                    <td style="padding:4px 6px;border-bottom:1px solid #eef1f4;">
+                      <sc-if value="{{ podeEditarStatus }}" hint-placeholder-val="{{ true }}">
+                        <select value="{{ r.status }}" onChange="{{ r.setStatus }}" style="font-size:10px;font-weight:600;padding:2px 4px;border-radius:6px;border:1px solid transparent;background:{{ r.statusBg }};color:{{ r.statusColor }};cursor:pointer;"><option value="Não iniciado">Não iniciado</option><option value="Em estudo">Em estudo</option><option value="Desenvolvendo">Desenvolvendo</option><option value="Concluído">Concluído</option></select>
+                      </sc-if>
+                      <sc-if value="{{ naoPodeEditarStatus }}" hint-placeholder-val="{{ false }}">
+                        <div style="font-size:10px;font-weight:600;padding:2px 4px;border-radius:6px;background:{{ r.statusBg }};color:{{ r.statusColor }};text-align:center;">{{ r.status }}</div>
+                      </sc-if>
+                    </td>
                   </tr>
                 </sc-for>
               </table>
@@ -868,6 +889,10 @@ class Component extends DCLogic {
     const primaryColor = this.props.primaryColor ?? '#1f3a5f';
     const active = this.state.active;
     this.trIntervencoesComStatus = this.withStatus(this.trIntervencoes, 'trinterv');
+    // Status das intervenções: editável só pra CONSOL. Cliente vê o mesmo dado (sempre
+    // sincronizado, é a mesma fonte), só que como etiqueta fixa, sem poder alterar.
+    const podeEditarStatus = !this.props.isClienteMode;
+    const naoPodeEditarStatus = !!this.props.isClienteMode;
     const navDefs = [
       { key: 'home', code: 'VG', label: 'Visão Geral' },
       { key: 'analise', code: 'AN', label: 'Análise' },
@@ -923,6 +948,7 @@ class Component extends DCLogic {
       intervencoesChevron: this.state.intervencoesOpen ? '▲' : '▼',
       trTrechosFaixa: this.trTrechosFaixa,
       trDisciplinas: this.trDisciplinas,
+      podeEditarStatus, naoPodeEditarStatus,
       trIntervencoes: this.state.kpiFiltro === 'oae' ? this.trIntervencoesComStatus.filter(i => i.tipo.includes('OAE')) : this.trIntervencoesComStatus,
       trCategoriasBR356: this.categoriasPorRodovia(this.trIntervencoesComStatus, 'BR-356', 'Ouro Preto/Mariana (Lote 07, conforme TR)'),
       trCategoriasMG262: this.categoriasPorRodovia(this.trIntervencoesComStatus, 'MG-262', 'Mariana'),
