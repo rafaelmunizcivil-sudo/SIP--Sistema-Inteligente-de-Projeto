@@ -40,19 +40,6 @@
       </div>
     </sc-if>
 
-    <sc-if value="{{ isPassword }}" hint-placeholder-val="{{ true }}">
-      <div style="background:#fff;border:1px solid #eef1f4;border-radius:10px;padding:28px;max-width:380px;">
-        <div style="font-size:15px;font-weight:700;color:#1f3a5f;margin-bottom:6px;">Área restrita</div>
-        <p style="margin:0 0 18px;font-size:13px;color:#5b6774;line-height:1.6;">Digite a senha da aba Medição para lançar uma nova medição mensal.</p>
-        <div style="font-size:10.5px;color:#8a94a3;text-transform:uppercase;margin-bottom:6px;">Senha</div>
-        <input type="password" value="{{ passwordDraft }}" onChange="{{ onPasswordChange }}" onKeyDown="{{ onPasswordKeyDown }}" placeholder="Senha de acesso" style="width:100%;font-size:13px;font-family:inherit;color:#1f2933;border:1px solid #dde3ea;border-radius:6px;padding:9px 12px;box-sizing:border-box;margin-bottom:12px;">
-        <sc-if value="{{ showPasswordError }}" hint-placeholder-val="{{ false }}">
-          <div style="font-size:11.5px;color:#c0392b;margin-bottom:10px;">Senha incorreta.</div>
-        </sc-if>
-        <div onClick="{{ onPasswordSubmit }}" style="font-size:12.5px;font-weight:700;color:#fff;background:#1f3a5f;padding:9px 18px;border-radius:8px;cursor:pointer;width:fit-content;">Entrar</div>
-      </div>
-    </sc-if>
-
     <sc-if value="{{ isForm }}" hint-placeholder-val="{{ false }}">
       <div style="background:#fff;border:1px solid #eef1f4;border-radius:10px;padding:28px;">
         <div style="font-size:18px;font-weight:700;color:#1f3a5f;margin-bottom:6px;">Lançar medição mensal</div>
@@ -166,7 +153,7 @@
 
 class Component extends DCLogic {
   state = {
-    screen: 'password', passwordDraft: '', passwordError: false,
+    screen: 'form',
     mes: 'junho', nome: '',
     parseError: '', previewRows: [], previewNumeros: [],
     unmatchedCount: 0, isParsingPdf: false,
@@ -174,34 +161,86 @@ class Component extends DCLogic {
 
   mesesNomeParaKey = { janeiro: 'janeiro', fevereiro: 'fevereiro', março: 'marco', marco: 'marco', abril: 'abril', maio: 'maio', junho: 'junho', julho: 'julho', agosto: 'agosto', setembro: 'setembro', outubro: 'outubro', novembro: 'novembro', dezembro: 'dezembro' };
 
+  // Alguns contratos DER-MG (ex.: DP-024/2023 - Lote 5) trazem MAIS DE UMA obra/serviço no mesmo
+  // PDF de boletim (Araçuaí-Novo Cruzeiro + Novo Cruzeiro-Ladainha [cancelado] + Rubim-Rio do Prado),
+  // cada uma com sua própria tabela reiniciando em 01.00.00.001. Este texto (normalizado, sem acento)
+  // é o valor esperado no campo "OBRA/SERVIÇO" do boletim para cada projeto do SIP — usado para
+  // filtrar, dentro do PDF inteiro, só a seção que pertence ao projeto cuja aba está aberta.
+  projetoObraServico = {
+    'aracuai': 'aracuai - novo cruzeiro',
+    'rubim': 'rubim - rio do prado',
+    'trinta-reis': 'serro - trinta reis',
+  };
+
+  normalizeTxt(s) {
+    return (s || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim();
+  }
+
+  toNum(s) { return parseFloat(String(s).replace(/\./g, '').replace(',', '.')); }
+
   // Extrai a tabela de itens (ref, descrição, valor medido nesta medição) de um Boletim de Medição oficial DER-MG.
   // Mesma lógica usada para reconstruir o histórico 1ª-13ª: acha as linhas "01.00.00.NNN CÓDIGO ...",
   // junta quebras de página/linha, e lê os últimos campos numéricos (a coluna "QUANTIDADE FINANCEIRO" da medição atual, antes do bloco ACUMULADO).
+  // Consciente de seções: cada página do PDF repete a linha "OBRA/SERVIÇO N - Nome ... EXTENSÃO" no
+  // cabeçalho — usamos essa linha, lida de cima a baixo, pra saber a qual obra/serviço cada linha de
+  // item pertence, e só acumulamos itens da seção que bate com o projeto atual (this.projeto()).
   parseBoletimPdfText(t) {
-    const lines = t.split('\n');
+    const targetObra = this.normalizeTxt(this.projetoObraServico[this.projeto()] || '');
+    const obraHeaderRe = /OBRA\s*\/\s*SERVI[ÇC]O\s*(\d+)?\s*-?\s*([^\n]*?)\s*EXTENS[ÃA]O/i;
     const itemLineRe = /^(\d{2}\.\d{2}\.\d{2}\.\d{3})\s+(\S+)\s+(.*)$/;
+
+    const lines = t.split('\n');
+    // Se não sabemos o rótulo esperado (projeto sem mapeamento), não filtra — mantém compatibilidade.
+    let inTargetSection = targetObra ? false : true;
+    let sectionsSeen = [];
     let rows = [];
     let cur = null;
+
+    const flush = () => { if (cur) { rows.push(cur); cur = null; } };
+
     for (const line of lines) {
+      const hm = line.match(obraHeaderRe);
+      if (hm) {
+        flush();
+        const nomeSecao = this.normalizeTxt(hm[2]);
+        if (targetObra) {
+          inTargetSection = nomeSecao.includes(targetObra) || targetObra.includes(nomeSecao);
+        }
+        if (nomeSecao && !sectionsSeen.includes(nomeSecao)) sectionsSeen.push(nomeSecao);
+        continue;
+      }
+      if (!inTargetSection) continue;
+
       const m = line.match(itemLineRe);
       if (m) {
-        if (cur) rows.push(cur);
+        flush();
         cur = { ref: m[1], code: m[2], rest: m[3] };
-      } else if (cur && line.trim() && !/^Total obra/.test(line) && !/^\d{2}\s/.test(line)) {
+      } else if (cur && line.trim() && !/^Total obra/i.test(line) && !/^\d{2}\s/.test(line)) {
         cur.rest += ' ' + line.trim();
       }
     }
-    if (cur) rows.push(cur);
+    flush();
     for (const r of rows) {
       r.rest = r.rest.split(/--\s*\d+\s*of\s*\d+\s*--/)[0].split(/TOTAL DOS SERVIÇOS/)[0].trim();
     }
     const numRe = /^(.*?)\s+([A-Za-zÀ-ÿ²³0-9]{1,6})\s+([\d.,]+)\s+([\d.,]+)\s+([\d.,]+)\s+([\d.,]+)\s+([\d.,]+)\s+([\d.,]+)\s+([\d.,]+)\s+([\d.,]+)%\s*$/;
-    const toNum = s => parseFloat(s.replace(/\./g, '').replace(',', '.'));
-    return rows.map((r, idx) => {
+    const parsedRows = rows.map((r, idx) => {
       const m = r.rest.match(numRe);
       if (!m) return { idx, ERROR: r.rest };
-      return { idx, descricao: m[1].trim(), valorMedAtual: toNum(m[6]) };
+      // Colunas da tabela, na ordem: unidade, qtd contrato, preço unit., custo total,
+      // qtd desta medição (m[6]), FINANCEIRO desta medição (m[7] — este é o valor certo),
+      // qtd acumulada, financeiro acumulado, % medido. m[6] é quantidade, não valor em R$.
+      return { idx, descricao: m[1].trim(), valorMedAtual: this.toNum(m[7]) };
     });
+
+    // Se o projeto tem seção esperada mas ela nunca apareceu no PDF, isso é um erro real
+    // (arquivo errado, ou nome da obra mudou no boletim) — sinalizar em vez de devolver vazio calado.
+    let sectionError = null;
+    if (targetObra && !sectionsSeen.some(s => s.includes(targetObra) || targetObra.includes(s))) {
+      sectionError = 'não encontrei a seção "' + (this.projetoObraServico[this.projeto()] || '') + '" (OBRA/SERVIÇO) dentro deste PDF — seções encontradas: ' + (sectionsSeen.join(', ') || 'nenhuma');
+    }
+
+    return { rows: parsedRows, sectionError };
   }
 
   parseBoletimHeader(t) {
@@ -210,8 +249,6 @@ class Component extends DCLogic {
     const mesNome = m[1].toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
     return { mesKey: this.mesesNomeParaKey[mesNome] || null, ano: m[2] };
   }
-
-  senha = 'consol2026';
 
   projetoMetaData = {
     'trinta-reis': { badge: 'MG-259', rodovia: 'Serro – Trinta Reis' },
@@ -249,13 +286,6 @@ class Component extends DCLogic {
   fmtMoney(n) {
     if (n === null || n === undefined || isNaN(n)) return '—';
     return 'R$ ' + n.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  }
-
-  onPasswordChange(e) { this.setState({ passwordDraft: e.target.value, passwordError: false }); }
-  onPasswordKeyDown(e) { if (e && e.key === 'Enter') this.submitPassword(); }
-  submitPassword() {
-    if (this.state.passwordDraft === this.senha) this.setState({ screen: 'form' });
-    else this.setState({ passwordError: true });
   }
 
   onMesChange(e) { this.setState({ mes: e.target.value }); }
@@ -313,11 +343,16 @@ class Component extends DCLogic {
         const buf = await file.arrayBuffer();
         const parser = new PDFParse({ data: new Uint8Array(buf) });
         const result = await parser.getText();
-        const parsedRows = this.parseBoletimPdfText(result.text);
+        const parsed = this.parseBoletimPdfText(result.text);
+        const parsedRows = parsed.rows;
         const header = this.parseBoletimHeader(result.text);
+        if (parsed.sectionError) {
+          errosArquivos.push(file.name + ': ' + parsed.sectionError + '.');
+          continue;
+        }
         const errors = parsedRows.filter(r => r.ERROR);
         if (!parsedRows.length || errors.length > parsedRows.length / 2) {
-          errosArquivos.push(file.name + ': não reconheci a tabela de itens.');
+          errosArquivos.push(file.name + ': não reconheci a tabela de itens (verifique se este é mesmo o boletim do projeto aberto).');
           continue;
         }
         if (!header || !header.mesKey || !this.mesesLabel[header.mesKey]) {
@@ -419,7 +454,6 @@ class Component extends DCLogic {
       : '';
 
     return {
-      isPassword: this.state.screen === 'password' && this.hasDados(),
       isForm: this.state.screen === 'form' && this.hasDados(),
       isPreview: this.state.screen === 'preview' && this.hasDados(),
       isSaving: this.state.screen === 'saving' && this.hasDados(),
@@ -427,11 +461,6 @@ class Component extends DCLogic {
       isSemDados: !this.hasDados(),
       projetoBadge: this.projetoMeta().badge,
       projetoLabel: this.projetoMeta().rodovia,
-      passwordDraft: this.state.passwordDraft,
-      showPasswordError: this.state.passwordError,
-      onPasswordChange: (e) => this.onPasswordChange(e),
-      onPasswordKeyDown: (e) => this.onPasswordKeyDown(e),
-      onPasswordSubmit: () => this.submitPassword(),
       mesesOptions, mesSelecionado: this.state.mes,
       mesLabelSelecionado: this.mesesLabel[this.state.mes],
       mesesEnvolvidosLabel,
