@@ -21,6 +21,7 @@
     </svg>
   </template>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
   <script src="./doc-page.js"></script>
 </helmet>
@@ -394,7 +395,7 @@ class Component extends DCLogic {
   onCancelPreview() { this.setState({ screen: 'form', previewRows: [], unmatchedCount: 0 }); }
 
   waitForFirebase(attempt, cb) {
-    if (window.firebase && firebase.firestore) {
+    if (window.firebase && firebase.firestore && firebase.auth) {
       if (!firebase.apps || !firebase.apps.length) {
         firebase.initializeApp({
           apiKey: "AIzaSyDNBXkzFJFAsOKefmBesSWmwRHgS0i7ACA",
@@ -405,7 +406,13 @@ class Component extends DCLogic {
           appId: "1:957059964424:web:30ba5c315b713c2c05bbbd"
         });
       }
-      cb();
+      // A regra de segurança do Firestore exige request.auth != null. Esta página é aberta avulsa
+      // (fora do hub SIP.dc.html, que já faz esse login), então precisa autenticar sozinha antes de
+      // gravar — senão o "Confirmar e gravar" falha com "Missing or insufficient permissions".
+      firebase.auth().signInAnonymously().then(() => cb()).catch(e => {
+        console.error('Firebase auth error:', e);
+        this.setState({ parseError: 'Não foi possível autenticar no Firebase. Detalhe: ' + (e && e.message ? e.message : String(e)) });
+      });
       return;
     }
     if (attempt > 100) return;

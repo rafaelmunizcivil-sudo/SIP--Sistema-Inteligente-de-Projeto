@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body{margin:0;font-family:-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+    a{color:#2f6690;}
+    a:hover{color:#1f3a5f;}
+  </style>
+  <template id="__bundler_thumbnail">
+    <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <rect width="200" height="200" fill="#1f3a5f"></rect>
+      <text x="100" y="112" font-size="46" font-weight="700" fill="#fff" text-anchor="middle" font-family="Arial, sans-serif">OBS</text>
+    </svg>
+  </template>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</helmet>
+
+<div style="min-height:100vh;background:#eef1f4;padding:40px 20px;box-sizing:border-box;">
+  <div style="max-width:720px;margin:0 auto;">
+    <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;color:#2f6690;text-transform:uppercase;margin-bottom:6px;">{{ rodoviaLabel }}</div>
+    <h1 style="margin:0 0 6px;font-size:26px;color:#1f3a5f;font-weight:700;">Observações do Projetista</h1>
+
+    <sc-if value="{{ isMenu }}" hint-placeholder-val="{{ true }}">
+      <p style="margin:0 0 24px;font-size:13.5px;color:#5b6774;line-height:1.6;">Selecione sua disciplina.</p>
+      <sc-if value="{{ hasDiscButtons }}" hint-placeholder-val="{{ true }}">
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <sc-for list="{{ discButtons }}" as="db" hint-placeholder-count="7">
+            <div onClick="{{ db.select }}" style="background:#fff;border:1px solid #eef1f4;border-radius:10px;padding:16px 20px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;">
+              <div style="font-size:14.5px;font-weight:700;color:#1f2933;">{{ db.label }}</div>
+              <div style="font-size:12px;color:#8a94a3;">Acessar →</div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{ noDiscButtons }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:24px;background:#fdecea;border:1px solid #f4c7c3;border-radius:10px;font-size:12.5px;color:#c0392b;">Projeto não reconhecido no link (parâmetro "projeto" inválido ou ausente). Peça o link correto de dentro do painel.</div>
+      </sc-if>
+    </sc-if>
+
+    <sc-if value="{{ isPassword }}" hint-placeholder-val="{{ false }}">
+      <p style="margin:0 0 24px;font-size:13.5px;color:#5b6774;line-height:1.6;">Digite a senha da disciplina <strong>{{ selectedLabel }}</strong> para acessar.</p>
+      <div style="background:#fff;border:1px solid #eef1f4;border-radius:10px;padding:24px;max-width:360px;">
+        <div style="font-size:10.5px;color:#8a94a3;text-transform:uppercase;margin-bottom:6px;">Senha</div>
+        <input type="password" value="{{ passwordDraft }}" onChange="{{ onPasswordChange }}" onKeyDown="{{ onPasswordKeyDown }}" placeholder="Senha da disciplina" style="width:100%;font-size:13px;font-family:inherit;color:#1f2933;border:1px solid #dde3ea;border-radius:6px;padding:9px 10px;box-sizing:border-box;margin-bottom:10px;">
+        <sc-if value="{{ showPasswordError }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:11.5px;color:#c0392b;margin-bottom:10px;">Senha incorreta.</div>
+        </sc-if>
+        <div style="display:flex;gap:10px;">
+          <div onClick="{{ onPasswordSubmit }}" style="font-size:12.5px;font-weight:700;color:#fff;background:#1f3a5f;padding:9px 18px;border-radius:8px;cursor:pointer;width:fit-content;">Entrar</div>
+          <div onClick="{{ backToMenu }}" style="font-size:12.5px;font-weight:600;color:#5b6774;padding:9px 14px;border-radius:8px;cursor:pointer;width:fit-content;">Voltar</div>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isForm }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:6px;">
+        <div style="font-size:15px;font-weight:700;color:#2f6690;">{{ discLabel }}</div>
+        <div onClick="{{ backToMenu }}" style="font-size:12px;font-weight:600;color:#5b6774;cursor:pointer;">← Trocar disciplina</div>
+      </div>
+      <p style="margin:0 0 24px;font-size:13.5px;color:#5b6774;line-height:1.6;">Preencha a justificativa apenas das etapas marcadas como <strong style="color:#c0392b;">Atrasado</strong>. Seu nome e a data ficam registrados automaticamente.</p>
+
+      <sc-if value="{{ isLoading }}" hint-placeholder-val="{{ true }}">
+        <div style="padding:24px;background:#fff;border:1px solid #eef1f4;border-radius:10px;text-align:center;font-size:12.5px;color:#8a94a3;">Carregando…</div>
+      </sc-if>
+
+      <sc-if value="{{ hasError }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:24px;background:#fdecea;border:1px solid #f4c7c3;border-radius:10px;text-align:center;font-size:12.5px;color:#c0392b;">{{ errorMsg }}</div>
+      </sc-if>
+
+      <sc-if value="{{ noItems }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:40px;background:#f8f9fb;border:1.5px dashed #c9d2db;border-radius:10px;text-align:center;">
+          <div style="font-size:12.5px;font-weight:600;color:#8a94a3;">Nenhuma pendência cadastrada ainda para esta disciplina.</div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ hasItems }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <sc-for list="{{ items }}" as="it" hint-placeholder-count="3">
+            <div style="background:#fff;border:1px solid #eef1f4;border-radius:10px;padding:18px 20px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:10px;">
+                <div style="font-size:14.5px;font-weight:700;color:#1f2933;">{{ it.tituloItem }}</div>
+                <div style="font-size:11.5px;font-weight:700;color:{{ it.statusColor }};">{{ it.statusLabel }}</div>
+              </div>
+              <div style="display:flex;gap:24px;flex-wrap:wrap;margin-bottom:14px;">
+                <div>
+                  <div style="font-size:10px;color:#8a94a3;text-transform:uppercase;margin-bottom:2px;">Recebido</div>
+                  <div style="font-size:13px;font-weight:600;color:#1f2933;">{{ it.recebido }}</div>
+                </div>
+                <div>
+                  <div style="font-size:10px;color:#8a94a3;text-transform:uppercase;margin-bottom:2px;">Tempo</div>
+                  <div style="font-size:13px;font-weight:600;color:#1f2933;">{{ it.tempo }}</div>
+                </div>
+              </div>
+
+              <sc-if value="{{ it.hasHistorico }}" hint-placeholder-val="{{ false }}">
+                <div style="border-top:1px solid #eef1f4;padding-top:14px;display:flex;flex-direction:column;gap:10px;margin-bottom:14px;">
+                  <sc-for list="{{ it.historico }}" as="ob" hint-placeholder-count="1">
+                    <div>
+                      <div style="font-size:13px;color:#1f2933;line-height:1.5;">{{ ob.texto }}</div>
+                      <div style="font-size:11px;color:#8a94a3;">— {{ ob.autor }}, em {{ ob.data }}</div>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ it.showForm }}" hint-placeholder-val="{{ false }}">
+                <div style="border-top:1px solid #eef1f4;padding-top:14px;display:flex;flex-direction:column;gap:10px;">
+                  <div style="font-size:11.5px;font-weight:700;color:#5b6774;">Nova atualização</div>
+                  <div>
+                    <div style="font-size:10.5px;color:#8a94a3;text-transform:uppercase;margin-bottom:4px;">Nome do Responsável</div>
+                    <input value="{{ it.nomeVal }}" onChange="{{ it.onNomeChange }}" placeholder="Nome do projetista responsável" style="width:100%;font-size:13px;font-family:inherit;color:#1f2933;border:1px solid #dde3ea;border-radius:6px;padding:8px 10px;box-sizing:border-box;">
+                  </div>
+                  <div>
+                    <div style="font-size:10.5px;color:#8a94a3;text-transform:uppercase;margin-bottom:4px;">Motivo do atraso</div>
+                    <textarea value="{{ it.textoVal }}" onChange="{{ it.onTextoChange }}" placeholder="Descreva o motivo do atraso nesta etapa." style="width:100%;min-height:90px;font-size:13px;font-family:inherit;color:#1f2933;border:1px solid #dde3ea;border-radius:6px;padding:8px 10px;resize:vertical;box-sizing:border-box;"></textarea>
+                  </div>
+                  <sc-if value="{{ it.showFormError }}" hint-placeholder-val="{{ false }}">
+                    <div style="font-size:11.5px;color:#c0392b;">Preencha nome e motivo antes de salvar.</div>
+                  </sc-if>
+                  <div onClick="{{ it.save }}" style="font-size:12.5px;font-weight:700;color:#fff;background:#1f3a5f;padding:9px 18px;border-radius:8px;cursor:pointer;width:fit-content;">Salvar</div>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ it.proximaEm }}" hint-placeholder-val="{{ false }}">
+                <div style="border-top:1px solid #eef1f4;padding-top:14px;font-size:12px;color:#8a94a3;">Próxima atualização necessária em: {{ it.proximaEm }}</div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+    </sc-if>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    projeto: 'trinta-reis', screen: 'menu', selectedDisc: null, discKey: null, passwordDraft: '', passwordError: false,
+    loading: true, error: '', saved: {}, drafts: {}, formErrors: {}, focusNumero: null, focusLote: null,
+  };
+
+  // Um projeto por rodovia/contrato. Cada obsKey salvo no Firestore leva o prefixo do projeto,
+  // então Trinta Reis / Araçuaí / Rubim nunca compartilham a mesma "caixa" de justificativas
+  // mesmo quando o número da análise e a disciplina coincidem entre projetos.
+  projetoMeta = {
+    'trinta-reis': { label: 'Rodovia MG-259 — Serro / Trinta Reis' },
+    'aracuai': { label: 'Rodovia LMG-678 — Araçuaí / Novo Cruzeiro' },
+    'rubim': { label: 'Rodovia MG-406 — Rubim / Rio do Prado' },
+  };
+
+  disciplinaMeta = {
+    geometria: 'Geometria', terraplenagem: 'Terraplenagem', sinalizacao: 'Sinalização',
+    obras: 'Obras Complementares', desapropriacao: 'Desapropriação', intersecao: 'Interseção',
+    seguranca: 'Segurança Viária', pavimentacao: 'Pavimentação', drenagem: 'Drenagem',
+    hidrologia: 'Estudos Hidrológicos', topografia: 'Topografia', meioambiente: 'Meio Ambiente',
+  };
+
+  // Senha de cada disciplina: nome sem acento/espaço, minúsculo — igual à própria chave. Mesma senha
+  // em todos os projetos (convenção já em uso).
+  disciplinaSenhas = {
+    geometria: 'geometria', terraplenagem: 'terraplenagem', sinalizacao: 'sinalizacao',
+    obras: 'obras', desapropriacao: 'desapropriacao', intersecao: 'intersecao', seguranca: 'seguranca',
+    pavimentacao: 'pavimentacao', drenagem: 'drenagem', hidrologia: 'hidrologia',
+    topografia: 'topografia', meioambiente: 'meioambiente',
+  };
+
+  // Datas reais de recebido/concluído por projeto → disciplina, espelhando disciplinaAnalisesReais /
+  // pavAnaliseMeta / sinalAnaliseMeta / drenAnaliseMeta de cada apresentação. Disciplinas por lote
+  // (Pavimentação e Drenagem em Araçuaí) vêm já achatadas num único array com o campo `lote`, ordenado
+  // por lote e depois por número — cada combinação lote+número gera seu próprio obsKey.
+  disciplinaAnalisesPorProjeto = {
+    'trinta-reis': {
+      geometria: [
+        { numero: 1, recebido: '02/06/2025', concluido: '09/06/2025' },
+        { numero: 2, recebido: '07/07/2025', concluido: '11/07/2025' },
+        { numero: 3, recebido: '31/07/2025', concluido: '08/08/2025' },
+        { numero: 4, recebido: '28/11/2025', concluido: '10/12/2025' },
+        { numero: 5, recebido: '30/01/2026', concluido: '10/02/2026' },
+      ],
+    },
+    'aracuai': {
+      geometria: [
+        { numero: 1, recebido: '01/02/2024', concluido: '05/02/2024' },
+        { numero: 2, recebido: '30/04/2024', concluido: '13/05/2024' },
+        { numero: 4, recebido: '20/05/2024', concluido: '10/06/2024' },
+        { numero: 5, recebido: '30/07/2024', concluido: '14/08/2024' },
+        { numero: 6, recebido: '16/10/2024', concluido: '08/11/2024' },
+        { numero: 7, recebido: '06/12/2024', concluido: '23/12/2024' },
+        { numero: 8, recebido: '22/11/2024', concluido: '03/02/2025' },
+        { numero: 9, recebido: '24/02/2025', concluido: '11/03/2025' },
+        { numero: 10, recebido: '24/03/2025', concluido: '03/04/2025' },
+        { numero: 11, recebido: '25/04/2025', concluido: '07/05/2025' },
+        { numero: 12, recebido: '30/05/2025', concluido: '05/06/2025' },
+        { numero: 13, recebido: '30/06/2025', concluido: '08/07/2025' },
+        { numero: 14, recebido: '17/07/2025', concluido: '04/08/2025' },
+        { numero: 15, recebido: '29/08/2025', concluido: '12/09/2025' },
+        { numero: 16, recebido: '27/02/2026', concluido: '13/03/2026' },
+        { numero: 17, recebido: '01/04/2026', concluido: '10/04/2026' },
+      ],
+      hidrologia: [
+        { numero: 1, recebido: '18/12/2023', concluido: '20/12/2023' },
+        { numero: 2, recebido: '20/02/2024', concluido: '06/03/2024' },
+        { numero: 3, recebido: '02/05/2024', concluido: '13/05/2024' },
+        { numero: 4, recebido: '23/09/2024', concluido: '02/10/2024' },
+        { numero: 5, recebido: '24/02/2025', concluido: '12/03/2025' },
+        { numero: 6, recebido: '19/05/2025', concluido: '30/05/2025' },
+        { numero: 7, recebido: '02/07/2025', concluido: '07/07/2025' },
+        { numero: 8, recebido: '04/08/2025', concluido: '08/08/2025' },
+        { numero: 9, recebido: '29/10/2025', concluido: '05/11/2025' },
+        { numero: 10, recebido: '17/12/2025', concluido: '23/12/2025' },
+      ],
+      sinalizacao: [
+        { numero: 1, recebido: '24/07/2025', concluido: '05/08/2025' },
+        { numero: 2, recebido: '15/09/2025', concluido: '24/09/2025' },
+        { numero: 3, recebido: '06/11/2025', concluido: '25/11/2025' },
+        { numero: 4, recebido: '09/01/2026', concluido: '04/02/2026' },
+        { numero: 5, recebido: '12/02/2026', concluido: '20/02/2026' },
+        { numero: 6, recebido: '26/02/2026', concluido: '03/03/2026' },
+        { numero: 7, recebido: '05/03/2026', concluido: '17/03/2026' },
+        { numero: 8, recebido: '06/04/2026', concluido: '07/04/2026' },
+      ],
+      pavimentacao: [
+        { lote: 'lote1', numero: 1, recebido: '13/10/2025', concluido: '09/01/2026' },
+        { lote: 'lote1', numero: 2, recebido: '26/01/2026', concluido: '12/03/2026' },
+        { lote: 'lote1', numero: 3, recebido: '27/03/2026', concluido: '16/04/2026' },
+        { lote: 'lote1', numero: 4, recebido: '04/05/2026', concluido: '14/05/2026' },
+        { lote: 'lote1', numero: 5, recebido: '29/05/2026', concluido: '09/07/2026' },
+        { lote: 'lote2', numero: 1, recebido: '11/12/2025', concluido: '27/01/2026' },
+        { lote: 'lote2', numero: 2, recebido: '30/01/2026', concluido: '12/03/2026' },
+        { lote: 'lote2', numero: 3, recebido: '30/04/2026', concluido: '18/05/2026' },
+        { lote: 'lote2', numero: 4, recebido: '30/04/2026', concluido: '09/07/2026' },
+        { lote: 'lote3', numero: 1, recebido: '11/12/2025', concluido: '03/02/2026' },
+        { lote: 'lote3', numero: 2, recebido: '11/12/2025', concluido: '12/03/2026' },
+        { lote: 'lote3', numero: 3, recebido: '07/05/2026', concluido: '22/05/2026' },
+        { lote: 'lote3', numero: 4, recebido: '07/05/2026', concluido: '10/09/2026' },
+      ],
+      drenagem: [
+        { lote: 'lote1', numero: 1, recebido: '17/12/2025', concluido: '30/12/2025' },
+        { lote: 'lote1', numero: 2, recebido: '02/03/2025', concluido: '19/03/2025' },
+        { lote: 'lote1', numero: 3, recebido: '13/04/2026', concluido: '15/04/2026' },
+        { lote: 'lote1', numero: 4, recebido: '08/05/2026', concluido: '29/05/2026' },
+      ],
+    },
+    'rubim': {
+      geometria: [
+        { numero: 1, recebido: '09/01/2024', concluido: '12/01/2024' },
+        { numero: 2, recebido: '07/03/2024', concluido: '07/03/2024' },
+        { numero: 3, recebido: '19/05/2025', concluido: '04/06/2025' },
+        { numero: 4, recebido: '09/07/2025', concluido: '06/08/2025' },
+        { numero: 5, recebido: '10/02/2026', concluido: '10/02/2026' },
+        { numero: 6, recebido: '11/03/2026', concluido: '11/03/2026' },
+        { numero: 7, recebido: '07/05/2025', concluido: '07/05/2025' },
+        { numero: 8, recebido: '07/07/2025', concluido: '07/07/2025' },
+        { numero: 9, recebido: '08/08/2025', concluido: '08/08/2025' },
+        { numero: 10, recebido: '29/09/2025', concluido: '10/10/2025' },
+        { numero: 11, recebido: '10/12/2025', concluido: '10/12/2025' },
+        { numero: 12, recebido: '09/02/2026', concluido: '10/02/2026' },
+        { numero: 13, recebido: '12/03/2026', concluido: '12/03/2026' },
+        { numero: 14, recebido: '17/03/2026', concluido: '25/03/2026' },
+      ],
+      hidrologia: [
+        { numero: 1, recebido: '20/02/2024', concluido: '06/03/2024' },
+        { numero: 2, recebido: '25/03/2024', concluido: '11/05/2024' },
+        { numero: 3, recebido: '16/03/2025', concluido: '24/03/2026' },
+        { numero: 4, recebido: '07/04/2026', concluido: '16/04/2026' },
+      ],
+      sinalizacao: [
+        { numero: 1, recebido: '12/09/2025', concluido: '07/10/2025' },
+        { numero: 2, recebido: '26/02/2026', concluido: '13/03/2026' },
+        { numero: 3, recebido: '24/03/2026', concluido: '13/04/2026' },
+        { numero: 4, recebido: '17/04/2026', concluido: '05/05/2026' },
+        { numero: 5, recebido: '11/05/2026', concluido: '14/05/2026' },
+        { numero: 6, recebido: '18/05/2026', concluido: '29/05/2026' },
+      ],
+    },
+  };
+
+  normalize(s) {
+    return (s || '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  }
+
+  componentDidMount() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const p = params.get('projeto');
+      const d = params.get('disc');
+      const numero = params.get('numero');
+      const lote = params.get('lote');
+      const next = {};
+      const projeto = (p && this.projetoMeta[p]) ? p : this.state.projeto;
+      if (p && this.projetoMeta[p]) next.projeto = p;
+      // Só honra o atalho ?disc= se a disciplina REALMENTE tem dados cadastrados para o projeto
+      // resolvido — sem essa checagem, um link com projeto ausente/errado caía silenciosamente
+      // na disciplina certa só que sob o projeto padrão (trinta-reis), mostrando "Nenhuma pendência"
+      // com o cabeçalho da rodovia errada.
+      const temDados = d && (this.disciplinaAnalisesPorProjeto[projeto] || {})[d] && (this.disciplinaAnalisesPorProjeto[projeto][d] || []).length > 0;
+      if (temDados) {
+        next.screen = 'password'; next.selectedDisc = d;
+        // Vindo de um link "Abrir formulário" de uma análise específica (?numero=&lote=): a tela
+        // final mostra só essa análise, não todas as pendências da disciplina.
+        if (numero) next.focusNumero = parseInt(numero, 10);
+        if (lote) next.focusLote = lote;
+      }
+      if (Object.keys(next).length) this.setState(next);
+    } catch (e) {}
+  }
+
+  selectDisc(key) {
+    this.setState({ screen: 'password', selectedDisc: key, passwordDraft: '', passwordError: false });
+  }
+
+  backToMenu() {
+    this.setState({ screen: 'menu', selectedDisc: null, discKey: null, passwordDraft: '', passwordError: false, focusNumero: null, focusLote: null });
+  }
+
+  onPasswordChange(e) {
+    const value = e && e.target ? e.target.value : e;
+    this.setState({ passwordDraft: value, passwordError: false });
+  }
+
+  onPasswordKeyDown(e) {
+    if (e && e.key === 'Enter') this.submitPassword();
+  }
+
+  submitPassword() {
+    const key = this.state.selectedDisc;
+    const expected = this.disciplinaSenhas[key];
+    if (this.normalize(this.state.passwordDraft) === expected) {
+      this.setState({ screen: 'form', discKey: key, loading: true });
+      this.waitForFirebase(key, 0);
+    } else {
+      this.setState({ passwordError: true });
+    }
+  }
+
+  waitForFirebase(discKey, attempt) {
+    if (window.firebase && firebase.firestore && firebase.auth) {
+      if (!firebase.apps || !firebase.apps.length) {
+        firebase.initializeApp({
+          apiKey: "AIzaSyDNBXkzFJFAsOKefmBesSWmwRHgS0i7ACA",
+          authDomain: "sip-sistema-intelig-de-projeto.firebaseapp.com",
+          projectId: "sip-sistema-intelig-de-projeto",
+          storageBucket: "sip-sistema-intelig-de-projeto.firebasestorage.app",
+          messagingSenderId: "957059964424",
+          appId: "1:957059964424:web:30ba5c315b713c2c05bbbd"
+        });
+      }
+      // A regra de segurança do Firestore exige request.auth != null para qualquer leitura/escrita.
+      // Esta página é aberta avulsa (fora do hub SIP.dc.html, que já faz esse login), então precisa
+      // autenticar sozinha antes de falar com o Firestore — senão dá "Missing or insufficient permissions".
+      firebase.auth().signInAnonymously()
+        .then(() => this.subscribeFirestore(discKey))
+        .catch(e => {
+          console.error('Firebase auth error:', e);
+          this.setState({ error: 'Não foi possível autenticar no Firebase. Detalhe: ' + (e && e.message ? e.message : String(e)), loading: false });
+        });
+      return;
+    }
+    if (attempt > 100) {
+      this.setState({ error: 'Não foi possível carregar a biblioteca do Firebase (tempo esgotado).', loading: false });
+      return;
+    }
+    setTimeout(() => this.waitForFirebase(discKey, attempt + 1), 100);
+  }
+
+  subscribeFirestore(discKey) {
+    try {
+      firebase.firestore().collection('linhaTempoObservacoes')
+        .where('projeto', '==', this.state.projeto).where('disc', '==', discKey)
+        .onSnapshot(snap => {
+          const saved = {};
+          snap.forEach(doc => {
+            const d = doc.data();
+            if (!saved[d.obsKey]) saved[d.obsKey] = [];
+            saved[d.obsKey].push(d);
+          });
+          this.setState({ saved, loading: false });
+        }, e => { console.error('Firestore onSnapshot error:', e); this.setState({ error: e.message, loading: false }); });
+    } catch (e) {
+      console.error('Firebase sync error:', e);
+      this.setState({ error: 'Não foi possível conectar ao Firestore. Detalhe: ' + (e && e.message ? e.message : String(e)), loading: false });
+    }
+  }
+
+  tsMillis(ts) {
+    if (ts && ts.toMillis) return ts.toMillis();
+    return 0;
+  }
+
+  parseBR(s) {
+    const [d, m, y] = s.split('/').map(Number);
+    return new Date(y, m - 1, d);
+  }
+
+  diffDays(a, b) {
+    return Math.round((b - a) / 86400000);
+  }
+
+  setDraft(obsKey, field, e) {
+    const value = e && e.target ? e.target.value : e;
+    this.setState(s => ({ drafts: { ...s.drafts, [obsKey]: { ...s.drafts[obsKey], [field]: value } } }));
+  }
+
+  save(obsKey, numero, discKey) {
+    const draft = this.state.drafts[obsKey] || {};
+    const nome = (draft.nome || '').trim();
+    const texto = (draft.texto || '').trim();
+    if (!nome || !texto) {
+      this.setState(s => ({ formErrors: { ...s.formErrors, [obsKey]: true } }));
+      return;
+    }
+    if (!window.firebase || !firebase.firestore) return;
+    firebase.firestore().collection('linhaTempoObservacoes').add({
+      projeto: this.state.projeto, disc: discKey, obsKey, analiseNumero: numero, nome, texto,
+      criadoEm: firebase.firestore.FieldValue.serverTimestamp(),
+    }).then(() => {
+      this.setState(s => ({
+        drafts: { ...s.drafts, [obsKey]: { nome: '', texto: '' } },
+        formErrors: { ...s.formErrors, [obsKey]: false },
+      }));
+    });
+  }
+
+  fmtTimestamp(ts) {
+    if (!ts || !ts.toDate) return '';
+    const d = ts.toDate();
+    return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear();
+  }
+
+  buildItems() {
+    const discKey = this.state.discKey;
+    const PRAZO = 20;
+    const porProjeto = this.disciplinaAnalisesPorProjeto[this.state.projeto] || {};
+    const rawAnalises = porProjeto[discKey] || [];
+    if (!rawAnalises.length) return [];
+    const today = new Date();
+    const loteLabel = { lote1: 'Lote 1', lote2: 'Lote 2', lote3: 'Lote 3' };
+
+    // Agrupa por lote (undefined = sem lote) pra calcular "próxima análise" dentro do mesmo lote.
+    const grupos = new Map();
+    for (const a of rawAnalises) {
+      const g = a.lote || '__unico__';
+      if (!grupos.has(g)) grupos.set(g, []);
+      grupos.get(g).push(a);
+    }
+
+    const out = [];
+    for (const analises of grupos.values()) {
+      analises.forEach((a, i) => {
+        const conc = this.parseBR(a.concluido);
+        const proximo = analises[i + 1];
+        let tempo, atrasado;
+        if (proximo) {
+          const dias = this.diffDays(conc, this.parseBR(proximo.recebido));
+          tempo = dias + ' dias'; atrasado = dias > PRAZO;
+        } else {
+          const dias = this.diffDays(conc, today);
+          tempo = dias + ' dias (em aberto)'; atrasado = dias > PRAZO;
+        }
+        // obsKey precisa ser único dentro do projeto MESMO cruzando disciplinas, porque o painel
+        // principal (Apresentacao *.dc.html) lê um único mapa de observações por projeto (não mais
+        // filtrado só por disciplina) — sem o prefixo da disciplina, "Análise 5" de Geometria e
+        // "Análise 5" de Pavimentação/Lote 1 colidiam na mesma chave 'an-5-resp'.
+        const obsKey = discKey + '-an-' + (a.lote ? a.lote + '-' : '') + a.numero + '-resp';
+        const list = (this.state.saved[obsKey] || []).slice().sort((x, y) => this.tsMillis(x.criadoEm || x.preenchidoEm) - this.tsMillis(y.criadoEm || y.preenchidoEm));
+        const historico = list.map(d => ({ texto: d.texto || '', autor: d.nome || '', data: this.fmtTimestamp(d.criadoEm || d.preenchidoEm) }));
+
+        let showForm = false, proximaEm = '';
+        if (atrasado) {
+          if (!list.length) {
+            showForm = true;
+          } else {
+            const last = list[list.length - 1];
+            const lastTs = last.criadoEm || last.preenchidoEm;
+            const lastDate = lastTs && lastTs.toDate ? lastTs.toDate() : null;
+            if (lastDate) {
+              const diasDesde = this.diffDays(lastDate, today);
+              showForm = diasDesde >= 10;
+              if (!showForm) {
+                const prox = new Date(lastDate.getTime() + 10 * 86400000);
+                proximaEm = String(prox.getDate()).padStart(2, '0') + '/' + String(prox.getMonth() + 1).padStart(2, '0') + '/' + prox.getFullYear();
+              }
+            } else {
+              showForm = true;
+            }
+          }
+        }
+
+        out.push({
+          key: obsKey, numero: a.numero, recebido: a.concluido, tempo,
+          tituloItem: 'Análise ' + a.numero + (a.lote ? ' — ' + (loteLabel[a.lote] || a.lote) : '') + ' — Resposta do Responsável',
+          statusLabel: atrasado ? 'Atrasado' : 'Dentro do Prazo',
+          statusColor: atrasado ? '#c0392b' : '#2f8f4f',
+          atrasado, showForm, proximaEm, historico, hasHistorico: historico.length > 0,
+          nomeVal: (this.state.drafts[obsKey] && this.state.drafts[obsKey].nome) || '',
+          textoVal: (this.state.drafts[obsKey] && this.state.drafts[obsKey].texto) || '',
+          showFormError: !!this.state.formErrors[obsKey],
+          onNomeChange: (v) => this.setDraft(obsKey, 'nome', v),
+          onTextoChange: (v) => this.setDraft(obsKey, 'texto', v),
+          save: () => this.save(obsKey, a.numero, discKey),
+        });
+      });
+    }
+    const filtered = out.filter(it => it.atrasado || it.hasHistorico);
+    // Link veio de uma análise específica (o botão "Abrir formulário" de UMA análise atrasada) —
+    // mostrar só ela, não a lista inteira de pendências da disciplina.
+    if (this.state.focusNumero != null) {
+      return filtered.filter(it => it.numero === this.state.focusNumero && (this.state.focusLote ? it.key.indexOf('-' + this.state.focusLote + '-') !== -1 : true));
+    }
+    return filtered;
+  }
+
+  renderVals() {
+    const discKey = this.state.discKey;
+    const items = this.state.screen === 'form' && discKey ? this.buildItems() : [];
+    const porProjeto = this.disciplinaAnalisesPorProjeto[this.state.projeto] || {};
+    const discKeysComDados = Object.keys(porProjeto).filter(k => (porProjeto[k] || []).length > 0);
+    return {
+      rodoviaLabel: (this.projetoMeta[this.state.projeto] || {}).label || 'Projeto não identificado',
+      isMenu: this.state.screen === 'menu',
+      isPassword: this.state.screen === 'password',
+      isForm: this.state.screen === 'form',
+      discButtons: discKeysComDados.map(key => ({
+        key, label: this.disciplinaMeta[key] || key, select: () => this.selectDisc(key),
+      })),
+      hasDiscButtons: discKeysComDados.length > 0,
+      noDiscButtons: discKeysComDados.length === 0,
+      selectedLabel: this.state.selectedDisc ? this.disciplinaMeta[this.state.selectedDisc] : '',
+      passwordDraft: this.state.passwordDraft,
+      showPasswordError: this.state.passwordError,
+      onPasswordChange: (e) => this.onPasswordChange(e),
+      onPasswordKeyDown: (e) => this.onPasswordKeyDown(e),
+      onPasswordSubmit: () => this.submitPassword(),
+      backToMenu: () => this.backToMenu(),
+      discLabel: discKey ? (this.disciplinaMeta[discKey] || discKey) : '',
+      isLoading: this.state.loading,
+      hasError: !!this.state.error,
+      errorMsg: this.state.error,
+      hasItems: this.state.screen === 'form' && !this.state.loading && !this.state.error && items.length > 0,
+      noItems: this.state.screen === 'form' && !this.state.loading && !this.state.error && items.length === 0,
+      items,
+    };
+  }
+}
+
+</script>
+</body>
+</html>
