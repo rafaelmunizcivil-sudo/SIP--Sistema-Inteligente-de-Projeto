@@ -367,7 +367,7 @@ class Component extends DCLogic {
         parsedRows.forEach(p => {
           if (p.ERROR) { unmatched++; return; }
           const base = this.medicaoBaseData()[p.idx];
-          if (!base || !p.valorMedAtual) return;
+          if (!base) { unmatched++; return; }
           const antes = base.totalJaMedidoBase;
           const depois = antes + p.valorMedAtual;
           const pctAntes = base.totalReal ? Math.round((antes / base.totalReal) * 100) : 0;
