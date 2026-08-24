@@ -454,7 +454,19 @@
         <sc-if value="{{ medicaoLocked }}" hint-placeholder-val="{{ true }}">
           <div style="max-width:360px;background:#fff;border:1px solid #dde3ea;border-radius:10px;padding:24px;">
             <div style="font-size:13px;font-weight:700;color:#1f2933;margin-bottom:10px;">Área restrita</div>
-            <input type="password" value="{{ medicaoPasswordDraft }}" onChange="{{ onMedicaoPasswordChange }}" placeholder="Senha" style="width:100%;box-sizing:border-box;font-size:13px;padding:9px 12px;border:1px solid #dde3ea;border-radius:8px;margin-bottom:10px;">
+            <div style="position:relative;">
+              <input type="{{ medicaoPasswordInputType }}" value="{{ medicaoPasswordDraft }}" onChange="{{ onMedicaoPasswordChange }}" placeholder="Senha" style="width:100%;box-sizing:border-box;font-size:13px;padding:9px 12px;border:1px solid #dde3ea;border-radius:8px;margin-bottom:10px;">
+              <sc-if value="{{ medicaoPasswordVisible }}" hint-placeholder-val="{{ false }}">
+                <div onClick="{{ toggleMedicaoPasswordVisible }}" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:#8a94a3;display:flex;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.5 18.5 0 0 1 5.06-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                </div>
+              </sc-if>
+              <sc-if value="{{ medicaoPasswordHidden }}" hint-placeholder-val="{{ true }}">
+                <div onClick="{{ toggleMedicaoPasswordVisible }}" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:#8a94a3;display:flex;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </div>
+              </sc-if>
+            </div>
             <sc-if value="{{ medicaoPasswordError }}" hint-placeholder-val="{{ false }}">
               <div style="font-size:11.5px;color:#c0392b;margin-bottom:10px;">Senha incorreta.</div>
             </sc-if>
@@ -479,7 +491,19 @@
         <sc-if value="{{ terceirosLocked }}" hint-placeholder-val="{{ true }}">
           <div style="max-width:360px;background:#fff;border:1px solid #dde3ea;border-radius:10px;padding:24px;">
             <div style="font-size:13px;font-weight:700;color:#1f2933;margin-bottom:10px;">Área restrita</div>
-            <input type="password" value="{{ terceirosPasswordDraft }}" onChange="{{ onTerceirosPasswordChange }}" placeholder="Senha" style="width:100%;box-sizing:border-box;font-size:13px;padding:9px 12px;border:1px solid #dde3ea;border-radius:8px;margin-bottom:10px;">
+            <div style="position:relative;">
+              <input type="{{ terceirosPasswordInputType }}" value="{{ terceirosPasswordDraft }}" onChange="{{ onTerceirosPasswordChange }}" placeholder="Senha" style="width:100%;box-sizing:border-box;font-size:13px;padding:9px 12px;border:1px solid #dde3ea;border-radius:8px;margin-bottom:10px;">
+              <sc-if value="{{ terceirosPasswordVisible }}" hint-placeholder-val="{{ false }}">
+                <div onClick="{{ toggleTerceirosPasswordVisible }}" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:#8a94a3;display:flex;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.5 18.5 0 0 1 5.06-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                </div>
+              </sc-if>
+              <sc-if value="{{ terceirosPasswordHidden }}" hint-placeholder-val="{{ true }}">
+                <div onClick="{{ toggleTerceirosPasswordVisible }}" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:#8a94a3;display:flex;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </div>
+              </sc-if>
+            </div>
             <sc-if value="{{ terceirosPasswordError }}" hint-placeholder-val="{{ false }}">
               <div style="font-size:11.5px;color:#c0392b;margin-bottom:10px;">Senha incorreta.</div>
             </sc-if>
@@ -504,7 +528,19 @@
         <sc-if value="{{ reuniaoLocked }}" hint-placeholder-val="{{ true }}">
           <div style="max-width:360px;background:#fff;border:1px solid #dde3ea;border-radius:10px;padding:24px;">
             <div style="font-size:13px;font-weight:700;color:#1f2933;margin-bottom:10px;">Área restrita</div>
-            <input type="password" value="{{ reuniaoPasswordDraft }}" onChange="{{ onReuniaoPasswordChange }}" placeholder="Senha" style="width:100%;box-sizing:border-box;font-size:13px;padding:9px 12px;border:1px solid #dde3ea;border-radius:8px;margin-bottom:10px;">
+            <div style="position:relative;">
+              <input type="{{ reuniaoPasswordInputType }}" value="{{ reuniaoPasswordDraft }}" onChange="{{ onReuniaoPasswordChange }}" placeholder="Senha" style="width:100%;box-sizing:border-box;font-size:13px;padding:9px 12px;border:1px solid #dde3ea;border-radius:8px;margin-bottom:10px;">
+              <sc-if value="{{ reuniaoPasswordVisible }}" hint-placeholder-val="{{ false }}">
+                <div onClick="{{ toggleReuniaoPasswordVisible }}" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:#8a94a3;display:flex;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.5 18.5 0 0 1 5.06-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+                </div>
+              </sc-if>
+              <sc-if value="{{ reuniaoPasswordHidden }}" hint-placeholder-val="{{ true }}">
+                <div onClick="{{ toggleReuniaoPasswordVisible }}" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:#8a94a3;display:flex;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                </div>
+              </sc-if>
+            </div>
             <sc-if value="{{ reuniaoPasswordError }}" hint-placeholder-val="{{ false }}">
               <div style="font-size:11.5px;color:#c0392b;margin-bottom:10px;">Senha incorreta.</div>
             </sc-if>
@@ -913,16 +949,28 @@ class Component extends DCLogic {
   }
 
   onMedicaoPasswordChange(e) { this.setState({ medicaoPasswordDraft: e.target.value }); }
+
+  toggleMedicaoPasswordVisible() {
+    this.setState({ medicaoPasswordVisible: !this.state.medicaoPasswordVisible });
+  }
   submitMedicaoPassword() {
     if (this.state.medicaoPasswordDraft === this.medicaoSenha) this.setState({ medicaoUnlocked: true, medicaoPasswordError: false });
     else this.setState({ medicaoPasswordError: true });
   }
   onTerceirosPasswordChange(e) { this.setState({ terceirosPasswordDraft: e.target.value }); }
+
+  toggleTerceirosPasswordVisible() {
+    this.setState({ terceirosPasswordVisible: !this.state.terceirosPasswordVisible });
+  }
   submitTerceirosPassword() {
     if (this.state.terceirosPasswordDraft === this.medicaoSenha) this.setState({ terceirosUnlocked: true, terceirosPasswordError: false });
     else this.setState({ terceirosPasswordError: true });
   }
   onReuniaoPasswordChange(e) { this.setState({ reuniaoPasswordDraft: e.target.value }); }
+
+  toggleReuniaoPasswordVisible() {
+    this.setState({ reuniaoPasswordVisible: !this.state.reuniaoPasswordVisible });
+  }
   submitReuniaoPassword() {
     if (this.state.reuniaoPasswordDraft === this.medicaoSenha) this.setState({ reuniaoUnlocked: true, reuniaoPasswordError: false });
     else this.setState({ reuniaoPasswordError: true });
@@ -1035,6 +1083,10 @@ class Component extends DCLogic {
       medicaoPasswordDraft: this.state.medicaoPasswordDraft,
       medicaoPasswordError: this.state.medicaoPasswordError,
       onMedicaoPasswordChange: (e) => this.onMedicaoPasswordChange(e),
+      medicaoPasswordVisible: this.state.medicaoPasswordVisible,
+      medicaoPasswordHidden: !this.state.medicaoPasswordVisible,
+      medicaoPasswordInputType: this.state.medicaoPasswordVisible ? 'text' : 'password',
+      toggleMedicaoPasswordVisible: () => this.toggleMedicaoPasswordVisible(),
       onMedicaoPasswordSubmit: () => this.submitMedicaoPassword(),
 
       terceirosLocked: !this.state.terceirosUnlocked,
@@ -1042,6 +1094,10 @@ class Component extends DCLogic {
       terceirosPasswordDraft: this.state.terceirosPasswordDraft,
       terceirosPasswordError: this.state.terceirosPasswordError,
       onTerceirosPasswordChange: (e) => this.onTerceirosPasswordChange(e),
+      terceirosPasswordVisible: this.state.terceirosPasswordVisible,
+      terceirosPasswordHidden: !this.state.terceirosPasswordVisible,
+      terceirosPasswordInputType: this.state.terceirosPasswordVisible ? 'text' : 'password',
+      toggleTerceirosPasswordVisible: () => this.toggleTerceirosPasswordVisible(),
       onTerceirosPasswordSubmit: () => this.submitTerceirosPassword(),
 
       reuniaoLocked: !this.state.reuniaoUnlocked,
@@ -1049,6 +1105,10 @@ class Component extends DCLogic {
       reuniaoPasswordDraft: this.state.reuniaoPasswordDraft,
       reuniaoPasswordError: this.state.reuniaoPasswordError,
       onReuniaoPasswordChange: (e) => this.onReuniaoPasswordChange(e),
+      reuniaoPasswordVisible: this.state.reuniaoPasswordVisible,
+      reuniaoPasswordHidden: !this.state.reuniaoPasswordVisible,
+      reuniaoPasswordInputType: this.state.reuniaoPasswordVisible ? 'text' : 'password',
+      toggleReuniaoPasswordVisible: () => this.toggleReuniaoPasswordVisible(),
       onReuniaoPasswordSubmit: () => this.submitReuniaoPassword(),
     };
   }
