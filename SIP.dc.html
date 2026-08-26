@@ -666,7 +666,7 @@ class Component extends DCLogic {
   // Isso evita que falhas momentâneas (ex: cache do GitHub Pages) apareçam pro usuário como
   // "senha incorreta", quando na real é só uma instabilidade passageira.
   async signInComRetry(email, senha) {
-    const ERROS_DE_SENHA = ['auth/wrong-password', 'auth/user-not-found', 'auth/invalid-credential', 'auth/invalid-email'];
+    const ERROS_DE_SENHA = ['auth/wrong-password', 'auth/user-not-found', 'auth/invalid-credential', 'auth/invalid-email', 'auth/invalid-login-credentials'];
     const TENTATIVAS = 3;
     for (let i = 1; i <= TENTATIVAS; i++) {
       try {
