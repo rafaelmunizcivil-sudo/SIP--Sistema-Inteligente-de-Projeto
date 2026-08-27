@@ -1410,6 +1410,155 @@
         </sc-if>
         </sc-if>
 
+        <div onClick="{{ onToggleEntregaXMedido }}" style="width: 100%; box-sizing: border-box; text-align: left; font-size: 14px; font-weight: 700; color: {{ primaryColor }}; background: #fff; border: 1px solid {{ primaryColor }}; padding: 10px 14px; border-radius: 8px; cursor: pointer; margin-bottom: 16px">Entregue x medido</div>
+
+        <sc-if value="{{ showEntregaXMedido }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-bottom:24px;">
+
+            <div style="background:#fdf3e6;border:1px solid #f0dcc4;border-radius:8px;padding:12px 16px;font-size:12.5px;color:#8a5a1e;line-height:1.6;margin-bottom:16px;text-align:justify;">{{ entregaXMedido.aviso }}</div>
+
+            <div style="font-size:13px;font-weight:700;color:#1f2933;margin-bottom:8px;">Legenda</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:18px;">
+              <sc-for list="{{ entregaXMedido.legenda }}" as="lg" hint-placeholder-count="5">
+                <div style="background:{{ lg.corBg }};border-radius:8px;padding:10px 12px;">
+                  <div style="font-size:12px;font-weight:700;color:{{ lg.corTexto }};margin-bottom:2px;">{{ lg.rotulo }}</div>
+                  <div style="font-size:11px;color:{{ lg.corTexto }};line-height:1.4;">{{ lg.legenda }}</div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <div style="font-size:13px;font-weight:700;color:#1f2933;">Itens de serviço</div>
+              <div style="font-size:11px;color:#8a94a3;">{{ entregaXMedido.totalItens }} itens</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <sc-for list="{{ entregaXMedido.linhas }}" as="lx" hint-placeholder-count="10">
+                <div style="background:#fff;border:1px solid #eef1f4;border-radius:10px;padding:12px 16px;">
+                  <div onClick="{{ lx.toggle }}" style="display:flex;align-items:center;justify-content:space-between;gap:14px;cursor:pointer;flex-wrap:wrap;">
+                    <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:220px;">
+                      <div style="font-size:11px;font-weight:700;color:#8a94a3;flex:0 0 auto;min-width:22px;">{{ lx.numero }}.</div>
+                      <div style="font-size:13.5px;font-weight:600;color:#1f2933;">{{ lx.descricao }}</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+                      <span style="display:inline-block;background:{{ lx.situacaoBg }};color:{{ lx.situacaoTexto }};font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;white-space:nowrap;">{{ lx.situacaoLabel }}</span>
+                      <div style="font-size:17px;color:#8a94a3;">{{ lx.chevron }}</div>
+                    </div>
+                  </div>
+                  <sc-if value="{{ lx.isOpen }}" hint-placeholder-val="{{ false }}">
+                    <div style="margin-top:12px;padding-top:12px;border-top:1px solid #eef1f4;display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;">
+                      <div style="background:#1f3a5f;border-radius:8px;padding:10px 14px;text-align:center;"><div style="font-size:11px;font-weight:600;color:#c7d6e8;text-transform:uppercase;margin-bottom:4px;">Contrato</div><div style="font-size:17px;font-weight:700;color:#fff;">{{ lx.totalContratoFmt }}</div></div>
+                      <div style="background:#1f3a5f;border-radius:8px;padding:10px 14px;text-align:center;"><div style="font-size:11px;font-weight:600;color:#c7d6e8;text-transform:uppercase;margin-bottom:4px;">Medido</div><div style="font-size:17px;font-weight:700;color:#fff;">{{ lx.totalJaMedidoFmt }}</div></div>
+                      <div style="background:#1f3a5f;border-radius:8px;padding:10px 14px;text-align:center;"><div style="font-size:11px;font-weight:600;color:#c7d6e8;text-transform:uppercase;margin-bottom:4px;">%</div><div style="font-size:17px;font-weight:700;color:#fff;">{{ lx.pct }}%</div></div>
+                      <div style="background:#1f3a5f;border-radius:8px;padding:10px 14px;text-align:center;"><div style="font-size:11px;font-weight:600;color:#c7d6e8;text-transform:uppercase;margin-bottom:4px;">Entrega</div><div style="font-size:17px;font-weight:700;color:#fff;">{{ lx.entrega }}</div></div>
+                    </div>
+                    <sc-if value="{{ lx.escopoEntregue.hasEscopo }}" hint-placeholder-val="{{ false }}">
+                      <div style="margin-top:16px;padding-top:16px;border-top:1px solid #eef1f4;">
+                        <div onClick="{{ lx.escopoEntregue.toggle }}" style="border:1px solid #b7d4f0;border-radius:8px;padding:10px 16px;display:flex;align-items:center;gap:8px;cursor:pointer;">
+                          <div style="font-size:13px;font-weight:700;color:#2f6690;">Escopo entregue</div>
+                          <div style="margin-left:auto;font-size:15px;color:#2f6690;">{{ lx.escopoEntregue.chevronEscopo }}</div>
+                        </div>
+                        <sc-if value="{{ lx.escopoEntregue.isOpen }}" hint-placeholder-val="{{ false }}">
+                          <div style="margin-top:12px;">
+                            <div style="font-size:11px;color:#8a94a3;margin-bottom:8px;">Cruzamento análise x medição (extraído da aba Análise e dos boletins oficiais do DER-MG)</div>
+                            <div style="overflow-x:auto;">
+                            <table style="width:100%;border-collapse:collapse;font-size:12px;">
+                              <thead>
+                                <tr style="border-bottom:1px solid #d7e4ee;">
+                                  <th style="text-align:center;padding:6px;color:#8a94a3;font-weight:600;">Qtd.</th>
+                                  <th style="text-align:center;padding:6px;color:#8a94a3;font-weight:600;">Análise</th>
+                                  <th style="text-align:center;padding:6px;color:#8a94a3;font-weight:600;">Recebido</th>
+                                  <th style="text-align:center;padding:6px;color:#8a94a3;font-weight:600;">Medição</th>
+                                  <th style="text-align:center;padding:6px;color:#8a94a3;font-weight:600;">Período de execução</th>
+                                  <th style="text-align:center;padding:6px;color:#8a94a3;font-weight:600;">Emissão</th>
+                                  <th style="text-align:center;padding:6px;color:#8a94a3;font-weight:600;">Valor</th>
+                                  <th style="text-align:center;padding:6px;color:#8a94a3;font-weight:600;">% Medido</th>
+                                  <th></th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <sc-for list="{{ lx.escopoEntregue.medidas }}" as="m" hint-placeholder-count="10">
+                                  <tr style="border-bottom:1px solid #eef1f4;">
+                                    <td style="padding:6px;text-align:center;color:#8a94a3;">{{ m.qtd }}</td>
+                                    <td style="padding:6px;text-align:center;font-weight:600;">{{ m.analise }}</td>
+                                    <td style="padding:6px;text-align:center;">{{ m.recebido }}</td>
+                                    <td style="padding:6px;text-align:center;">{{ m.medicaoNumero }}</td>
+                                    <td style="padding:6px;text-align:center;white-space:nowrap;">{{ m.periodoExecucao }}</td>
+                                    <td style="padding:6px;text-align:center;">{{ m.emissao }}</td>
+                                    <td style="padding:6px;text-align:center;font-weight:600;">{{ m.valor }}</td>
+                                    <td style="padding:6px;text-align:center;font-weight:600;">{{ m.pct }}</td>
+                                    <td style="padding:6px;text-align:center;"><button onClick="{{ m.toggle }}" style="font-size:11px;padding:3px 8px;">{{ m.resumoLabel }}</button></td>
+                                  </tr>
+                                  <sc-if value="{{ m.isOpen }}" hint-placeholder-val="{{ false }}">
+                                    <tr>
+                                      <td colspan="9" style="padding:4px 6px 14px;">
+                                        <div style="font-size:20px;line-height:1.6;color:#1f2933;text-align:center;">{{ m.resumo }}</div>
+                                        <div style="display:flex;gap:12px;justify-content:center;margin-top:8px;">
+                                          <span style="font-size:11px;color:#5b6774;">{{ m.novo }} novos</span>
+                                          <span style="font-size:11px;color:#5b6774;">{{ m.atendido }} atendidos</span>
+                                          <span style="font-size:11px;color:#5b6774;">{{ m.nao }} não atendidos</span>
+                                        </div>
+                                      </td>
+                                    </tr>
+                                  </sc-if>
+                                </sc-for>
+
+                                <sc-if value="{{ lx.escopoEntregue.hasAguardando }}" hint-placeholder-val="{{ false }}">
+                                  <tr>
+                                    <td colspan="9" style="padding:14px 6px 6px;font-size:11px;color:#8a94a3;">Entregas aguardando medição</td>
+                                  </tr>
+                                  <sc-for list="{{ lx.escopoEntregue.aguardando }}" as="a" hint-placeholder-count="5">
+                                    <tr style="border-bottom:1px dashed #eef1f4;">
+                                      <td style="padding:6px;text-align:center;color:#8a94a3;">{{ a.qtd }}</td>
+                                      <td style="padding:6px;text-align:center;color:#8a94a3;font-weight:600;">{{ a.analise }}</td>
+                                      <td style="padding:6px;text-align:center;color:#8a94a3;">{{ a.recebido }}</td>
+                                      <td style="padding:6px;text-align:center;color:#8a94a3;">—</td>
+                                      <td colspan="4" style="padding:6px;text-align:center;color:#b5541f;font-weight:600;">Aguardando</td>
+                                      <td style="padding:6px;text-align:center;"><button onClick="{{ a.toggle }}" style="font-size:11px;padding:3px 8px;">{{ a.resumoLabel }}</button></td>
+                                    </tr>
+                                    <sc-if value="{{ a.isOpen }}" hint-placeholder-val="{{ false }}">
+                                      <tr>
+                                        <td colspan="9" style="padding:4px 6px 14px;">
+                                          <div style="font-size:20px;line-height:1.6;color:#1f2933;text-align:center;">{{ a.resumo }}</div>
+                                          <div style="display:flex;gap:12px;justify-content:center;margin-top:8px;">
+                                            <span style="font-size:11px;color:#5b6774;">{{ a.novo }} novos</span>
+                                            <span style="font-size:11px;color:#5b6774;">{{ a.atendido }} atendidos</span>
+                                            <span style="font-size:11px;color:#5b6774;">{{ a.nao }} não atendidos</span>
+                                          </div>
+                                        </td>
+                                      </tr>
+                                    </sc-if>
+                                  </sc-for>
+                                </sc-if>
+                              </tbody>
+                            </table>
+                            </div>
+
+                            <sc-if value="{{ lx.escopoEntregue.hasAguardando }}" hint-placeholder-val="{{ false }}">
+                              <div style="margin-top:12px;padding:10px 14px;border:1px solid #f0c4c4;background:#fdeded;border-radius:8px;">
+                                <div style="font-size:12.5px;font-weight:600;color:#a33d3d;text-align:center;">{{ lx.escopoEntregue.notaAlerta }}</div>
+                              </div>
+                            </sc-if>
+                          </div>
+                        </sc-if>
+                      </div>
+                    </sc-if>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="font-size:13px;font-weight:700;color:#1f2933;margin:18px 0 8px;">Itens que exigem maior atenção</div>
+            <div style="background:#fbe9e7;border-radius:8px;padding:12px 16px;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:6px;">
+                <span style="font-size:13px;color:#b33a3a;">{{ entregaXMedido.resumoLabel }}</span>
+                <span style="font-size:18px;font-weight:700;color:#b33a3a;">{{ entregaXMedido.resumoValor }}</span>
+              </div>
+              <div style="font-size:11px;color:#b33a3a;line-height:1.5;">{{ entregaXMedido.resumoNota }}</div>
+            </div>
+
+          </div>
+        </sc-if>
+
         <div style="background:#0f2942;border-radius:12px;padding:22px 24px;margin-top:24px;">
           <div style="font-size:14.5px;font-weight:700;color:#fff;margin-bottom:16px;">Dashboard Geral</div>
 
@@ -3114,9 +3263,9 @@ class Component extends DCLogic {
   // Dados reais extraídos dos Boletins de Medição oficiais do DER-MG (contrato DP-024/2023, Lote 5), trecho 1 - Araçuaí - Novo Cruzeiro (87 km).
   // ledger = valor medido (incremento R$) por número de medição (1 = Nov/23, 2 = Dez/23).
   medicaoItemsData = [
-    {"numero":1,"descricao":"Coordenação","unidade":"U","qtdContrato":1,"valorUnitContrato":158790.96,"totalContrato":158790.96,"qtdReal":1,"totalReal":158790.96,"qtdJaMedido":0.479,"totalJaMedido":76060.86,"ledger":{"1":158.79,"2":1111.53,"3":635.17,"4":2540.65,"5":952.75,"6":4287.35,"7":7621.97,"8":10003.83,"9":635.16,"10":0,"11":2699.45,"12":7939.55,"13":0,"14":793.95,"15":952.75,"16":1587.91,"17":317.58,"18":635.16,"19":952.75,"20":4128.56,"21":4763.73,"22":4446.15,"23":1587.91,"24":3810.98,"25":2540.66,"26":3017.03,"27":6986.8,"28":635.16,"29":158.79,"30":158.79}},
-    {"numero":2,"descricao":"Administração","unidade":"U","qtdContrato":1,"valorUnitContrato":201568.1,"totalContrato":201568.1,"qtdReal":1,"totalReal":201568.1,"qtdJaMedido":0.479,"totalJaMedido":96551.11,"ledger":{"1":201.56,"2":1410.98,"3":806.27,"4":3225.09,"5":1209.41,"6":5442.34,"7":9675.27,"8":12698.79,"9":806.27,"10":0,"11":3426.66,"12":10078.4,"13":0,"14":1007.84,"15":1209.41,"16":2015.68,"17":403.14,"18":806.27,"19":1209.41,"20":5240.77,"21":6047.04,"22":5643.91,"23":2015.68,"24":4837.64,"25":3225.09,"26":3829.79,"27":8869,"28":806.27,"29":201.57,"30":201.56}},
-    {"numero":3,"descricao":"Veículo tipo gol 1.6, quatro portas, ou similar, com motorista","unidade":"km","qtdContrato":6000,"valorUnitContrato":2.33,"totalContrato":13980,"qtdReal":6000,"totalReal":13980,"qtdJaMedido":5710,"totalJaMedido":13304.3,"ledger":{"1":0,"2":3378.5,"3":0,"4":5137.65,"5":3728,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":0,"13":0,"14":0,"15":0,"16":0,"17":0,"18":0,"19":0,"20":0,"21":1060.15,"22":0,"23":0,"24":0,"25":0,"26":0,"27":0,"28":0,"29":0,"30":0}},
+    {"numero":1,"descricao":"Coordenação","unidade":"U","qtdContrato":1,"valorUnitContrato":158790.96,"totalContrato":158790.96,"qtdReal":1,"totalReal":158790.96,"qtdJaMedido":0.476,"totalJaMedido":75584.49,"ledger":{"1":158.79,"2":1111.53,"3":635.17,"4":2064.28,"5":952.75,"6":4287.35,"7":7621.97,"8":10003.83,"9":635.16,"10":0,"11":2699.45,"12":7939.55,"13":0,"14":793.95,"15":952.75,"16":1587.91,"17":317.58,"18":635.16,"19":952.75,"20":4128.56,"21":4763.73,"22":4446.15,"23":1587.91,"24":3810.98,"25":2540.66,"26":3017.03,"27":6986.8,"28":635.16,"29":158.79,"30":158.79}},
+    {"numero":2,"descricao":"Administração","unidade":"U","qtdContrato":1,"valorUnitContrato":201568.1,"totalContrato":201568.1,"qtdReal":1,"totalReal":201568.1,"qtdJaMedido":0.476,"totalJaMedido":95946.41,"ledger":{"1":201.56,"2":1410.98,"3":806.27,"4":2620.39,"5":1209.41,"6":5442.34,"7":9675.27,"8":12698.79,"9":806.27,"10":0,"11":3426.66,"12":10078.4,"13":0,"14":1007.84,"15":1209.41,"16":2015.68,"17":403.14,"18":806.27,"19":1209.41,"20":5240.77,"21":6047.04,"22":5643.91,"23":2015.68,"24":4837.64,"25":3225.09,"26":3829.79,"27":8869,"28":806.27,"29":201.57,"30":201.56}},
+    {"numero":3,"descricao":"Veículo tipo gol 1.6, quatro portas, ou similar, com motorista","unidade":"km","qtdContrato":6000,"valorUnitContrato":2.33,"totalContrato":13980,"qtdReal":6000,"totalReal":13980,"qtdJaMedido":3505,"totalJaMedido":8166.65,"ledger":{"1":0,"2":3378.5,"3":0,"4":0,"5":3728,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":0,"13":0,"14":0,"15":0,"16":0,"17":0,"18":0,"19":0,"20":0,"21":1060.15,"22":0,"23":0,"24":0,"25":0,"26":0,"27":0,"28":0,"29":0,"30":0}},
     {"numero":4,"descricao":"Veículo Tipo Van, 12 passageiros, com motorista","unidade":"km","qtdContrato":2400,"valorUnitContrato":3.5,"totalContrato":8400,"qtdReal":2400,"totalReal":8400,"qtdJaMedido":0,"totalJaMedido":0,"ledger":{"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":0,"13":0,"14":0,"15":0,"16":0,"17":0,"18":0,"19":0,"20":0,"21":0,"22":0,"23":0,"24":0,"25":0,"26":0,"27":0,"28":0,"29":0,"30":0}},
     {"numero":5,"descricao":"Visita ao trecho em fase de projeto","unidade":"U","qtdContrato":1,"valorUnitContrato":44639.35,"totalContrato":44639.35,"qtdReal":1,"totalReal":44639.35,"qtdJaMedido":0.88,"totalJaMedido":39282.62,"ledger":{"1":0,"2":8927.87,"3":4463.93,"4":0,"5":17855.74,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":0,"13":0,"14":0,"15":0,"16":0,"17":0,"18":0,"19":0,"20":0,"21":8035.08,"22":0,"23":0,"24":0,"25":0,"26":0,"27":0,"28":0,"29":0,"30":0}},
     {"numero":6,"descricao":"Orçamento da Obra - Trecho","unidade":"U","qtdContrato":1,"valorUnitContrato":3512.76,"totalContrato":3512.76,"qtdReal":1,"totalReal":3512.76,"qtdJaMedido":0,"totalJaMedido":0,"ledger":{"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":0,"13":0,"14":0,"15":0,"16":0,"17":0,"18":0,"19":0,"20":0,"21":0,"22":0,"23":0,"24":0,"25":0,"26":0,"27":0,"28":0,"29":0,"30":0}},
@@ -3182,6 +3331,198 @@ class Component extends DCLogic {
     {"numero":66,"descricao":"Impressão Definitiva do Orçamento da Obra (Formato A4)","unidade":"vias","qtdContrato":6,"valorUnitContrato":26.03,"totalContrato":156.18,"qtdReal":6,"totalReal":156.18,"qtdJaMedido":0,"totalJaMedido":0,"ledger":{"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":0,"13":0,"14":0,"15":0,"16":0,"17":0,"18":0,"19":0,"20":0,"21":0,"22":0,"23":0,"24":0,"25":0,"26":0,"27":0,"28":0,"29":0,"30":0}},
     {"numero":67,"descricao":"Projeto Completo gravado em meio digital","unidade":"vias","qtdContrato":3,"valorUnitContrato":29.75,"totalContrato":89.25,"qtdReal":3,"totalReal":89.25,"qtdJaMedido":0,"totalJaMedido":0,"ledger":{"1":0,"2":0,"3":0,"4":0,"5":0,"6":0,"7":0,"8":0,"9":0,"10":0,"11":0,"12":0,"13":0,"14":0,"15":0,"16":0,"17":0,"18":0,"19":0,"20":0,"21":0,"22":0,"23":0,"24":0,"25":0,"26":0,"27":0,"28":0,"29":0,"30":0}}
   ];
+
+  // Escopo Entregue — cruzamento Análise x Medição, validado manualmente com o usuário em 26/08/2026.
+  // Estes pares (análise -> medição) foram construídos e conferidos à mão contra os boletins oficiais
+  // do DER-MG. NÃO recalcular dinamicamente — ao integrar uma nova disciplina, repetir o mesmo processo
+  // de validação manual antes de adicionar aqui.
+  escopoEntregueData = {
+    36: {
+      medidas: [
+        { pct: 3, analise: 2, recebido: '13/05/2024', medicaoNumero: '6ª', periodoExecucao: '01/04/2024 a 30/04/2024', emissao: '17/05/2024', valor: 4217.78, novo: 14, atendido: 0, nao: 0,
+          resumo: 'Primeira rodada formal de revisão do Volume 1 (texto do estudo de traçado) e do Projeto Geométrico (planta, perfil e seções transversais). O DER reitera a necessidade de informar o VMD (Volume Médio Diário) aprovado pelo Núcleo de Estudos de Tráfego, questiona o caminhamento do traçado preliminar sobre a via existente e solicita a previsão de dispositivo limpa-rodas nos acessos. Como é a primeira revisão formal do projeto, quase todos os pontos ainda são questionamentos novos, sem itens totalmente resolvidos nesta rodada.' },
+        { pct: 7, analise: 4, recebido: '10/06/2024', medicaoNumero: '7ª', periodoExecucao: '01/05/2024 a 31/05/2024', emissao: '26/06/2024', valor: 9841.50, novo: 4, atendido: 17, nao: 7,
+          resumo: 'Avanço expressivo em relação à primeira rodada: o Núcleo de Geometria do DER valida a alteração de traçado proposta pela Consol no trecho entre as estacas 380 e 410, entre outros ajustes pontuais de plataforma e seções. Ainda assim, questões estruturais como o VMD do Núcleo de Tráfego e o próprio caminhamento do traçado seguem sendo reiteradas desde a análise anterior, indicando que dependem de definição em outra frente do projeto.' },
+        { pct: 3, analise: 5, recebido: '14/08/2024', medicaoNumero: '9ª', periodoExecucao: '01/07/2024 a 31/07/2024', emissao: '20/08/2024', valor: 4217.79, novo: 5, atendido: 2, nao: 6,
+          resumo: 'Rodada com baixo índice de resolução, concentrada nos segmentos entregues até agosto de 2024. O dispositivo limpa-rodas nos acessos, já cobrado em rodadas anteriores, segue não atendido para os trechos apresentados até a data, e outras pendências estruturais (VMD, caminhamento do traçado) permanecem em aberto, sinalizando que essa etapa avançou mais em volume entregue do que em itens efetivamente resolvidos.' },
+        { pct: 11, analise: 6, recebido: '08/11/2024', medicaoNumero: '12ª', periodoExecucao: '01/10/2024 a 31/10/2024', emissao: '21/11/2024', valor: 15820.74, novo: 7, atendido: 18, nao: 8,
+          resumo: 'Revisão abrangente do Volume 1 e do Projeto Geométrico completo (texto, planta e perfil) para os 87 km do trecho. Os pontos tratam de dispositivos de segurança viária (defensas metálicas em aterros e cortes em rocha), adequação de interseções e da plataforma em cinco perímetros urbanos (Alfredo Graça, Eng. Schnoor, Capão, Queixada e Baixa Quente), atualização de cadastro topográfico (postes, propriedades lindeiras, bueiros) e revisão de traçado para reduzir desapropriações. No perfil, o DER pede ajuste de greide, rampas mínimas de 0,5% e indicação de pontes e bueiros existentes/projetados.' },
+        { pct: 12, analise: 7, recebido: '23/12/2024', medicaoNumero: '14ª', periodoExecucao: '01/12/2024 a 31/12/2024', emissao: '21/01/2025', valor: 16515.62, novo: 8, atendido: 14, nao: 14,
+          resumo: 'Escopo ampliado com a entrada, pela primeira vez, do Projeto de Interseções, do Anexo 3D (Nota de Serviço) e da Planilha de Volumes, além dos volumes de texto, planta, perfil e seções já em acompanhamento. Entre os avanços está o atendimento de uma exigência recorrente: a separação dos textos de estudo de traçado e de projeto geométrico, antes entregues em conjunto. O aumento de escopo revisado também eleva o número de itens ainda não resolvidos nesta rodada.' },
+        { pct: 15, analise: 8, recebido: '03/02/2025', medicaoNumero: '15ª', periodoExecucao: '01/01/2025 a 31/01/2025', emissao: '18/02/2025', valor: 20394.04, novo: 2, atendido: 16, nao: 10,
+          resumo: 'Rodada de maior maturidade documental: ajustes de formatação da capa e do texto, evidenciação clara do capítulo de interseções (local e concepção) e limpeza de detalhes de apresentação, como uma linha em branco na formatação dos offsets. As pendências remanescentes concentram-se sobretudo em conteúdo textual do projeto geométrico ainda não corrigido, incluindo um item de capa que a Consol não chegou a responder na rodada anterior.' },
+        { pct: 7, analise: 9, recebido: '11/03/2025', medicaoNumero: '16ª', periodoExecucao: '01/02/2025 a 28/02/2025', emissao: '19/03/2025', valor: 9841.51, novo: 17, atendido: 6, nao: 5,
+          resumo: 'Rodada marcada pela entrada de dois projetos de interseção (planta) e da planilha de volumes no escopo revisado, respondendo pela maior parte dos itens novos. O capítulo de interseções, antes questionado, passa a ser considerado atendido apenas parcialmente — o texto ainda carece de mais indicações. A apresentação de bueiros existentes e projetados em planta permanece pendente, por depender da conclusão do projeto de drenagem.' },
+        { pct: 4, analise: 10, recebido: '03/04/2025', medicaoNumero: '17ª', periodoExecucao: '01/03/2025 a 31/03/2025', emissao: '23/04/2025', valor: 5623.71, novo: 12, atendido: 12, nao: 2,
+          resumo: 'Avanço consistente, com aprovação do Volume 1 do texto de interseções e ajuste das defensas metálicas em aterros conforme padrão DER-MG. O escopo se amplia com a entrada do perfil da Interseção 1. Bueiros em planta seguem só parcialmente atendidos: os existentes já foram apresentados, mas os projetados ainda faltam ser incluídos.' },
+        { pct: 8, analise: 11, recebido: '07/05/2025', medicaoNumero: '18ª', periodoExecucao: '01/04/2025 a 30/04/2025', emissao: '16/05/2025', valor: 10891.91, novo: 17, atendido: 10, nao: 5,
+          resumo: 'Escopo ampliado com a inclusão do perfil da Interseção 2, o que explica boa parte dos itens novos desta rodada. Entre as soluções apresentadas está um ajuste intermediário nas defensas metálicas — a Consol propôs acréscimo de 0,50m com prolongamento de 10m nas ancoragens, ainda em avaliação pelo DER — além de revisão da formatação da faixa de domínio nos pontos mais próximos do limite.' },
+        { pct: 6, analise: 12, recebido: '05/06/2025', medicaoNumero: '19ª', periodoExecucao: '01/05/2025 a 31/05/2025', emissao: '24/06/2025', valor: 8435.57, novo: 8, atendido: 18, nao: 9,
+          resumo: 'Rodada com o maior índice de atendimento entre as dez analisadas: aprovação da formatação da faixa de domínio, inclusão dos furos de sondagem em planta e outros ajustes de apresentação consolidados. A apresentação de bueiros projetados em planta segue como a pendência mais recorrente do histórico, ainda dependente da conclusão do projeto de drenagem.' },
+      ],
+      aguardando: [
+        { analise: 13, recebido: '08/07/2025', novo: 7, atendido: 3, nao: 10,
+          resumo: 'Revisão do Projeto Geométrico (planta, perfil e seções) e da Interseção 1 (planta e perfil), com foco em compatibilizar taludes com o estudo geotécnico, corrigir superelevações do ramo A na estaca 255 e padronizar eixos, bordos e malha de coordenadas conforme o DER-MG. A maior parte das exigências, incluindo bueiros e sondagens em planta e perfil, permanece sem solução.' },
+        { analise: 14, recebido: '04/08/2025', novo: 7, atendido: 7, nao: 10,
+          resumo: 'Mesmo escopo da rodada anterior, agora com a entrada do Projeto de Obras Complementares. As pendências de padronização de eixos e coordenadas da interseção, compatibilização de seções com o estudo geotécnico e apresentação de bueiros e sondagens seguem majoritariamente não atendidas.' },
+        { analise: 15, recebido: '12/09/2025', novo: 7, atendido: 8, nao: 10,
+          resumo: 'Continuidade da revisão de Geométrico, Interseção 1 e Obras Complementares, repetindo as mesmas exigências não resolvidas nas duas rodadas anteriores — compatibilização de seções, correção de superelevações e apresentação de bueiros e sondagens.' },
+        { analise: 16, recebido: '13/03/2026', novo: 12, atendido: 18, nao: 1,
+          resumo: 'Ampliação relevante de escopo com a entrada do Projeto de Terraplenagem, trazendo exigências sobre categorização do material de corte, indicação de locais e volumes de rebaixo em rocha, escalonamento, empréstimo e bota-fora, além de esclarecimentos sobre a estratigrafia do perfil geotécnico. Em paralelo, itens de Geométrico já pendentes desde a análise 13 (bueiros, sondagens, superelevação) foram finalmente atendidos.' },
+        { analise: 17, recebido: '10/04/2026', novo: 1, atendido: 16, nao: 4,
+          resumo: 'Rodada de consolidação: Projeto Geométrico, seções transversais, Interseção 1 e Obras Complementares são dados como aprovados pelo DER. Em Terraplenagem, locais de empréstimo e bota-fora foram atendidos, mas a memória de cálculo de volumes de rebaixo em rocha e escalonamento ainda não está clara o suficiente para conferência.' },
+      ],
+    },
+    37: {
+      medidas: [
+        { pct: 13, analise: 16, recebido: '27/02/2026', medicaoNumero: '27ª', periodoExecucao: '01/02/2026 a 28/02/2026', emissao: '17/03/2026', valor: 12270.93, novo: 11, atendido: 0, nao: 0,
+          resumo: 'Primeira rodada de revisão do Projeto de Terraplenagem, com 11 questionamentos, todos novos. O DER pede correção da categoria de material de corte no item de Definições Básicas, indicação de locais e volumes de rebaixo em rocha, escalonamento, limpa-rodas, empréstimo e bota-fora, além de esclarecimentos sobre a caracterização estratigráfica do perfil geotécnico e a inclusão de CBR e expansão por horizonte geotécnico nos ensaios Proctor.' },
+        { pct: 4, analise: 17, recebido: '01/04/2026', medicaoNumero: '28ª', periodoExecucao: '01/03/2026 a 31/03/2026', emissao: '16/04/2026', valor: 4090.31, novo: 1, atendido: 7, nao: 4,
+          resumo: 'Rodada de consolidação: a maior parte das exigências da rodada anterior foi atendida, incluindo a correção da categoria do material de corte, indicação de locais de empréstimo e bota-fora, inclusão dos volumes de limpa-rodas na planilha de distribuição e esclarecimento da estratigrafia geotécnica. Ainda restam pendências na apresentação de locais de rebaixo em rocha e escalonamento, além da separação de volumes de limpa-rodas entre corte e aterro — o DER aponta que as planilhas de memória de cálculo enviadas não estão claras o suficiente para conferência.' },
+      ],
+      aguardando: [],
+    },
+  };
+
+  // "Entregue x medido" (ago/2026) — cruzamento entre o histórico de envios ao DER-MG
+  // (planilha "Histórico_Entregas_Aracuai.xlsx", log cronológico por disciplina, revisado
+  // manualmente com o usuário) e os valores já medidos em medicaoItemsData. Classificação
+  // congelada: só muda quando o usuário enviar uma planilha de entregas atualizada.
+  // Categoria 'internogap' é uso interno (ver entregaXMedidoCategorias.visivelCliente) —
+  // nunca exibir para isClienteMode.
+  entregaXMedidoData = [
+    { numero: 1, categoria: 'custodireto', entrega: null },
+    { numero: 2, categoria: 'custodireto', entrega: null },
+    { numero: 3, categoria: 'custodireto', entrega: null },
+    { numero: 4, categoria: 'custodireto', entrega: null },
+    { numero: 5, categoria: 'custodireto', entrega: null },
+    { numero: 6, categoria: 'custodireto', entrega: null },
+    { numero: 7, categoria: 'custodireto', entrega: null },
+    { numero: 8, categoria: 'ok', entrega: '09/06/2025' },
+    { numero: 9, categoria: 'ok', entrega: '05/08/2024' },
+    { numero: 10, categoria: 'ok', entrega: '01/08/2025' },
+    { numero: 11, categoria: 'ok', entrega: '08/08/2025' },
+    { numero: 12, categoria: 'divergencia', entrega: '13/06/2024' },
+    { numero: 13, categoria: 'revisao', entrega: '25/02/2026' },
+    { numero: 14, categoria: 'revisao', entrega: '25/02/2026' },
+    { numero: 15, categoria: 'revisao', entrega: '03/06/2026' },
+    { numero: 16, categoria: 'internogap', entrega: null },
+    { numero: 17, categoria: 'ok', entrega: '27/11/2025' },
+    { numero: 18, categoria: 'divergencia', entrega: '27/11/2025' },
+    { numero: 19, categoria: 'divergencia', entrega: '27/11/2025' },
+    { numero: 20, categoria: 'divergencia', entrega: '27/11/2025' },
+    { numero: 21, categoria: 'internogap', entrega: null },
+    { numero: 22, categoria: 'internogap', entrega: null },
+    { numero: 23, categoria: 'internogap', entrega: null },
+    { numero: 24, categoria: 'internogap', entrega: null },
+    { numero: 25, categoria: 'internogap', entrega: null },
+    { numero: 26, categoria: 'internogap', entrega: null },
+    { numero: 27, categoria: 'divergencia', entrega: '19/12/2023' },
+    { numero: 28, categoria: 'divergencia', entrega: null },
+    { numero: 29, categoria: 'divergencia', entrega: null },
+    { numero: 30, categoria: 'divergencia', entrega: null },
+    { numero: 31, categoria: 'divergencia', entrega: null },
+    { numero: 32, categoria: 'divergencia', entrega: null },
+    { numero: 33, categoria: 'divergencia', entrega: '15/09/2025' },
+    { numero: 34, categoria: 'divergencia', entrega: null },
+    { numero: 35, categoria: 'divergencia', entrega: '19/12/2023' },
+    { numero: 36, categoria: 'revisao', entrega: '31/03/2026' },
+    { numero: 37, categoria: 'divergencia', entrega: '31/03/2026' },
+    { numero: 38, categoria: 'divergencia', entrega: '15/04/2026' },
+    { numero: 39, categoria: 'revisao', entrega: '07/05/2026' },
+    { numero: 40, categoria: 'divergencia', entrega: '12/05/2026' },
+    { numero: 41, categoria: 'divergencia', entrega: '31/03/2026' },
+    { numero: 42, categoria: 'divergencia', entrega: '31/03/2026' },
+    { numero: 43, categoria: 'revisao', entrega: '23/07/2025' },
+    { numero: 44, categoria: 'revisao', entrega: '19/11/2025' },
+    { numero: 45, categoria: 'custodireto', entrega: null },
+    { numero: 46, categoria: 'custodireto', entrega: null },
+    { numero: 47, categoria: 'revisao', entrega: '11/11/2025' },
+    { numero: 48, categoria: 'internogap', entrega: null },
+    { numero: 49, categoria: 'internogap', entrega: null },
+    { numero: 50, categoria: 'custodireto', entrega: null },
+    { numero: 51, categoria: 'custodireto', entrega: null },
+    { numero: 52, categoria: 'custodireto', entrega: null },
+    { numero: 53, categoria: 'custodireto', entrega: null },
+    { numero: 54, categoria: 'custodireto', entrega: null },
+    { numero: 55, categoria: 'custodireto', entrega: null },
+    { numero: 56, categoria: 'custodireto', entrega: null },
+    { numero: 57, categoria: 'custodireto', entrega: null },
+    { numero: 58, categoria: 'custodireto', entrega: null },
+    { numero: 59, categoria: 'custodireto', entrega: null },
+    { numero: 60, categoria: 'custodireto', entrega: null },
+    { numero: 61, categoria: 'custodireto', entrega: null },
+    { numero: 62, categoria: 'custodireto', entrega: null },
+    { numero: 63, categoria: 'custodireto', entrega: null },
+    { numero: 64, categoria: 'custodireto', entrega: null },
+    { numero: 65, categoria: 'custodireto', entrega: null },
+    { numero: 66, categoria: 'custodireto', entrega: null },
+    { numero: 67, categoria: 'custodireto', entrega: null },
+  ];
+
+  entregaXMedidoCategorias = {
+    ok:          { rotulo: 'Sem divergência',              legenda: 'Entrega e medição estão alinhadas.',                                              corBg: '#eaf6ec', corTexto: '#2f8f4f', visivelCliente: true },
+    revisao:     { rotulo: 'Em ciclo de revisão',           legenda: 'Etapa de análise ainda em curso.',                                                corBg: '#fdf3e6', corTexto: '#b26a12', visivelCliente: true },
+    divergencia: { rotulo: 'Divergência a validar',         legenda: 'Registro de entrega e valor medido não coincidem.',                               corBg: '#fbe9e7', corTexto: '#b33a3a', visivelCliente: true },
+    custodireto: { rotulo: 'Custo direto — não se aplica',  legenda: 'Item de apoio ao projeto, sem estudo ou entrega técnica associada.',                corBg: '#eef1f4', corTexto: '#5b6774', visivelCliente: true },
+    internogap:  { rotulo: 'Sem correspondência interna',   legenda: 'Uso interno: registro de entrega não discrimina este item com precisão.',          corBg: '#eef1f4', corTexto: '#5b6774', visivelCliente: false },
+  };
+
+  buildEntregaXMedido() {
+    const clienteMode = !!this.props.isClienteMode;
+    const cats = this.entregaXMedidoCategorias;
+    let linhas = this.entregaXMedidoData.map(e => {
+      const item = this.medicaoItemsData.find(i => i.numero === e.numero);
+      if (!item) return null;
+      // Usa medicaoItemEfetivo (baseline + lançamentos reais via Nova Medição), igual ao
+      // resto da aba Medição — nunca ler i.totalJaMedido cru aqui, senão fica desatualizado
+      // assim que novas medições forem lançadas no Firestore.
+      const ef = this.medicaoItemEfetivo(item);
+      const totalContrato = item.totalReal || item.totalContrato || 0;
+      const totalJaMedido = ef.totalJaMedido;
+      const cat = cats[e.categoria];
+      const key = 'entregaXMedido-' + e.numero;
+      return {
+        numero: e.numero,
+        descricao: item.descricao,
+        totalContratoFmt: this.fmtMoney(totalContrato),
+        totalJaMedidoFmt: this.fmtMoney(totalJaMedido),
+        saldo: totalContrato - totalJaMedido,
+        pct: ef.pct,
+        entrega: e.entrega || '—',
+        categoria: e.categoria,
+        situacaoLabel: cat.rotulo,
+        situacaoBg: cat.corBg,
+        situacaoTexto: cat.corTexto,
+        isOpen: !!this.state.expanded[key],
+        chevron: this.state.expanded[key] ? '−' : '+',
+        toggle: () => this.toggleCard(key),
+        escopoEntregue: this.buildEscopoEntregue(e.numero),
+      };
+    }).filter(Boolean);
+
+    if (clienteMode) {
+      linhas = linhas.filter(l => cats[l.categoria].visivelCliente);
+    }
+
+    const legenda = Object.keys(cats)
+      .filter(k => !clienteMode || cats[k].visivelCliente)
+      .map(k => ({ key: k, rotulo: cats[k].rotulo, legenda: cats[k].legenda, corBg: cats[k].corBg, corTexto: cats[k].corTexto }));
+
+    const saldoDivergencia = linhas
+      .filter(l => l.categoria === 'divergencia')
+      .reduce((acc, l) => acc + l.saldo, 0);
+
+    return {
+      aviso: 'Este painel cruza o histórico de envios registrados pela Consol com os valores medidos no contrato. Divergências podem ter causas diversas, como etapa de análise em andamento ou necessidade de atualização do registro, e não indicam, por si só, atraso de qualquer parte envolvida. Todo item aqui exige validação humana antes de qualquer conclusão.',
+      legenda,
+      linhas,
+      totalItens: linhas.length,
+      resumoLabel: 'Saldo agregado em itens sinalizados como divergência a validar',
+      resumoValor: this.fmtMoney(saldoDivergencia),
+      resumoNota: 'Valor de referência, sujeito a confirmação item a item. Não representa uma cobrança nem uma constatação definitiva.',
+    };
+  }
 
 
   // Fonte única das datas reais de recebido/concluído por análise — também espelhada no
@@ -3283,17 +3624,15 @@ class Component extends DCLogic {
   loteExtensoesKm = { lote1: '37,100', lote2: '21,100', lote3: '27,860' };
 
   materiaMeta = [
-    { key: 'geometria', code: 'GE', label: 'Geometria', desc: 'Traçado em planta, perfil longitudinal e seções transversais.', modeled: true },
-    { key: 'terraplenagem', code: 'TE', label: 'Terraplenagem', desc: 'Volumes de corte, aterro e distribuição de materiais.', modeled: true },
-    { key: 'sinalizacao', code: 'SI', label: 'Sinalização', desc: 'Sinalização horizontal, vertical e dispositivos de segurança.', modeled: true },
-    { key: 'obras', code: 'OC', label: 'Obras Complementares', desc: 'Drenagem, obras de arte especiais e contenções.', modeled: true },
-    { key: 'desapropriacao', code: 'DE', label: 'Desapropriação', desc: 'Levantamento cadastral e processo indenizatório.', modeled: false },
-    { key: 'intersecao', code: 'IN', label: 'Interseção', desc: 'Geometria, capacidade e sinalização das interseções.', modeled: true },
-    { key: 'seguranca', code: 'SV', label: 'Segurança Viária', desc: 'Auditoria de segurança e pontos críticos.', modeled: true },
-    { key: 'pavimentacao', code: 'PV', label: 'Pavimentação', desc: 'Dimensionamento e estrutura do pavimento.', modeled: true },
-    { key: 'drenagem', code: 'DR', label: 'Drenagem', desc: 'Drenagem superficial e profunda ao longo do traçado.', modeled: false },
-    { key: 'hidrologia', code: 'EH', label: 'Estudos Hidrológicos', desc: 'Estudos hidrológicos e hidráulicos da bacia de contribuição.', modeled: false },
-    { key: 'meioambiente', code: 'MA', label: 'Meio Ambiente', desc: 'Licenciamento e estudos ambientais.', modeled: false },
+    { key: 'geometria', code: 'GE', label: '36. Projeto Geométrico', desc: 'Traçado em planta, perfil longitudinal e seções transversais.', modeled: true },
+    { key: 'terraplenagem', code: 'TE', label: '37. Projeto Geotécnico e de Terraplenagem', desc: 'Volumes de corte, aterro e distribuição de materiais.', modeled: true },
+    { key: 'sinalizacao', code: 'SI', label: '43. Projeto de Segurança Viária', desc: 'Sinalização horizontal, vertical e dispositivos de segurança.', modeled: true },
+    { key: 'obras', code: 'OC', label: '47. Projeto de Obras Complementares', desc: 'Drenagem, obras de arte especiais e contenções.', modeled: true },
+    { key: 'desapropriacao', code: 'DE', label: '44. Projeto de Desapropriação', desc: 'Levantamento cadastral e processo indenizatório.', modeled: false },
+    { key: 'intersecao', code: 'IN', label: '42. Projeto de interseção no mesmo plano', desc: 'Geometria, capacidade e sinalização das interseções.', modeled: true },
+    { key: 'pavimentacao', code: 'PV', label: '39. Projeto de Pavimentação', desc: 'Dimensionamento e estrutura do pavimento.', modeled: true },
+    { key: 'drenagem', code: 'DR', label: '38. Projeto de Drenagem', desc: 'Drenagem superficial e profunda ao longo do traçado.', modeled: false },
+    { key: 'hidrologia', code: 'EH', label: '13. Estudos hidrológicos', desc: 'Estudos hidrológicos e hidráulicos da bacia de contribuição.', modeled: false },
   ];
 
   placeholderTopics = {
@@ -7769,6 +8108,46 @@ class Component extends DCLogic {
     return { totalJaMedido, totalASerMedido, pct, realByMonth };
   }
 
+  buildEscopoEntregue(itemNumero) {
+    const data = this.escopoEntregueData[itemNumero];
+    if (!data) return { hasEscopo: false };
+    const keyBase = 'escopo-' + itemNumero;
+    const isOpen = !!this.state.expanded[keyBase];
+    const medidas = data.medidas.map((a, idx) => {
+      const rKey = keyBase + '-' + a.analise;
+      const open = !!this.state.expanded[rKey];
+      return {
+        qtd: idx + 1, analise: a.analise, recebido: a.recebido, medicaoNumero: a.medicaoNumero,
+        periodoExecucao: a.periodoExecucao, emissao: a.emissao, valor: this.fmtMoney(a.valor),
+        pct: a.pct + '%',
+        resumo: a.resumo, novo: a.novo, atendido: a.atendido, nao: a.nao,
+        isOpen: open, toggle: () => this.toggleCard(rKey), resumoLabel: open ? 'Ocultar' : 'Resumo',
+      };
+    });
+    const aguardando = data.aguardando.map((a, idx) => {
+      const rKey = keyBase + '-ag-' + a.analise;
+      const open = !!this.state.expanded[rKey];
+      return {
+        qtd: data.medidas.length + idx + 1, analise: a.analise, recebido: a.recebido,
+        resumo: a.resumo, novo: a.novo, atendido: a.atendido, nao: a.nao,
+        isOpen: open, toggle: () => this.toggleCard(rKey), resumoLabel: open ? 'Ocultar' : 'Resumo',
+      };
+    });
+    const hasAguardando = aguardando.length > 0;
+    let notaAlerta = '';
+    if (hasAguardando) {
+      const primeiro = data.aguardando[0].analise;
+      const ultimo = data.aguardando[data.aguardando.length - 1].analise;
+      const totalAtendido = data.aguardando.reduce((s, d) => s + d.atendido, 0);
+      const faixa = data.aguardando.length === 1 ? ('Análise ' + primeiro) : ('Análises ' + primeiro + ' a ' + ultimo);
+      notaAlerta = faixa + ' ainda não foram incluídas em medição. Nesse intervalo, ' + totalAtendido + ' questionamentos já foram atendidos pela Consol.';
+    }
+    return {
+      hasEscopo: true, isOpen, toggle: () => this.toggleCard(keyBase), chevronEscopo: isOpen ? '−' : '+',
+      medidas, aguardando, hasAguardando, notaAlerta,
+    };
+  }
+
   buildMedicao() {
     const items = this.medicaoItemsData;
     const meses = this.medicaoMesesOrdem;
@@ -7845,7 +8224,8 @@ class Component extends DCLogic {
 
   buildAnaliseDisciplinas() {
     const discOpen = (key) => !!this.state.expanded['disc-' + key];
-    return this.materiaMeta.map(m => {
+    const materiaOrdenada = [...this.materiaMeta].sort((a, b) => parseInt(a.label, 10) - parseInt(b.label, 10));
+    return materiaOrdenada.map(m => {
       const key = 'disc-' + m.key;
       const isPav = m.key === 'pavimentacao';
       const isDren = m.key === 'drenagem';
@@ -8455,6 +8835,9 @@ class Component extends DCLogic {
       medicaoShowDescricoes: !!this.state.medicaoShowDescricoes,
       onToggleDescricoes: () => this.setState({ medicaoShowDescricoes: !this.state.medicaoShowDescricoes }),
       medicaoDescricoesList: this.medicaoItemsData.map(i => ({ numero: i.numero, descricao: i.descricao, unidade: i.unidade })),
+      showEntregaXMedido: !!this.state.showEntregaXMedido,
+      onToggleEntregaXMedido: () => this.setState({ showEntregaXMedido: !this.state.showEntregaXMedido }),
+      entregaXMedido: this.buildEntregaXMedido(),
       externaDiscAnalises: (this.state.externaMateria && this.state.externaMateria !== 'geral' ? this.buildAnaliseDisciplinas().find(d => d.key === this.state.externaMateria) : null),
       linhaTempo: this.buildLinhaTempo(),
     };
