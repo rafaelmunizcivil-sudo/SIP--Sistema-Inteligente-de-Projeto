@@ -1334,6 +1334,7 @@
                     <div style="font-size:11px;font-weight:700;color:#8a94a3;flex:0 0 auto;min-width:22px;">{{ r.numero }}.</div>
                     <div style="font-size:13.5px;font-weight:600;color:#1f2933;">{{ r.descricao }}</div>
                     <div style="font-size:10.5px;color:#8a94a3;background:#f4f6f8;border-radius:10px;padding:2px 8px;white-space:nowrap;">{{ r.unidade }}</div>
+                    <div style="font-size:10.5px;color:#8a94a3;background:#f4f6f8;border-radius:10px;padding:2px 8px;white-space:nowrap;">P0: Junho/2022</div>
                   </div>
                   <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
                     <div style="text-align:right;">
@@ -1432,12 +1433,13 @@
               <div style="font-size:11px;color:#8a94a3;">{{ entregaXMedido.totalItens }} itens</div>
             </div>
             <div style="display:flex;flex-direction:column;gap:8px;">
-              <sc-for list="{{ entregaXMedido.linhas }}" as="lx" hint-placeholder-count="10">
+              <sc-for list="{{ entregaXMedido.linhas }}" as="lx" hint-placeholder-count="3">
                 <div style="background:#fff;border:1px solid #eef1f4;border-radius:10px;padding:12px 16px;">
                   <div onClick="{{ lx.toggle }}" style="display:flex;align-items:center;justify-content:space-between;gap:14px;cursor:pointer;flex-wrap:wrap;">
                     <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:220px;">
                       <div style="font-size:11px;font-weight:700;color:#8a94a3;flex:0 0 auto;min-width:22px;">{{ lx.numero }}.</div>
                       <div style="font-size:13.5px;font-weight:600;color:#1f2933;">{{ lx.descricao }}</div>
+                      <div style="font-size:10.5px;color:#8a94a3;background:#f4f6f8;border-radius:10px;padding:2px 8px;white-space:nowrap;">P0: Junho/2022</div>
                     </div>
                     <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
                       <span style="display:inline-block;background:{{ lx.situacaoBg }};color:{{ lx.situacaoTexto }};font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;white-space:nowrap;">{{ lx.situacaoLabel }}</span>
@@ -1448,9 +1450,188 @@
                     <div style="margin-top:12px;padding-top:12px;border-top:1px solid #eef1f4;display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;">
                       <div style="background:#1f3a5f;border-radius:8px;padding:10px 14px;text-align:center;"><div style="font-size:11px;font-weight:600;color:#c7d6e8;text-transform:uppercase;margin-bottom:4px;">Contrato</div><div style="font-size:17px;font-weight:700;color:#fff;">{{ lx.totalContratoFmt }}</div></div>
                       <div style="background:#1f3a5f;border-radius:8px;padding:10px 14px;text-align:center;"><div style="font-size:11px;font-weight:600;color:#c7d6e8;text-transform:uppercase;margin-bottom:4px;">Medido</div><div style="font-size:17px;font-weight:700;color:#fff;">{{ lx.totalJaMedidoFmt }}</div></div>
-                      <div style="background:#1f3a5f;border-radius:8px;padding:10px 14px;text-align:center;"><div style="font-size:11px;font-weight:600;color:#c7d6e8;text-transform:uppercase;margin-bottom:4px;">%</div><div style="font-size:17px;font-weight:700;color:#fff;">{{ lx.pct }}%</div></div>
+                      <div style="background:#1f3a5f;border-radius:8px;padding:10px 14px;text-align:center;"><div style="font-size:11px;font-weight:600;color:#c7d6e8;text-transform:uppercase;margin-bottom:4px;">% Medido</div><div style="font-size:17px;font-weight:700;color:#fff;">{{ lx.pct }}%</div></div>
                       <div style="background:#1f3a5f;border-radius:8px;padding:10px 14px;text-align:center;"><div style="font-size:11px;font-weight:600;color:#c7d6e8;text-transform:uppercase;margin-bottom:4px;">Entrega</div><div style="font-size:17px;font-weight:700;color:#fff;">{{ lx.entrega }}</div></div>
+                      <sc-if value="{{ lx.escopoEntregue.hasProjecao }}" hint-placeholder-val="{{ false }}">
+                        <div onClick="{{ lx.escopoEntregue.toggleProjecao }}" style="background:#2f6690;border-radius:8px;padding:10px 14px;text-align:center;cursor:pointer;border:1px solid #7fb2d9;">
+                          <div style="font-size:11px;font-weight:600;color:#d5e7f5;text-transform:uppercase;margin-bottom:4px;">Projeção</div>
+                          <div style="font-size:17px;font-weight:700;color:#fff;">{{ lx.escopoEntregue.projecao.pctProjetado }}</div>
+                        </div>
+                      </sc-if>
+                      <sc-if value="{{ lx.projecaoServico.hasProjecao }}" hint-placeholder-val="{{ false }}">
+                        <div onClick="{{ lx.projecaoServico.toggleProjecao }}" style="background:#3d6f96;border-radius:8px;padding:10px 14px;text-align:center;cursor:pointer;border:1px solid #7fa8c9;">
+                          <div style="font-size:11px;font-weight:600;color:#dbe9f2;text-transform:uppercase;margin-bottom:4px;">Projeção</div>
+                          <div style="font-size:17px;font-weight:700;color:#fff;">&nbsp;</div>
+                        </div>
+                      </sc-if>
+                      <sc-if value="{{ lx.projecaoServico.hasAditar }}" hint-placeholder-val="{{ false }}">
+                        <div onClick="{{ lx.projecaoServico.toggleAditar }}" style="background:#8a5a12;border-radius:8px;padding:10px 14px;text-align:center;cursor:pointer;border:1px solid #c98f3f;">
+                          <div style="font-size:11px;font-weight:600;color:#f0dcc0;text-transform:uppercase;margin-bottom:4px;">Aditar</div>
+                          <div style="font-size:17px;font-weight:700;color:#fff;">&nbsp;</div>
+                        </div>
+                      </sc-if>
                     </div>
+                    <sc-if value="{{ lx.escopoEntregue.hasProjecao }}" hint-placeholder-val="{{ false }}">
+                      <sc-if value="{{ lx.escopoEntregue.projecaoOpen }}" hint-placeholder-val="{{ false }}">
+                        <div style="margin-bottom:16px;border:1px solid #b7d4f0;border-radius:8px;padding:1rem;">
+                          <p style="font-size:13px;font-weight:600;color:#2f6690;margin:0 0 12px;">Projeção de percentual</p>
+                          <div style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:16px;padding:8px;background:#eafaf0;border-radius:8px;">
+                            <p style="font-size:13px;font-weight:600;color:#227a4d;margin:0;">+{{ lx.escopoEntregue.projecao.diferencaPct }} pontos percentuais em relação ao medido hoje · {{ lx.escopoEntregue.projecao.valorAdicionalFmt }} já aprovados pelo DER-MG, ainda não creditados na medição</p>
+                          </div>
+                          <div style="position:relative;height:10px;background:#f7f9fb;border-radius:6px;margin-bottom:6px;overflow:hidden;">
+                            <div style="position:absolute;left:0;top:0;height:100%;width:{{ lx.escopoEntregue.projecao.pctHojeBarra }};background:#1f3a5f;"></div>
+                            <div style="position:absolute;left:{{ lx.escopoEntregue.projecao.pctHojeBarra }};top:0;height:100%;width:{{ lx.escopoEntregue.projecao.diferencaBarra }};background:#2f6690;opacity:0.6;"></div>
+                          </div>
+                          <div style="display:flex;justify-content:space-between;font-size:10px;color:#8a94a3;margin-bottom:20px;">
+                            <span>0%</span><span>Medido hoje: {{ lx.escopoEntregue.projecao.pctHoje }}</span><span>Projeção: {{ lx.escopoEntregue.projecao.pctProjetado }}</span><span>Teto: {{ lx.escopoEntregue.projecao.tetoPct }}</span>
+                          </div>
+                          <p style="font-size:12px;color:#8a94a3;margin:0 0 8px;">Como chegamos nesse número</p>
+                          <div style="background:#f7f9fb;border-radius:8px;padding:1rem;">
+                            <div style="display:flex;gap:10px;margin-bottom:14px;">
+                              <div style="width:22px;height:22px;border-radius:50%;background:#2f6690;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div>
+                              <p style="font-size:13px;line-height:1.55;margin:0;text-align:justify;">O valor total deste item no contrato é <b>{{ lx.escopoEntregue.projecao.contratoFmt }}</b>. Uma pequena parte desse valor (0,15%) é referente à etapa final de impressão e entrega dos documentos, que só acontece no fim do projeto — por isso, o máximo que este item pode atingir durante a fase de elaboração é <b>{{ lx.escopoEntregue.projecao.tetoPct }}</b>, não 100%.</p>
+                            </div>
+                            <div style="display:flex;gap:10px;margin-bottom:14px;">
+                              <div style="width:22px;height:22px;border-radius:50%;background:#2f6690;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div>
+                              <p style="font-size:13px;line-height:1.55;margin:0;text-align:justify;">Até o momento, foram medidos e pagos <b>{{ lx.escopoEntregue.projecao.jaMedidoFmt }}</b>, correspondentes a <b>{{ lx.escopoEntregue.projecao.pctHoje }}</b> do valor contratual. Para atingir o teto de medição de <b>{{ lx.escopoEntregue.projecao.tetoPct }}</b>, ainda restam <b>{{ lx.escopoEntregue.projecao.restanteFmt }}</b> a serem medidos.</p>
+                            </div>
+                            <sc-if value="{{ lx.escopoEntregue.projecao.naoPavimentacao }}" hint-placeholder-val="{{ true }}">
+                              <div style="display:flex;gap:10px;margin-bottom:14px;">
+                                <div style="width:22px;height:22px;border-radius:50%;background:#2f6690;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div>
+                                <div>
+                                  <p style="font-size:13px;line-height:1.55;margin:0;text-align:justify;">{{ lx.escopoEntregue.projecao.contextoParte1 }}</p>
+                                  <p style="font-size:13px;line-height:1.55;margin:10px 0 0;text-align:justify;">{{ lx.escopoEntregue.projecao.contextoParte2 }}</p>
+                                </div>
+                              </div>
+                            </sc-if>
+                            <sc-if value="{{ lx.escopoEntregue.projecao.isPavimentacao }}" hint-placeholder-val="{{ false }}">
+                              <div style="display:flex;gap:10px;margin-bottom:14px;">
+                                <div style="width:22px;height:22px;border-radius:50%;background:#2f6690;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div>
+                                <div style="flex:1;">
+                                  <p style="font-size:13px;line-height:1.55;margin:0;text-align:justify;">{{ lx.escopoEntregue.projecao.contextoParte1 }} Pavimentação é dividida em 3 lotes independentes. Cada lote tem sua própria taxa de aproveitamento, calculada pela análise mais recente daquele lote.</p>
+                                  <div style="margin-top:10px;overflow-x:auto;">
+                                    <table style="width:100%;border-collapse:collapse;font-size:12px;">
+                                      <thead>
+                                        <tr style="border-bottom:1px solid #d7e4ee;">
+                                          <th style="text-align:left;padding:6px;color:#8a94a3;font-weight:600;">Lote</th>
+                                          <th style="text-align:left;padding:6px;color:#8a94a3;font-weight:600;">Análise</th>
+                                          <th style="text-align:left;padding:6px;color:#8a94a3;font-weight:600;">Extensão</th>
+                                          <th style="text-align:left;padding:6px;color:#8a94a3;font-weight:600;">Atendido / julgados</th>
+                                          <th style="text-align:right;padding:6px;color:#8a94a3;font-weight:600;">Taxa</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        <sc-for list="{{ lx.escopoEntregue.projecao.porLoteLista }}" as="pl" hint-placeholder-count="3">
+                                          <tr style="border-bottom:1px solid #eef1f4;">
+                                            <td style="padding:8px 6px;">{{ pl.lote }}</td>
+                                            <td style="padding:8px 6px;color:#8a94a3;">{{ pl.analiseLabel }}</td>
+                                            <td style="padding:8px 6px;color:#8a94a3;">{{ pl.km }}</td>
+                                            <td style="padding:8px 6px;color:#8a94a3;">{{ pl.atendido }} / {{ pl.julgados }}</td>
+                                            <td style="padding:8px 6px;text-align:right;font-weight:700;">{{ pl.taxaPct }}</td>
+                                          </tr>
+                                        </sc-for>
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                </div>
+                              </div>
+                            </sc-if>
+                            <sc-if value="{{ lx.escopoEntregue.projecao.naoPavimentacao }}" hint-placeholder-val="{{ true }}">
+                              <div style="display:flex;gap:10px;margin-bottom:14px;">
+                                <div style="width:22px;height:22px;border-radius:50%;background:#2f6690;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</div>
+                                <div>
+                                  <p style="font-size:13px;line-height:1.55;margin:0;text-align:justify;"><b>Taxa de aproveitamento de {{ lx.escopoEntregue.projecao.taxaPct }}%:</b> a Análise nº {{ lx.escopoEntregue.projecao.analiseNumero }} corresponde à manifestação mais recente do DER-MG sobre este item e, até o momento, ainda não foi incluída em nenhuma medição. Nessa análise, o DER-MG avaliou {{ lx.escopoEntregue.projecao.julgados }} pontos, dos quais {{ lx.escopoEntregue.projecao.atendido }} foram considerados atendidos e {{ lx.escopoEntregue.projecao.nao }} permanecem pendentes.</p>
+                                  <div style="margin-top:10px;padding:12px 16px;background:#eef3f8;border:1px solid #b7d4f0;border-radius:8px;">
+                                    <div style="font-family:monospace;font-size:14px;color:#2f6690;line-height:1.8;">
+                                      <div>{{ lx.escopoEntregue.projecao.atendido }} ÷ {{ lx.escopoEntregue.projecao.julgados }}</div>
+                                      <div style="border-top:1px solid #b7d4f0;margin-top:4px;padding-top:4px;font-weight:700;">= {{ lx.escopoEntregue.projecao.taxaPct }}%</div>
+                                    </div>
+                                  </div>
+                                  <p style="font-size:13px;line-height:1.55;margin:14px 0 0;text-align:justify;">Aplicando essa taxa sobre o valor que ainda falta para o teto de medição, chegamos ao valor já tecnicamente aprovado pelo DER-MG, mas ainda não creditado na medição:</p>
+                                  <div style="margin-top:10px;padding:12px 16px;background:#eef3f8;border:1px solid #b7d4f0;border-radius:8px;">
+                                    <div style="font-family:monospace;font-size:14px;color:#2f6690;line-height:1.8;">
+                                      <div>{{ lx.escopoEntregue.projecao.taxaPct }}% de {{ lx.escopoEntregue.projecao.restanteFmt }}</div>
+                                      <div style="border-top:1px solid #b7d4f0;margin-top:4px;padding-top:4px;font-weight:700;">= {{ lx.escopoEntregue.projecao.valorAdicionalFmt }}</div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </sc-if>
+                            <sc-if value="{{ lx.escopoEntregue.projecao.isPavimentacao }}" hint-placeholder-val="{{ false }}">
+                              <div style="display:flex;gap:10px;margin-bottom:14px;">
+                                <div style="width:22px;height:22px;border-radius:50%;background:#2f6690;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</div>
+                                <div>
+                                  <p style="font-size:13px;line-height:1.55;margin:0;text-align:justify;">A taxa combinada pondera cada lote pela sua extensão em km sobre os {{ lx.escopoEntregue.projecao.kmTotalFmt }} km totais:</p>
+                                  <div style="margin-top:10px;padding:12px 16px;background:#eef3f8;border:1px solid #b7d4f0;border-radius:8px;">
+                                    <div style="font-family:monospace;font-size:14px;color:#2f6690;line-height:1.8;">
+                                      <div>({{ lx.escopoEntregue.projecao.formulaLinha }})</div>
+                                      <div style="border-top:1px solid #b7d4f0;margin-top:4px;padding-top:4px;font-weight:700;">= {{ lx.escopoEntregue.projecao.taxaPct }}%</div>
+                                    </div>
+                                  </div>
+                                  <p style="font-size:13px;line-height:1.55;margin:14px 0 0;text-align:justify;">Aplicando essa taxa sobre o valor que ainda falta para o teto de medição, chegamos ao valor já tecnicamente aprovado pelo DER-MG, mas ainda não creditado na medição:</p>
+                                  <div style="margin-top:10px;padding:12px 16px;background:#eef3f8;border:1px solid #b7d4f0;border-radius:8px;">
+                                    <div style="font-family:monospace;font-size:14px;color:#2f6690;line-height:1.8;">
+                                      <div>{{ lx.escopoEntregue.projecao.taxaPct }}% de {{ lx.escopoEntregue.projecao.restanteFmt }}</div>
+                                      <div style="border-top:1px solid #b7d4f0;margin-top:4px;padding-top:4px;font-weight:700;">= {{ lx.escopoEntregue.projecao.valorAdicionalFmt }}</div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </sc-if>
+                            <div style="display:flex;gap:10px;">
+                              <div style="width:22px;height:22px;border-radius:50%;background:#2f6690;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">5</div>
+                              <p style="font-size:13px;line-height:1.55;margin:0;text-align:justify;">Somando esse valor projetado ({{ lx.escopoEntregue.projecao.valorAdicionalFmt }}) ao que já foi medido ({{ lx.escopoEntregue.projecao.jaMedidoFmt }}): <b>{{ lx.escopoEntregue.projecao.totalProjetadoFmt }}</b>, o que representa <b>{{ lx.escopoEntregue.projecao.pctProjetado }}</b> do valor contratual deste item.</p>
+                            </div>
+                          </div>
+                          <div style="margin-top:12px;padding:10px 14px;border:1px solid #eef1f4;border-radius:8px;">
+                            <p style="font-size:11.5px;color:#8a94a3;margin:0;line-height:1.5;text-align:justify;">Esta é uma estimativa baseada no aproveitamento de questionamentos já julgados pelo DER-MG, não um valor de medição oficial. Ela mostra o quanto do trabalho entregue já foi tecnicamente aprovado, mesmo sem ainda ter sido creditado financeiramente.</p>
+                          </div>
+                        </div>
+                      </sc-if>
+                    </sc-if>
+                    <sc-if value="{{ lx.projecaoServico.hasProjecao }}" hint-placeholder-val="{{ false }}">
+                      <sc-if value="{{ lx.projecaoServico.projecaoOpen }}" hint-placeholder-val="{{ false }}">
+                        <div style="margin-top:16px;padding-top:16px;border-top:1px solid #eef1f4;">
+                          <div style="font-size:13px;font-weight:700;color:#1f2933;margin-bottom:10px;">Projeção — item {{ lx.numero }}</div>
+                          <div style="background:#f8f9fb;border-radius:8px;padding:12px 14px;margin-bottom:16px;">
+                            <p style="font-size:12.5px;line-height:1.65;color:#5b6774;margin:0;text-align:justify;">{{ lx.projecaoServico.introTexto }}</p>
+                          </div>
+                          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:12px;">
+                            <div style="background:#f8f9fb;border-radius:8px;padding:12px;"><div style="font-size:11px;color:#8a94a3;text-transform:uppercase;margin-bottom:4px;">Valor contratado</div><div style="font-size:16px;font-weight:700;color:#1f2933;">{{ lx.projecaoServico.valorContratadoFmt }}</div></div>
+                            <div style="background:#f8f9fb;border-radius:8px;padding:12px;"><div style="font-size:11px;color:#8a94a3;text-transform:uppercase;margin-bottom:4px;">Qtd contratada</div><div style="font-size:16px;font-weight:700;color:#1f2933;">{{ lx.projecaoServico.qtdContratadaFmt }}</div></div>
+                            <div style="background:#f8f9fb;border-radius:8px;padding:12px;"><div style="font-size:11px;color:#8a94a3;text-transform:uppercase;margin-bottom:4px;">Qtd executada/Entregues DER</div><div style="font-size:16px;font-weight:700;color:#1f2933;">{{ lx.projecaoServico.qtdExecutadaFmt }}</div></div>
+                          </div>
+                          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:6px;">
+                            <div style="background:#eaf2f9;border-radius:8px;padding:12px;"><div style="font-size:11px;color:#3d6f96;text-transform:uppercase;margin-bottom:4px;">Valor projetado</div><div style="font-size:18px;font-weight:700;color:#3d6f96;">{{ lx.projecaoServico.valorProjetadoFmt }}</div></div>
+                            <sc-if value="{{ lx.projecaoServico.saldoTemValor }}" hint-placeholder-val="{{ false }}">
+                              <div style="background:#fdf3e6;border-radius:8px;padding:12px;"><div style="font-size:11px;color:#8a5a1e;text-transform:uppercase;margin-bottom:4px;">Saldo financeiro</div><div style="font-size:18px;font-weight:700;color:#8a5a1e;">{{ lx.projecaoServico.saldoFinanceiroFmt }}</div></div>
+                            </sc-if>
+                            <sc-if value="{{ lx.projecaoServico.saldoZerado }}" hint-placeholder-val="{{ true }}">
+                              <div style="background:#eef6f1;border-radius:8px;padding:12px;"><div style="font-size:11px;color:#2f8f4f;text-transform:uppercase;margin-bottom:4px;">Saldo financeiro</div><div style="font-size:18px;font-weight:700;color:#2f8f4f;">{{ lx.projecaoServico.saldoFinanceiroFmt }}</div></div>
+                            </sc-if>
+                          </div>
+                          <sc-if value="{{ lx.projecaoServico.semAditar }}" hint-placeholder-val="{{ true }}">
+                            <p style="font-size:11.5px;line-height:1.5;color:#8a94a3;margin:0;">{{ lx.projecaoServico.saldoTexto }}</p>
+                          </sc-if>
+                        </div>
+                      </sc-if>
+                    </sc-if>
+                    <sc-if value="{{ lx.projecaoServico.hasAditar }}" hint-placeholder-val="{{ false }}">
+                      <sc-if value="{{ lx.projecaoServico.aditarOpen }}" hint-placeholder-val="{{ false }}">
+                        <div style="margin-top:16px;padding-top:16px;border-top:1px solid #eef1f4;">
+                          <div style="font-size:13px;font-weight:700;color:#1f2933;margin-bottom:10px;">Aditivo necessário — item {{ lx.numero }}</div>
+                          <div style="background:#fdf3e6;border-radius:8px;padding:12px 14px;margin-bottom:16px;">
+                            <p style="font-size:12.5px;line-height:1.65;color:#8a5a1e;margin:0;text-align:justify;">{{ lx.projecaoServico.aditarIntroTexto }}</p>
+                          </div>
+                          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:6px;">
+                            <div style="background:#f8f9fb;border-radius:8px;padding:12px;"><div style="font-size:11px;color:#8a94a3;text-transform:uppercase;margin-bottom:4px;">Qtd excedente</div><div style="font-size:16px;font-weight:700;color:#1f2933;">{{ lx.projecaoServico.qtdExcedenteFmt }}</div></div>
+                            <div style="background:#fdf3e6;border-radius:8px;padding:12px;"><div style="font-size:11px;color:#8a5a1e;text-transform:uppercase;margin-bottom:4px;">Valor a aditar</div><div style="font-size:18px;font-weight:700;color:#8a5a1e;">{{ lx.projecaoServico.valorExcedenteFmt }}</div></div>
+                            <div style="background:#fdf3e6;border-radius:8px;padding:12px;"><div style="font-size:11px;color:#8a5a1e;text-transform:uppercase;margin-bottom:4px;">% acima do contrato</div><div style="font-size:18px;font-weight:700;color:#8a5a1e;">{{ lx.projecaoServico.pctExcedenteFmt }}</div></div>
+                          </div>
+                          <p style="font-size:11.5px;line-height:1.55;color:#8a94a3;margin:0;text-align:justify;">{{ lx.projecaoServico.aditarCalcTexto }}</p>
+                        </div>
+                      </sc-if>
+                    </sc-if>
                     <sc-if value="{{ lx.escopoEntregue.hasEscopo }}" hint-placeholder-val="{{ false }}">
                       <div style="margin-top:16px;padding-top:16px;border-top:1px solid #eef1f4;">
                         <div onClick="{{ lx.escopoEntregue.toggle }}" style="border:1px solid #b7d4f0;border-radius:8px;padding:10px 16px;display:flex;align-items:center;gap:8px;cursor:pointer;">
@@ -3338,6 +3519,12 @@ class Component extends DCLogic {
   // de validação manual antes de adicionar aqui.
   escopoEntregueData = {
     36: {
+      // Dados validados manualmente com o usuário em 27/08/2026 (ver CLAUDE.md) — não recalcular
+      // dinamicamente a partir de analiseNDocsData: contagem de "rodadas"/"questionamentos" exige
+      // separar os grupos 'terraplenagem'/'obras_complementares' (que pertencem aos itens 37/47),
+      // e isso já foi feito à mão com precisão. Mudar só se o usuário trouxer novos números validados.
+      // Projeção (rodadas, questionamentos, análise mais recente) agora é 100% calculada ao vivo
+      // em calcularProjecao(), a partir de geoAnalisesList() — nunca mais hardcoded aqui.
       medidas: [
         { pct: 3, analise: 2, recebido: '13/05/2024', medicaoNumero: '6ª', periodoExecucao: '01/04/2024 a 30/04/2024', emissao: '17/05/2024', valor: 4217.78, novo: 14, atendido: 0, nao: 0,
           resumo: 'Primeira rodada formal de revisão do Volume 1 (texto do estudo de traçado) e do Projeto Geométrico (planta, perfil e seções transversais). O DER reitera a necessidade de informar o VMD (Volume Médio Diário) aprovado pelo Núcleo de Estudos de Tráfego, questiona o caminhamento do traçado preliminar sobre a via existente e solicita a previsão de dispositivo limpa-rodas nos acessos. Como é a primeira revisão formal do projeto, quase todos os pontos ainda são questionamentos novos, sem itens totalmente resolvidos nesta rodada.' },
@@ -3374,6 +3561,10 @@ class Component extends DCLogic {
       ],
     },
     37: {
+      // Sem projeção: as 2 únicas análises desta disciplina já foram totalmente incorporadas
+      // à medição — não há "análise mais recente ainda não medida" a projetar.
+      // Sem projeção estática: calcularProjecao() já detecta sozinha que não há pontos julgados
+      // pendentes na análise mais recente do grupo 'terraplenagem' e retorna null nesse caso.
       medidas: [
         { pct: 13, analise: 16, recebido: '27/02/2026', medicaoNumero: '27ª', periodoExecucao: '01/02/2026 a 28/02/2026', emissao: '17/03/2026', valor: 12270.93, novo: 11, atendido: 0, nao: 0,
           resumo: 'Primeira rodada de revisão do Projeto de Terraplenagem, com 11 questionamentos, todos novos. O DER pede correção da categoria de material de corte no item de Definições Básicas, indicação de locais e volumes de rebaixo em rocha, escalonamento, limpa-rodas, empréstimo e bota-fora, além de esclarecimentos sobre a caracterização estratigráfica do perfil geotécnico e a inclusão de CBR e expansão por horizonte geotécnico nos ensaios Proctor.' },
@@ -3381,6 +3572,71 @@ class Component extends DCLogic {
           resumo: 'Rodada de consolidação: a maior parte das exigências da rodada anterior foi atendida, incluindo a correção da categoria do material de corte, indicação de locais de empréstimo e bota-fora, inclusão dos volumes de limpa-rodas na planilha de distribuição e esclarecimento da estratigrafia geotécnica. Ainda restam pendências na apresentação de locais de rebaixo em rocha e escalonamento, além da separação de volumes de limpa-rodas entre corte e aterro — o DER aponta que as planilhas de memória de cálculo enviadas não estão claras o suficiente para conferência.' },
       ],
       aguardando: [],
+    },
+    // Itens 13/43/47 — dados extraídos e validados manualmente com o usuário em 27/08/2026 (ver
+    // CLAUDE.md). Campo "historico" (rodadas/questionamentos totais da disciplina) não foi
+    // preservado no backup pra estes 3 itens — por isso fica de fora aqui; o painel de Projeção
+    // usa um texto mais simples no passo 3 quando "historico" não está definido (ver buildEscopoEntregue).
+    13: {
+      // Projeção calculada ao vivo a partir de hidroAnalisesList() em calcularProjecao().
+      medidas: [
+        { analise: 2, recebido: '06/03/2024', medicaoNumero: '2ª', periodoExecucao: '01/12/2023 a 31/12/2023', emissao: '16/01/2024', valor: 5524.76, pct: 10,
+          resumo: 'Primeira rodada de revisão técnica dos Estudos Hidrológicos, cobrindo caracterização climática, pedológica e de bacias do trecho. A maioria dos pontos foi aberta nesta rodada; os já avaliados ainda não foram atendidos, entre eles a apresentação do quadro-resumo de dados climáticos do INMET.' },
+        { analise: 3, recebido: '13/05/2024', medicaoNumero: '4ª', periodoExecucao: '01/02/2024 a 29/02/2024', emissao: '15/03/2024', valor: 8839.61, pct: 16,
+          resumo: 'Continuidade da revisão de caracterização do trecho, incluindo indicação do local em figuras e descrição pedológica da região. A maior parte das pendências da rodada anterior segue sem solução.' },
+        { analise: 4, recebido: '02/10/2024', medicaoNumero: '6ª', periodoExecucao: '01/04/2024 a 30/04/2024', emissao: '17/05/2024', valor: 4419.81, pct: 8,
+          resumo: 'Rodada concentrada nos gráficos PDF/IDF e no mapa de bacias em formato digital (DWG/PDF), com pendências de formatação e legibilidade do estaqueamento ainda não resolvidas.' },
+        { analise: 5, recebido: '12/03/2025', medicaoNumero: '11ª', periodoExecucao: '01/09/2024 a 30/09/2024', emissao: '16/10/2024', valor: 10497.05, pct: 19,
+          resumo: 'Grande expansão de escopo, com 21 novos questionamentos abertos. Os gráficos PDF/IDF já tiveram cores destacadas nas curvas, mas ainda de forma parcial; o mapa de bacias em meio digital foi considerado atendido.' },
+        { analise: 6, recebido: '30/05/2025', medicaoNumero: '16ª', periodoExecucao: '01/02/2025 a 28/02/2025', emissao: '19/03/2025', valor: 7182.19, pct: 13,
+          resumo: 'Avanço relevante: a maioria dos pontos passa a ser atendida nesta rodada, incluindo os gráficos PDF/IDF revisados e o mapa de bacias em formato digital, ambos aprovados.' },
+        { analise: 7, recebido: '07/07/2025', medicaoNumero: '19ª', periodoExecucao: '01/05/2025 a 31/05/2025', emissao: '24/06/2025', valor: 6629.71, pct: 12,
+          resumo: 'A maioria dos itens já avaliados permanece atendida nesta rodada, incluindo os pontos consolidados desde a rodada anterior; uma minoria segue pendente.' },
+        { analise: 8, recebido: '08/08/2025', medicaoNumero: '21ª', periodoExecucao: '01/07/2025 a 31/07/2025', emissao: '20/08/2025', valor: 1104.95, pct: 2,
+          resumo: 'Rodada de consolidação, com a maior parte dos itens atendidos — incluindo os gráficos e o mapa de bacias, que permanecem aprovados — e poucas pendências remanescentes.' },
+      ],
+      aguardando: [
+        { analise: 9, recebido: '05/11/2025',
+          resumo: 'Nova frente de revisão sobre o Estudo de Verificação Hidráulica para pontes e pontilhões e a compatibilização dos cadastros de bueiros com a planilha de vazão, a maioria ainda parcial ou pendente.',
+          novo: 2, atendido: 4, nao: 2 },
+        { analise: 10, recebido: '23/12/2025',
+          resumo: 'Continuidade da revisão do Estudo de Verificação Hidráulica e da compatibilização dos cadastros de bueiros, com pontos ainda não atendidos nesta rodada, a mais recente da disciplina.',
+          novo: 2, atendido: 3, nao: 2 },
+      ],
+    },
+    43: {
+      // Projeção calculada ao vivo a partir de sinalAnalisesList() em calcularProjecao().
+      medidas: [
+        { analise: 1, recebido: '05/08/2025', medicaoNumero: '23ª', periodoExecucao: '01/09/2025 a 30/09/2025', emissao: '21/10/2025', valor: 10953.95, pct: 14,
+          resumo: 'Primeira rodada de revisão do projeto de Sinalização e Segurança Viária, com questionamentos cobrindo desde a definição da velocidade de projeto até a estrutura geral do relatório, desmembrado em três lotes.' },
+        { analise: 2, recebido: '24/09/2025', medicaoNumero: '25ª', periodoExecucao: '01/11/2025 a 18/11/2025', emissao: '19/12/2025', valor: 3774.05, pct: 5,
+          resumo: 'Rodada ampla, incluindo a atualização de referências normativas (substituição das resoluções CONTRAN pela Resolução nº 973/2022) e a descrição do desmembramento do projeto em três lotes.' },
+        { analise: 3, recebido: '25/11/2025', medicaoNumero: '26ª', periodoExecucao: '20/01/2026 a 31/01/2026', emissao: '25/02/2026', valor: 4234.30, pct: 5,
+          resumo: 'Reiteração de pontos ainda não resolvidos de rodadas anteriores, como o material dos suportes de placas e valores técnicos de projeto, além de novos questionamentos.' },
+        { analise: 4, recebido: '04/02/2026', medicaoNumero: '27ª', periodoExecucao: '01/02/2026 a 28/02/2026', emissao: '17/03/2026', valor: 4970.70, pct: 6,
+          resumo: 'Rodada tratando da sinalização temporária (Projeto Tipo 3 — Via Rural) e da sinalização de acessos às estradas com placas R-1.' },
+        { analise: 5, recebido: '20/02/2026', medicaoNumero: '28ª', periodoExecucao: '01/03/2026 a 31/03/2026', emissao: '16/04/2026', valor: 3405.85, pct: 4,
+          resumo: 'Ajustes de formatação de subtítulos e detalhamento técnico, como o vão livre mínimo de 2,40m para suportes sobre passeio.' },
+      ],
+      aguardando: [
+        { analise: 6, recebido: '03/03/2026', resumo: 'Rodada mais pontual, com ajustes de quantitativos e dimensões de placas específicas.', novo: 12, atendido: 0, nao: 0 },
+        { analise: 7, recebido: '17/03/2026', resumo: 'Revisão de compatibilização entre planta do projeto geométrico, projeto linear de sinalização e listagem de defensas, com pedido de reanálise minuciosa das contenções longitudinais.', novo: 27, atendido: 0, nao: 0 },
+        { analise: 8, recebido: '07/04/2026', resumo: 'Rodada de aprovação final: o relatório e o projeto de Sinalização e Segurança Viária foram considerados aptos à aprovação pelo DER-MG.', novo: 0, atendido: 2, nao: 0 },
+      ],
+    },
+    47: {
+      // Projeção calculada ao vivo a partir de geoAnalisesList() filtrada pro grupo
+      // 'obras_complementares' em calcularProjecao().
+      medidas: [
+        { analise: 14, recebido: '04/08/2025', medicaoNumero: '21ª', periodoExecucao: '01/07/2025 a 31/07/2025', emissao: '20/08/2025', valor: 12274.94, pct: 53,
+          resumo: 'Aprovação dos volumes de texto do Lote 01 e Lote 02, além do projeto de Obras Complementares do Lote 01 e do Volume 2 do Lote 02.' },
+        { analise: 15, recebido: '12/09/2025', medicaoNumero: '22ª', periodoExecucao: '01/08/2025 a 31/08/2025', emissao: '16/09/2025', valor: 6253.27, pct: 27,
+          resumo: 'Aprovação completa do Lote 03 (Volume 1 e Volume 2), somando-se à aprovação já obtida nos Lotes 01 e 02 nas rodadas anteriores.' },
+      ],
+      aguardando: [
+        { analise: 16, recebido: '13/03/2026', resumo: 'Projeto de Obras Complementares aprovado nesta rodada.', novo: 0, atendido: 1, nao: 0 },
+        { analise: 17, recebido: '10/04/2026', resumo: 'O projeto de Obras Complementares encontra-se aprovado — última manifestação do DER-MG sobre esta disciplina.', novo: 0, atendido: 1, nao: 0 },
+      ],
     },
   };
 
@@ -3390,6 +3646,15 @@ class Component extends DCLogic {
   // congelada: só muda quando o usuário enviar uma planilha de entregas atualizada.
   // Categoria 'internogap' é uso interno (ver entregaXMedidoCategorias.visivelCliente) —
   // nunca exibir para isClienteMode.
+  // Fonte: planilha Medições_DER.xlsx, tabela "1 - Araçuaí - Novo Cruzeiro" (linhas 1-12).
+  // Quantidade EXECUTADA/necessária em campo, informada pelo usuário em 03/09/2026 —
+  // independente e sem relação com qtdReal/qtdJaMedido de medicaoItemsData (que refletem o
+  // sistema oficial, não a planilha do DER). Usada exclusivamente pelo botão "Projeção" novo,
+  // relacionado a Serviços, nunca pela Projeção de disciplinas.
+  servicosProjecaoQtdExecutadaData = {
+    16: 0, 17: 1, 18: 58.7, 19: 35, 20: 7, 21: 1, 22: 1190.4, 23: 124, 40: 983.25, 41: 1,
+  };
+
   entregaXMedidoData = [
     { numero: 1, categoria: 'custodireto', entrega: null },
     { numero: 2, categoria: 'custodireto', entrega: null },
@@ -3498,6 +3763,7 @@ class Component extends DCLogic {
         chevron: this.state.expanded[key] ? '−' : '+',
         toggle: () => this.toggleCard(key),
         escopoEntregue: this.buildEscopoEntregue(e.numero),
+        projecaoServico: this.buildProjecaoServico(e.numero),
       };
     }).filter(Boolean);
 
@@ -3621,7 +3887,7 @@ class Component extends DCLogic {
   };
 
   // Fonte única das extensões dos 3 lotes de Pavimentação — usada na Visão Geral e nos botões de Pavimentação, nunca duplicada.
-  loteExtensoesKm = { lote1: '37,100', lote2: '21,100', lote3: '27,860' };
+  loteExtensoesKm = { lote1: '37,100', lote2: '21,100', lote3: '28,800' };
 
   materiaMeta = [
     { key: 'geometria', code: 'GE', label: '36. Projeto Geométrico', desc: 'Traçado em planta, perfil longitudinal e seções transversais.', modeled: true },
@@ -6174,6 +6440,19 @@ class Component extends DCLogic {
     ] },
   ];
 
+  // Análise 5, Lote 02 (RAP "260831 CE-PAV-072-2026 - 5ª Análise - LMG-678_Araçuaí-Novo Cruzeiro_Lote02.pdf").
+  pavLote2Analise5DocsData = [
+    { key: 'revisao_analise4', label: 'Revisão da 4ª Análise', items: [
+      { text: 'No Volume 2 Projeto de Execução, o cabeçalho do Linear de Dimensionamento consta mistura do material para base em usina — favor rever. Resposta DER: Atendido — nomenclatura corrigida de "base em usina" para "base na pista".', status: 'atendido' },
+      { text: 'Justificar os critérios adotados para a espessura da estrutura dos Limpa-rodas, considerando que a estrutura da rodovia foi dimensionada com espessura de base = 17cm. Resposta DER: Atendido — espessura de base dos limpa-rodas ajustada para 17cm.', status: 'atendido' },
+      { text: 'No item 6.4.4 Estrutura de Pavimento Indicada e sua Concepção, não consta a espessura da sub-base — rever. Resposta DER: Atendido — espessura de 20cm incluída.', status: 'atendido' },
+      { text: 'Verificam-se divergências entre o Volume 3 Projeto de Pavimentação (Tabela 01 Locais para Substituição do Material do Subleito) e o Linear de Dimensionamento do Pavimento quanto aos segmentos previstos para substituição do material do subleito — compatibilizar. Resposta DER: Não atendido — sem manifestação da Fiscalização nesta rodada (falha da própria DER em responder, sem correção posterior).', status: 'nao' },
+    ] },
+    { key: 'novos_analise5', label: 'Novos Questionamentos (5ª Análise)', items: [
+      { text: 'No volume 2 ainda consta a informação de mistura em usina. Revisar.', status: 'novo' },
+    ] },
+  ];
+
   // Análise 1, Lote 03 (RAP "260203 CE-PAV-018-2025 - 1ª Análise - LMG-678_Araçuaí-Novo Cruzeiro_Lote03.pdf").
   pavLote3Analise1DocsData = [
     { key: 'geral', label: 'Questionamentos Gerais', items: [
@@ -6289,6 +6568,29 @@ class Component extends DCLogic {
     ] },
   ];
 
+  // Análise 5, Lote 03 (RAP "260831 CE-PAV-074-2026 - 5ª Análise - LMG-678_Araçuaí-Novo Cruzeiro_Lote03.pdf").
+  // Rodada resolveu os itens pendentes da 3ª/4ª análise; não abriu itens novos.
+  pavLote3Analise5DocsData = [
+    { key: 'revisao_analise4', label: 'Revisão da 4ª Análise', items: [
+      { text: 'Rever as espessuras/larguras de acréscimo das camadas do pavimento, compatibilizando os critérios entre os lotes. Resposta DER: Atendida — arquivos enviados e conferidos.', status: 'atendido' },
+      { text: 'Apresentar resultados dos ensaios junto ao perfil do projeto geométrico. Resposta DER: Não atendido — pendência recorrente, Projeto Geométrico ainda não apresentado.', status: 'nao' },
+      { text: 'No projeto foi adotado CBR igual a 8% para todo o trecho, avaliar CBR de 9% nos trechos com melhor capacidade de suporte. Resposta DER: Atendido parcialmente — Quadro Demonstrativo (Memória de Cálculo) ainda não revisado.', status: 'parcial' },
+      { text: 'Deverá ser indicada a execução de mistura em pista para a camada de base, com materiais de áreas de empréstimo. Resposta DER: Atendido — arquivo editável enviado e conferido.', status: 'atendido' },
+      { text: 'No Quadro Demonstrativo de Quantidades, item "Sub-base", revisar a espessura adotada para a camada. Resposta DER: Não atendido — mesma pendência do item de CBR (Memória de Cálculo ainda não revisada).', status: 'nao' },
+      { text: 'No Quadro Demonstrativo de Quantidades, item "Base", justificar a adoção da espessura de 15 cm nas interseções. Resposta DER: Atendido.', status: 'atendido' },
+      { text: 'Revisar o Volume 02 (arquivos PV-01, PV-02 e PV-04 correspondiam ao Lote 02; linear de pavimentação com CBR de projeto e segmentos de substituição; mistura em usina). Resposta DER: Atendido.', status: 'atendido' },
+      { text: 'Confirmar os volumes de empréstimo, compatibilizando os quantitativos entre terraplenagem e pavimentação. Resposta DER: Não atendido — disciplina de Terraplenagem ainda não recebeu os arquivos atualizados.', status: 'nao' },
+      { text: 'No item 6.4.6, corrigir a unidade referente ao volume "112" (m² para m³). Resposta DER: Atendido.', status: 'atendido' },
+      { text: 'Indicar, após a estaca 4.270, a execução de pavimento intertravado tipo Pavi-S. Resposta DER: Atendido — estaca final ajustada.', status: 'atendido' },
+    ] },
+    { key: 'respondidos_analise4_novos', label: 'Novos Questionamentos da 4ª Análise — respondidos nesta rodada', items: [
+      { text: 'As seções transversais apresentadas não são compatíveis com o Lote 3. Resposta DER: Atendido — seções compatibilizadas.', status: 'atendido' },
+      { text: 'O linear de dimensionamento do pavimento não apresenta a estaca final na estrutura de pista e acostamento. Resposta DER: Atendido — estaca final incluída.', status: 'atendido' },
+      { text: 'Divergências entre o Volume 3 (Tabela 03 Segmentos para Substituição do Material do Subleito) e o Linear de Dimensionamento quanto aos segmentos de substituição do subleito. Resposta DER: Atendido — DER confirma que não há inconsistência (segregação em duas tabelas conforme critério de dimensionamento: Tabela 03 para ISCproj ≥ 8%, Tabela 04 para ISCproj ≥ 9%).', status: 'atendido' },
+      { text: 'Justificativa para os critérios adotados na espessura da estrutura dos Limpa-rodas, considerando base = 17 e 20cm. Resposta DER: Atendido — espessura de 20cm aplicada aos 3 limpa-rodas em trechos intertravados (estacas 4279+10, 4284, 4300+10); demais mantêm 17cm.', status: 'atendido' },
+    ] },
+  ];
+
   // Análise 3, Lote 01 (RAP "260417 CE-PAV-046-2026 - 3ª Análise - LMG-678_Araçuaí-Novo Cruzeiro_Lote01.pdf").
   // Revisão só dos itens ainda abertos após a 2ª Análise: 4 remanescentes da 1ª Análise (1,7,12,14, que levaram
   // uma 2ª rodada de resposta) + os 8 itens novos da 2ª Análise (18,19,20,21,22,23,24,25), agora com seu 1º veredito.
@@ -6338,13 +6640,29 @@ class Component extends DCLogic {
     { key: 'revisao_analise4', label: 'Revisão da 4ª Análise', items: [
       { text: 'Revisar e validar os segmentos indicados para implantação das defensas. Resposta DER: Não atendido — o Projeto Geométrico atualizado (compatibilizado com Sinalização e Pavimentação) não foi apresentado nesta entrega; não foi possível conferir os segmentos de defensas.', status: 'nao' },
       { text: 'Justificar a não indicação da pintura de ligação nos segmentos destinados à execução de limpa-rodas. Resposta DER: Atendido.', status: 'atendido' },
-      { text: 'Sugestão de adoção de peças de pavimento intertravado com dimensão de 25 cm. Resposta DER: Não atendido — mantida a solução original (pavimento sextavado existente em Alfredo Graça), sugestão não adotada.', status: 'nao' },
+      { text: 'Sugestão de adoção de peças de pavimento intertravado com dimensão de 25 cm — recomendação não vinculante. Resposta DER: mantida a solução original (pavimento sextavado existente em Alfredo Graça); a Projetista optou por não adotar a sugestão, o que é uma opção válida por não se tratar de exigência.', status: 'atendido' },
       { text: 'Justificar a redução de largura da plataforma nos itens de regularização do subleito e execução de sub-base em segmentos de material de 3ª categoria. Resposta DER: Atendido.', status: 'atendido' },
     ] },
     { key: 'novos_analise5', label: 'Novos Questionamentos (5ª Análise)', items: [
       { text: 'Verifica-se que não foi prevista a substituição do material do subleito no intervalo compreendido entre as estacas 655+0 e 657+10. Solicita-se promover a adequação do projeto.', status: 'novo' },
       { text: 'Solicita-se que seja apresentada a justificativa para a espessura adotada na estrutura dos limpa-rodas, considerando que a estrutura de pavimento da rodovia foi dimensionada com espessura de base = 17 cm.', status: 'novo' },
       { text: 'No item 6.4.4 Estrutura de Pavimento Indicada e sua Concepção, não consta a espessura da sub-base — rever.', status: 'novo' },
+    ] },
+  ];
+
+  // Análise 6, Lote 01 (RAP "260831 CE-PAV-071-2026 - 6ª Análise - LMG-678_Araçuaí-Novo Cruzeiro_Lote01.pdf").
+  // O item sobre defensas (aberto na 1ª análise) e o item do Empréstimo EL-06 (aberto na 3ª análise,
+  // dentro do combinado "Rever no Volume 02...") seguem sem resposta da Fiscalização até esta rodada —
+  // ambos continuam como pendência recorrente, carregados aqui por não terem sido revisitados na 5ª análise.
+  pavLote1Analise6DocsData = [
+    { key: 'pendencias_recorrentes', label: 'Pendências recorrentes (ainda sem resolução)', items: [
+      { text: 'Revisar e validar os segmentos indicados para implantação das defensas (compatibilização entre Projeto Geométrico, Projeto de Sinalização e Pavimentação). Sem manifestação nova nesta rodada — última resposta da Fiscalização (5ª análise): não atendido, aguardando Projeto Geométrico atualizado.', status: 'nao' },
+      { text: 'Volume previsto para o Empréstimo EL-06 não é suficiente para atender integralmente às demandas de terraplenagem e pavimentação — revisão de quantitativos/complementação de áreas de empréstimo pendente. Sem manifestação nova nesta rodada — última resposta da Fiscalização (3ª análise): não atendido, documentação de Terraplenagem não apresentada para conferência.', status: 'nao' },
+    ] },
+    { key: 'novos_analise6', label: 'Novos Questionamentos (6ª Análise)', items: [
+      { text: 'Verificar e esclarecer os valores de DMT apresentados no item 6.4.4 — texto informa 15,20km (pavimentada) e 13,10km (leito natural), memória de cálculo informa 10,70km e 19,60km. Revisar e compatibilizar.', status: 'novo' },
+      { text: 'Corrigir, no Quadro de Quantidades e nos desenhos do projeto, a referência da norma da camada de base, que consta atualmente como 2010.', status: 'novo' },
+      { text: 'Corrigir, no Quadro de Quantidades, a espessura da camada de sub-base para o pavimento intertravado, atualmente indicada como 17cm, compatibilizando-a com a espessura prevista no projeto.', status: 'novo' },
     ] },
   ];
 
@@ -6880,18 +7198,21 @@ class Component extends DCLogic {
         3: { recebido: '27/03/2026', concluido: '16/04/2026', prazo: 'não informado', analista: 'Daniela Abreu / José Eustáquio Ferreira Caldas' },
         4: { recebido: '04/05/2026', concluido: '14/05/2026', prazo: 'não informado', analista: 'Daniela Abreu / José Eustáquio Ferreira Caldas' },
         5: { recebido: '29/05/2026', concluido: '09/07/2026', prazo: 'não informado', analista: 'Daniela Abreu / José Eustáquio Ferreira Caldas' },
+        6: { recebido: '24/07/2026', concluido: '20/08/2026', prazo: 'não informado', analista: 'Daniela Abreu / José Eustáquio Ferreira Caldas' },
       },
       lote2: {
         1: { recebido: '11/12/2025', concluido: '27/01/2026', prazo: 'não informado', analista: 'Daniela Abreu / José Eustáquio Ferreira Caldas' },
         2: { recebido: '30/01/2026', concluido: '12/03/2026', prazo: 'não informado', analista: 'Daniela Abreu / José Eustáquio Ferreira Caldas' },
         3: { recebido: '30/04/2026', concluido: '18/05/2026', prazo: 'não informado', analista: 'Daniela Abreu / José Eustáquio Ferreira Caldas' },
         4: { recebido: '30/04/2026', concluido: '09/07/2026', prazo: 'não informado', analista: 'Daniela Abreu / José Eustáquio Ferreira Caldas' },
+        5: { recebido: '24/07/2026', concluido: '24/08/2026', prazo: 'não informado', analista: 'Daniela Abreu / José Eustáquio Ferreira Caldas' },
       },
       lote3: {
         1: { recebido: '11/12/2025', concluido: '03/02/2026', prazo: 'não informado', analista: 'Daniela Abreu / Kleber Cunha' },
         2: { recebido: '11/12/2025', concluido: '12/03/2026', prazo: 'não informado', analista: 'Daniela Abreu / Kleber Cunha' },
         3: { recebido: '07/05/2026', concluido: '22/05/2026', prazo: 'não informado', analista: 'Daniela Abreu / Kleber Cunha' },
         4: { recebido: '07/05/2026', concluido: '10/09/2026', prazo: 'não informado', analista: 'Daniela Abreu / Kleber Cunha' },
+        5: { recebido: '24/07/2026', concluido: '24/08/2026', prazo: 'não informado', analista: 'Daniela Abreu / Kleber Cunha' },
       },
   };
 
@@ -8108,9 +8429,215 @@ class Component extends DCLogic {
     return { totalJaMedido, totalASerMedido, pct, realByMonth };
   }
 
+  // Fórmula de Projeção — validada com o usuário em 27/08/2026 (ver CLAUDE.md), reutilizável pra
+  // qualquer item de serviço. NUNCA somar atendido/não-atendido de mais de uma análise: a taxa de
+  // aproveitamento usa só a análise mais recente ainda não incluída em nenhuma medição (as análises
+  // de uma disciplina são uma conversa contínua — a mais recente já reflete o estado acumulado).
+  // Reaproveita EXATAMENTE a mesma lógica da barra "Total" do gráfico "Questionamentos por Análise"
+  // (ver dashboardFor/buildGeoDashboard): soma bruta de itens por análise, sem filtrar por status.
+  // groupKey opcional isola um item "carona" (Terraplenagem/Obras Complementares) que vive embutido
+  // dentro das análises de outra disciplina — sem groupKey, soma tudo (caso de Geometria/Hidrologia/
+  // Sinalização, onde o item de serviço corresponde à disciplina inteira).
+  // A "análise mais recente" usa a última rodada com dados reais, contando status explícito — dado
+  // 100% ao vivo, nunca hardcoded, nunca tirado de print.
+  historicoEAnaliseMaisRecente(analisesList, groupKey) {
+    let rodadas = 0, questionamentos = 0, analiseMaisRecente = null;
+    for (const a of analisesList) {
+      let total = 0, atendido = 0, nao = 0;
+      for (const d of a.docs) {
+        if (groupKey && d.key !== groupKey) continue;
+        total += d.items.length;
+        for (const it of d.items) {
+          const status = (it && typeof it === 'object') ? it.status : null;
+          if (status === 'atendido') atendido++;
+          else if (status === 'nao') nao++;
+        }
+      }
+      if (total > 0) {
+        rodadas++;
+        questionamentos += total;
+        analiseMaisRecente = { numero: a.numero, atendido, nao };
+      }
+    }
+    return { historico: { rodadas, questionamentos }, analiseMaisRecente };
+  }
+
+  // Variante de historicoEAnaliseMaisRecente() específica para os lotes de Pavimentação: se a
+  // análise mais recente de um lote não tiver NENHUM item com status 'atendido' (ex: só pendências
+  // recorrentes 'nao' + itens novos 'novo' sem veredito ainda), recua para a análise anterior daquele
+  // lote que tenha ao menos 1 atendido. Decisão do usuário em 03/09/2026 — evita que uma rodada de
+  // pendências herdadas, sem nenhum avanço novo, zere artificialmente a taxa daquele lote.
+  pavAnaliseMaisRecenteComAtendido(analisesList) {
+    const { historico } = this.historicoEAnaliseMaisRecente(analisesList, null);
+    let fallback = null;
+    for (let idx = analisesList.length - 1; idx >= 0; idx--) {
+      const a = analisesList[idx];
+      let total = 0, atendido = 0, nao = 0;
+      for (const d of a.docs) {
+        total += d.items.length;
+        for (const it of d.items) {
+          const status = (it && typeof it === 'object') ? it.status : null;
+          if (status === 'atendido') atendido++;
+          else if (status === 'nao') nao++;
+        }
+      }
+      if (total === 0) continue;
+      if (fallback === null) fallback = { numero: a.numero, atendido, nao };
+      if (atendido > 0) return { historico, analiseMaisRecente: { numero: a.numero, atendido, nao } };
+    }
+    return { historico, analiseMaisRecente: fallback };
+  }
+
+  // Mapa item de serviço -> (lista de análises reais, chave de grupo pra isolar itens "carona").
+  // Único ponto de configuração pra adicionar Projeção a um novo item no futuro.
+  projecaoFonteConfig(itemNumero) {
+    switch (itemNumero) {
+      case 36: return { lista: this.geoAnalisesList(), groupKey: null };
+      // Item 37 (Terraplenagem) é "carona" na disciplina Geometria e não tem análise própria —
+      // sem fonte de projeção (alinhado com analiseMaisRecente: null em escopoEntregueData).
+      case 47: return { lista: this.geoAnalisesList(), groupKey: 'obras_complementares' };
+      case 13: return { lista: this.hidroAnalisesList(), groupKey: null };
+      case 43: return { lista: this.sinalAnalisesList(), groupKey: null };
+      default: return null;
+    }
+  }
+
+  // Projeção de Pavimentação (item 39) — combina os 3 lotes (independentes entre si), com a taxa de
+  // cada lote ponderada pela extensão em km do lote (loteExtensoesKm), não pela contagem de itens.
+  // Fórmula e fallback validados com o usuário em 03/09/2026 (ver CLAUDE.md).
+  calcularProjecaoPavimentacao() {
+    const lotes = ['lote1', 'lote2', 'lote3'];
+    const loteLabel = { lote1: 'Lote 01', lote2: 'Lote 02', lote3: 'Lote 03' };
+    const porLote = lotes.map(l => {
+      const lista = this.pavAnalisesList(l);
+      const { historico, analiseMaisRecente } = this.pavAnaliseMaisRecenteComAtendido(lista);
+      const km = parseFloat(this.loteExtensoesKm[l].replace(',', '.'));
+      const maisRecenteReal = lista.length ? lista[lista.length - 1].numero : null;
+      return { lote: l, km, historico, analiseMaisRecente, maisRecenteReal };
+    });
+    if (porLote.some(p => !p.analiseMaisRecente)) return null;
+    const kmTotal = porLote.reduce((s, p) => s + p.km, 0);
+    const taxaPorLote = porLote.map(p => {
+      const julgados = p.analiseMaisRecente.atendido + p.analiseMaisRecente.nao;
+      return julgados > 0 ? p.analiseMaisRecente.atendido / julgados : 0;
+    });
+    const taxa = kmTotal > 0 ? porLote.reduce((s, p, idx) => s + taxaPorLote[idx] * p.km, 0) / kmTotal : 0;
+    const item = this.medicaoItemsData.find(x => x.numero === 39);
+    if (!item) return null;
+    const ef = this.medicaoItemEfetivo(item);
+    const contrato = item.totalReal || item.totalContrato || 0;
+    if (!contrato) return null;
+    const jaMedido = ef.totalJaMedido;
+    const teto = contrato * 0.998541;
+    const restante = Math.max(teto - jaMedido, 0);
+    const valorAdicional = taxa * restante;
+    const totalProjetado = jaMedido + valorAdicional;
+    const pctProjetadoNum = totalProjetado / contrato;
+    const pctHojeNum = jaMedido / contrato;
+    const tetoPctNum = teto / contrato;
+    const fmtPct1 = (n) => (n * 100).toFixed(1).replace('.', ',') + '%';
+    const rodadasTotais = porLote.reduce((s, p) => s + p.historico.rodadas, 0);
+    const questionamentosTotais = porLote.reduce((s, p) => s + p.historico.questionamentos, 0);
+    const kmFmt = (n) => n.toFixed(3).replace('.', ',');
+    const porLoteLista = porLote.map((p, idx) => {
+      const isFallback = p.maisRecenteReal !== null && p.maisRecenteReal !== p.analiseMaisRecente.numero;
+      return {
+        lote: loteLabel[p.lote],
+        analiseLabel: p.analiseMaisRecente.numero + 'ª' + (isFallback ? ' (fallback)' : ''),
+        km: kmFmt(p.km) + ' km',
+        atendido: p.analiseMaisRecente.atendido,
+        julgados: p.analiseMaisRecente.atendido + p.analiseMaisRecente.nao,
+        taxaPct: (taxaPorLote[idx] * 100).toFixed(0) + '%',
+      };
+    });
+    const formulaLinha = porLote.map((p, idx) => (taxaPorLote[idx] * 100).toFixed(0) + '% × ' + kmFmt(p.km)).join(' + ') + ' ÷ ' + kmFmt(kmTotal);
+    return {
+      isPavimentacao: true,
+      naoPavimentacao: false,
+      porLoteLista,
+      formulaLinha,
+      kmTotalFmt: kmFmt(kmTotal),
+      contratoFmt: this.fmtMoney(contrato),
+      jaMedidoFmt: this.fmtMoney(jaMedido),
+      restanteFmt: this.fmtMoney(restante),
+      valorAdicionalFmt: this.fmtMoney(valorAdicional),
+      totalProjetadoFmt: this.fmtMoney(totalProjetado),
+      pctHoje: fmtPct1(pctHojeNum),
+      tetoPct: fmtPct1(tetoPctNum),
+      pctProjetado: fmtPct1(pctProjetadoNum),
+      diferencaPct: ((pctProjetadoNum - pctHojeNum) * 100).toFixed(1).replace('.', ','),
+      pctHojeBarra: Math.min(pctHojeNum * 100, 100).toFixed(1) + '%',
+      diferencaBarra: Math.max((pctProjetadoNum - pctHojeNum) * 100, 0).toFixed(1) + '%',
+      taxaPct: (taxa * 100).toFixed(0),
+      analiseNumero: porLote.map(p => p.analiseMaisRecente.numero).join('/'),
+      julgados: porLote.reduce((s, p) => s + p.analiseMaisRecente.atendido + p.analiseMaisRecente.nao, 0),
+      atendido: porLote.reduce((s, p) => s + p.analiseMaisRecente.atendido, 0),
+      nao: porLote.reduce((s, p) => s + p.analiseMaisRecente.nao, 0),
+      contextoParte1: 'Desde o início do projeto, a disciplina de Pavimentação (dividida em 3 lotes independentes) passou por ' + rodadasTotais + ' rodadas de análise ao todo, somando ' + questionamentosTotais + ' questionamentos entre os 3 lotes.',
+    };
+  }
+
+  calcularProjecao(itemNumero) {
+    // Item 39 (Pavimentação) tem lógica própria multi-lote — ver calcularProjecaoPavimentacao().
+    if (itemNumero === 39) return this.calcularProjecaoPavimentacao();
+    const fonte = this.projecaoFonteConfig(itemNumero);
+    if (!fonte) return null;
+    const { historico, analiseMaisRecente } = this.historicoEAnaliseMaisRecente(fonte.lista, fonte.groupKey);
+    if (!analiseMaisRecente) return null;
+    const item = this.medicaoItemsData.find(x => x.numero === itemNumero);
+    if (!item) return null;
+    const ef = this.medicaoItemEfetivo(item);
+    const contrato = item.totalReal || item.totalContrato || 0;
+    if (!contrato) return null;
+    const jaMedido = ef.totalJaMedido;
+    const teto = contrato * 0.998541;
+    const restante = Math.max(teto - jaMedido, 0);
+    const julgados = analiseMaisRecente.atendido + analiseMaisRecente.nao;
+    const taxa = julgados > 0 ? analiseMaisRecente.atendido / julgados : 0;
+    // Sem nenhum ponto julgado (atendido/não atendido) na análise mais recente, não há base pra
+    // projetar — evita mostrar taxa 0% (que seria enganoso) quando na verdade falta dado.
+    if (julgados === 0) return null;
+    const valorAdicional = taxa * restante;
+    const totalProjetado = jaMedido + valorAdicional;
+    const pctProjetadoNum = totalProjetado / contrato;
+    const pctHojeNum = jaMedido / contrato;
+    const tetoPctNum = teto / contrato;
+    const fmtPct1 = (n) => (n * 100).toFixed(1).replace('.', ',') + '%';
+    return {
+      isPavimentacao: false,
+      naoPavimentacao: true,
+      contratoFmt: this.fmtMoney(contrato),
+      jaMedidoFmt: this.fmtMoney(jaMedido),
+      restanteFmt: this.fmtMoney(restante),
+      valorAdicionalFmt: this.fmtMoney(valorAdicional),
+      totalProjetadoFmt: this.fmtMoney(totalProjetado),
+      pctHoje: fmtPct1(pctHojeNum),
+      tetoPct: fmtPct1(tetoPctNum),
+      pctProjetado: fmtPct1(pctProjetadoNum),
+      diferencaPct: ((pctProjetadoNum - pctHojeNum) * 100).toFixed(1).replace('.', ','),
+      pctHojeBarra: Math.min(pctHojeNum * 100, 100).toFixed(1) + '%',
+      diferencaBarra: Math.max((pctProjetadoNum - pctHojeNum) * 100, 0).toFixed(1) + '%',
+      taxaPct: (taxa * 100).toFixed(0),
+      analiseNumero: analiseMaisRecente.numero,
+      julgados, atendido: analiseMaisRecente.atendido, nao: analiseMaisRecente.nao,
+      contextoParte1: 'Desde o início do projeto, esta disciplina passou por ' + historico.rodadas + ' rodada' + (historico.rodadas === 1 ? '' : 's') + ' de análise e revisão junto ao DER-MG, período em que foram levantados, ao todo, ' + historico.questionamentos + ' questionamentos.',
+      contextoParte2: 'Atualmente, as pendências estão concentradas na Análise nº ' + analiseMaisRecente.numero + ', a mais recente: de ' + julgados + ' pontos avaliados nela, ' + analiseMaisRecente.atendido + ' já foram atendidos e restam ' + analiseMaisRecente.nao + ' pendente' + (analiseMaisRecente.nao === 1 ? '' : 's') + '.',
+    };
+  }
+
   buildEscopoEntregue(itemNumero) {
     const data = this.escopoEntregueData[itemNumero];
-    if (!data) return { hasEscopo: false };
+    const projecao = this.calcularProjecao(itemNumero);
+    const hasProjecao = !!projecao;
+    const projKey = 'proj-' + itemNumero;
+    const projecaoOpen = !!this.state.expanded[projKey];
+    const toggleProjecao = () => this.toggleCard(projKey);
+    // Tabela "Escopo entregue" (cruzamento Análise x Medição): oculta apenas no acesso cliente
+    // (primeira apresentação do projeto — menos informação técnica), visível normalmente no
+    // acesso interno da Consol. A Projeção não é afetada por essa regra, segue igual nos dois modos.
+    if (!data || this.props.isClienteMode) {
+      return { hasEscopo: false, hasProjecao, projecao, projecaoOpen, toggleProjecao, showProjecaoPanel: hasProjecao && projecaoOpen };
+    }
     const keyBase = 'escopo-' + itemNumero;
     const isOpen = !!this.state.expanded[keyBase];
     const medidas = data.medidas.map((a, idx) => {
@@ -8145,7 +8672,78 @@ class Component extends DCLogic {
     return {
       hasEscopo: true, isOpen, toggle: () => this.toggleCard(keyBase), chevronEscopo: isOpen ? '−' : '+',
       medidas, aguardando, hasAguardando, notaAlerta,
+      hasProjecao, projecao, projecaoOpen, toggleProjecao,
     };
+  }
+
+  // Projeção por Serviços — feature nova e independente da Projeção de disciplinas
+  // (calcularProjecao/calcularProjecaoPavimentacao/projecaoFonteConfig). Validada com o
+  // usuário em 03/09/2026. Cobre apenas os 10 itens de servicosProjecaoQtdExecutadaData.
+  buildProjecaoServico(itemNumero) {
+    const qtdExecutada = this.servicosProjecaoQtdExecutadaData[itemNumero];
+    if (qtdExecutada === undefined) return { hasProjecao: false, hasAditar: false };
+    const item = this.medicaoItemsData.find(x => x.numero === itemNumero);
+    if (!item) return { hasProjecao: false, hasAditar: false };
+    const ef = this.medicaoItemEfetivo(item);
+    const qtdContratada = item.qtdContrato;
+    const valorContratado = item.totalReal || item.totalContrato || 0;
+    if (!qtdContratada || !valorContratado) return { hasProjecao: false, hasAditar: false };
+    const valorUnit = valorContratado / qtdContratada;
+    const valorProjetado = qtdExecutada * valorUnit;
+    const totalJaMedido = ef.totalJaMedido;
+    const saldoFinanceiro = Math.max(valorProjetado - totalJaMedido, 0);
+    const hasAditar = qtdExecutada > qtdContratada;
+    const unidade = item.unidade || '';
+    const fmtQ = (n) => {
+      const casas = (Math.round(n * 100) % 100 === 0) ? 0 : 2;
+      return n.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: 2 }) + ' ' + unidade;
+    };
+    const qtdContratadaFmt = fmtQ(qtdContratada);
+    const qtdExecutadaFmt = fmtQ(qtdExecutada);
+    const projKey = 'projServ-' + itemNumero;
+    const projecaoOpen = !!this.state.expanded[projKey];
+    const toggleProjecao = () => this.toggleCard(projKey);
+    let introTexto, saldoTexto;
+    if (hasAditar) {
+      const qtdExcedenteTxt = fmtQ(qtdExecutada - qtdContratada);
+      introTexto = 'O contrato previu ' + qtdContratadaFmt + ' para este serviço, mas em campo foram necessárias ' + qtdExecutadaFmt + ' — ' + qtdExcedenteTxt + ' a mais que o previsto. Por isso, o Valor Projetado abaixo já considera as ' + qtdExecutadaFmt + ' executadas, e não apenas ' + qtdContratadaFmt + ' do contrato original.';
+      saldoTexto = null;
+    } else {
+      introTexto = 'O contrato prevê ' + qtdContratadaFmt + ' para este serviço; em campo, foram necessárias ' + qtdExecutadaFmt + '. O Valor Projetado abaixo reflete essa quantidade realmente executada.';
+      saldoTexto = saldoFinanceiro > 0.005
+        ? 'O valor medido (' + this.fmtMoney(totalJaMedido) + ') ainda não alcançou o projetado — restam ' + this.fmtMoney(saldoFinanceiro) + ' a incluir em medições futuras, dentro do próprio limite contratual.'
+        : 'O valor medido (' + this.fmtMoney(totalJaMedido) + ') já corresponde ao projetado — nada pendente para este item.';
+    }
+    const resultado = {
+      hasProjecao: true,
+      introTexto,
+      saldoTexto,
+      valorContratadoFmt: this.fmtMoney(valorContratado),
+      qtdContratadaFmt,
+      qtdExecutadaFmt,
+      valorProjetadoFmt: this.fmtMoney(valorProjetado),
+      saldoFinanceiroFmt: this.fmtMoney(saldoFinanceiro),
+      saldoTemValor: saldoFinanceiro > 0.005,
+      projecaoOpen,
+      toggleProjecao,
+      hasAditar,
+      semAditar: !hasAditar,
+      saldoZerado: saldoFinanceiro <= 0.005,
+    };
+    if (hasAditar) {
+      const qtdExcedente = qtdExecutada - qtdContratada;
+      const valorExcedente = qtdExcedente * valorUnit;
+      const pctExcedente = (qtdExcedente / qtdContratada) * 100;
+      const aditKey = 'aditServ-' + itemNumero;
+      resultado.aditarOpen = !!this.state.expanded[aditKey];
+      resultado.toggleAditar = () => this.toggleCard(aditKey);
+      resultado.qtdExcedenteFmt = fmtQ(qtdExcedente);
+      resultado.valorExcedenteFmt = this.fmtMoney(valorExcedente);
+      resultado.pctExcedenteFmt = '+' + pctExcedente.toFixed(1).replace('.', ',') + '%';
+      resultado.aditarIntroTexto = 'A quantidade executada (' + qtdExecutadaFmt + ') ultrapassou a quantidade contratada (' + qtdContratadaFmt + ') em ' + resultado.qtdExcedenteFmt + '. Como o contrato atual só prevê recursos para ' + qtdContratadaFmt + ', essas ' + resultado.qtdExcedenteFmt + ' excedentes não podem ser medidas nem pagas com o valor já contratado — elas dependem da formalização de um termo aditivo, aplicando o mesmo valor unitário do contrato original.';
+      resultado.aditarCalcTexto = 'Cálculo: ' + resultado.qtdExcedenteFmt + ' × ' + this.fmtMoney(valorUnit) + '/' + unidade + ' (mesmo valor unitário do contrato) = ' + resultado.valorExcedenteFmt + '. Somando esse valor ao total já contratado (' + resultado.valorContratadoFmt + '), o valor total do item passa a ser ' + resultado.valorProjetadoFmt + ' — este é o Valor Projetado mostrado no card "Projeção".';
+    }
+    return resultado;
   }
 
   buildMedicao() {
@@ -8781,7 +9379,7 @@ class Component extends DCLogic {
       timelinePhases,
       todayLeft,
       placeholderSections,
-      homeStats: { extensao: '86,060', materias: this.materiaMeta.length, modelos: this.materiaMeta.filter(m => m.modeled).length, lote1: this.loteExtensoesKm.lote1, lote2: this.loteExtensoesKm.lote2, lote3: this.loteExtensoesKm.lote3 },
+      homeStats: { extensao: '87,000', materias: this.materiaMeta.length, modelos: this.materiaMeta.filter(m => m.modeled).length, lote1: this.loteExtensoesKm.lote1, lote2: this.loteExtensoesKm.lote2, lote3: this.loteExtensoesKm.lote3 },
       diasContratoAtivo: this.diasContratoAtivo(),
       setMapFrameRef: this.setMapFrameRef,
       geoNums: { extensao: '32,02', classe: '1B', curvasPlanta: '40,1', curvasPerfil: '47,75', faixasAdicionais: 3 },
