@@ -1244,6 +1244,115 @@
         </sc-if>
         </sc-if>
 
+        <div onClick="{{ onToggleEntregaXMedido }}" style="width: 100%; box-sizing: border-box; text-align: left; font-size: 14px; font-weight: 700; color: {{ primaryColor }}; background: #fff; border: 1px solid {{ primaryColor }}; padding: 10px 14px; border-radius: 8px; cursor: pointer; margin-bottom: 16px">Entregue x medido</div>
+
+        <sc-if value="{{ showEntregaXMedido }}" hint-placeholder-val="{{ false }}">
+          <div style="margin-bottom:24px;">
+
+            <div style="background:#fdf3e6;border:1px solid #f0dcc4;border-radius:8px;padding:12px 16px;font-size:12.5px;color:#8a5a1e;line-height:1.6;margin-bottom:16px;text-align:justify;">{{ entregaXMedido.aviso }}</div>
+
+            <div style="font-size:13px;font-weight:700;color:#1f2933;margin-bottom:8px;">Legenda</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:18px;">
+              <sc-for list="{{ entregaXMedido.legenda }}" as="lg" hint-placeholder-count="5">
+                <div style="background:{{ lg.corBg }};border-radius:8px;padding:10px 12px;">
+                  <div style="font-size:12px;font-weight:700;color:{{ lg.corTexto }};margin-bottom:2px;">{{ lg.rotulo }}</div>
+                  <div style="font-size:11px;color:{{ lg.corTexto }};line-height:1.4;">{{ lg.legenda }}</div>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <div style="font-size:13px;font-weight:700;color:#1f2933;">Itens de serviço</div>
+              <div style="font-size:11px;color:#8a94a3;">{{ entregaXMedido.totalItens }} itens</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <sc-for list="{{ entregaXMedido.linhas }}" as="lx" hint-placeholder-count="3">
+                <div style="background:#fff;border:1px solid #eef1f4;border-radius:10px;padding:12px 16px;">
+                  <div onClick="{{ lx.toggle }}" style="display:flex;align-items:center;justify-content:space-between;gap:14px;cursor:pointer;flex-wrap:wrap;">
+                    <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:220px;">
+                      <div style="font-size:11px;font-weight:700;color:#8a94a3;flex:0 0 auto;min-width:22px;">{{ lx.numero }}.</div>
+                      <div style="font-size:13.5px;font-weight:600;color:#1f2933;">{{ lx.descricao }}</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+                      <span style="display:inline-block;background:{{ lx.situacaoBg }};color:{{ lx.situacaoTexto }};font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;white-space:nowrap;">{{ lx.situacaoLabel }}</span>
+                      <div style="font-size:17px;color:#8a94a3;">{{ lx.chevron }}</div>
+                    </div>
+                  </div>
+                  <sc-if value="{{ lx.isOpen }}" hint-placeholder-val="{{ false }}">
+                    <div style="margin-top:12px;padding-top:12px;border-top:1px solid #eef1f4;display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;">
+                      <div style="background:#1f3a5f;border-radius:8px;padding:10px 14px;text-align:center;"><div style="font-size:11px;font-weight:600;color:#c7d6e8;text-transform:uppercase;margin-bottom:4px;">Contrato</div><div style="font-size:17px;font-weight:700;color:#fff;">{{ lx.totalContratoFmt }}</div></div>
+                      <div style="background:#1f3a5f;border-radius:8px;padding:10px 14px;text-align:center;"><div style="font-size:11px;font-weight:600;color:#c7d6e8;text-transform:uppercase;margin-bottom:4px;">Medido</div><div style="font-size:17px;font-weight:700;color:#fff;">{{ lx.totalJaMedidoFmt }}</div></div>
+                      <div style="background:#1f3a5f;border-radius:8px;padding:10px 14px;text-align:center;"><div style="font-size:11px;font-weight:600;color:#c7d6e8;text-transform:uppercase;margin-bottom:4px;">% Medido</div><div style="font-size:17px;font-weight:700;color:#fff;">{{ lx.pct }}%</div></div>
+                      <div style="background:#1f3a5f;border-radius:8px;padding:10px 14px;text-align:center;"><div style="font-size:11px;font-weight:600;color:#c7d6e8;text-transform:uppercase;margin-bottom:4px;">Entrega</div><div style="font-size:17px;font-weight:700;color:#fff;">{{ lx.entrega }}</div></div>
+                      <sc-if value="{{ lx.projecaoServico.hasProjecao }}" hint-placeholder-val="{{ false }}">
+                        <div onClick="{{ lx.projecaoServico.toggleProjecao }}" style="background:#3d6f96;border-radius:8px;padding:10px 14px;text-align:center;cursor:pointer;border:1px solid #7fa8c9;">
+                          <div style="font-size:11px;font-weight:600;color:#dbe9f2;text-transform:uppercase;margin-bottom:4px;">Projeção</div>
+                          <div style="font-size:17px;font-weight:700;color:#fff;">&nbsp;</div>
+                        </div>
+                      </sc-if>
+                      <sc-if value="{{ lx.projecaoServico.hasAditar }}" hint-placeholder-val="{{ false }}">
+                        <div onClick="{{ lx.projecaoServico.toggleAditar }}" style="background:#8a5a12;border-radius:8px;padding:10px 14px;text-align:center;cursor:pointer;border:1px solid #c98f3f;">
+                          <div style="font-size:11px;font-weight:600;color:#f0dcc0;text-transform:uppercase;margin-bottom:4px;">Aditar</div>
+                          <div style="font-size:17px;font-weight:700;color:#fff;">&nbsp;</div>
+                        </div>
+                      </sc-if>
+                    </div>
+                    <sc-if value="{{ lx.projecaoServico.hasProjecao }}" hint-placeholder-val="{{ false }}">
+                      <sc-if value="{{ lx.projecaoServico.projecaoOpen }}" hint-placeholder-val="{{ false }}">
+                        <div style="margin-top:16px;padding-top:16px;border-top:1px solid #eef1f4;">
+                          <div style="font-size:13px;font-weight:700;color:#1f2933;margin-bottom:10px;">Projeção — item {{ lx.numero }}</div>
+                          <div style="background:#f8f9fb;border-radius:8px;padding:12px 14px;margin-bottom:16px;">
+                            <p style="font-size:12.5px;line-height:1.65;color:#5b6774;margin:0;text-align:justify;">{{ lx.projecaoServico.introTexto }}</p>
+                          </div>
+                          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:12px;">
+                            <div style="background:#f8f9fb;border-radius:8px;padding:12px;"><div style="font-size:11px;color:#8a94a3;text-transform:uppercase;margin-bottom:4px;">Valor contratado</div><div style="font-size:16px;font-weight:700;color:#1f2933;">{{ lx.projecaoServico.valorContratadoFmt }}</div></div>
+                            <div style="background:#f8f9fb;border-radius:8px;padding:12px;"><div style="font-size:11px;color:#8a94a3;text-transform:uppercase;margin-bottom:4px;">Qtd contratada</div><div style="font-size:16px;font-weight:700;color:#1f2933;">{{ lx.projecaoServico.qtdContratadaFmt }}</div></div>
+                            <div style="background:#f8f9fb;border-radius:8px;padding:12px;"><div style="font-size:11px;color:#8a94a3;text-transform:uppercase;margin-bottom:4px;">Qtd executada/Entregues DER</div><div style="font-size:16px;font-weight:700;color:#1f2933;">{{ lx.projecaoServico.qtdExecutadaFmt }}</div></div>
+                          </div>
+                          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:6px;">
+                            <div style="background:#eaf2f9;border-radius:8px;padding:12px;"><div style="font-size:11px;color:#3d6f96;text-transform:uppercase;margin-bottom:4px;">Valor projetado</div><div style="font-size:18px;font-weight:700;color:#3d6f96;">{{ lx.projecaoServico.valorProjetadoFmt }}</div></div>
+                            <sc-if value="{{ lx.projecaoServico.saldoTemValor }}" hint-placeholder-val="{{ false }}">
+                              <div style="background:#fdf3e6;border-radius:8px;padding:12px;"><div style="font-size:11px;color:#8a5a1e;text-transform:uppercase;margin-bottom:4px;">Saldo financeiro</div><div style="font-size:18px;font-weight:700;color:#8a5a1e;">{{ lx.projecaoServico.saldoFinanceiroFmt }}</div></div>
+                            </sc-if>
+                            <sc-if value="{{ lx.projecaoServico.saldoZerado }}" hint-placeholder-val="{{ true }}">
+                              <div style="background:#eef6f1;border-radius:8px;padding:12px;"><div style="font-size:11px;color:#2f8f4f;text-transform:uppercase;margin-bottom:4px;">Saldo financeiro</div><div style="font-size:18px;font-weight:700;color:#2f8f4f;">{{ lx.projecaoServico.saldoFinanceiroFmt }}</div></div>
+                            </sc-if>
+                          </div>
+                          <sc-if value="{{ lx.projecaoServico.semAditar }}" hint-placeholder-val="{{ true }}">
+                            <p style="font-size:11.5px;line-height:1.5;color:#8a94a3;margin:0;">{{ lx.projecaoServico.saldoTexto }}</p>
+                          </sc-if>
+                        </div>
+                      </sc-if>
+                    </sc-if>
+                    <sc-if value="{{ lx.projecaoServico.hasAditar }}" hint-placeholder-val="{{ false }}">
+                      <sc-if value="{{ lx.projecaoServico.aditarOpen }}" hint-placeholder-val="{{ false }}">
+                        <div style="margin-top:16px;padding-top:16px;border-top:1px solid #eef1f4;">
+                          <div style="font-size:13px;font-weight:700;color:#1f2933;margin-bottom:10px;">Aditivo necessário — item {{ lx.numero }}</div>
+                          <div style="background:#fdf3e6;border-radius:8px;padding:12px 14px;margin-bottom:16px;">
+                            <p style="font-size:12.5px;line-height:1.65;color:#8a5a1e;margin:0;text-align:justify;">{{ lx.projecaoServico.aditarIntroTexto }}</p>
+                          </div>
+                          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:6px;">
+                            <div style="background:#f8f9fb;border-radius:8px;padding:12px;"><div style="font-size:11px;color:#8a94a3;text-transform:uppercase;margin-bottom:4px;">Qtd excedente</div><div style="font-size:16px;font-weight:700;color:#1f2933;">{{ lx.projecaoServico.qtdExcedenteFmt }}</div></div>
+                            <div style="background:#fdf3e6;border-radius:8px;padding:12px;"><div style="font-size:11px;color:#8a5a1e;text-transform:uppercase;margin-bottom:4px;">Valor a aditar</div><div style="font-size:18px;font-weight:700;color:#8a5a1e;">{{ lx.projecaoServico.valorExcedenteFmt }}</div></div>
+                            <div style="background:#fdf3e6;border-radius:8px;padding:12px;"><div style="font-size:11px;color:#8a5a1e;text-transform:uppercase;margin-bottom:4px;">% acima do contrato</div><div style="font-size:18px;font-weight:700;color:#8a5a1e;">{{ lx.projecaoServico.pctExcedenteFmt }}</div></div>
+                          </div>
+                          <p style="font-size:11.5px;line-height:1.55;color:#8a94a3;margin:0;text-align:justify;">{{ lx.projecaoServico.aditarCalcTexto }}</p>
+                        </div>
+                      </sc-if>
+                    </sc-if>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="margin-top:16px;background:#f8f9fb;border:1px solid #eef1f4;border-radius:10px;padding:14px 18px;">
+              <div style="font-size:11px;color:#8a94a3;text-transform:uppercase;margin-bottom:4px;">{{ entregaXMedido.resumoLabel }}</div>
+              <div style="font-size:20px;font-weight:700;color:#1f2933;margin-bottom:6px;">{{ entregaXMedido.resumoValor }}</div>
+              <div style="font-size:11px;color:#8a94a3;line-height:1.5;text-align:justify;">{{ entregaXMedido.resumoNota }}</div>
+            </div>
+          </div>
+        </sc-if>
+
         <div style="background:#0f2942;border-radius:12px;padding:22px 24px;margin-top:24px;">
           <div style="font-size:14.5px;font-weight:700;color:#fff;margin-bottom:16px;">Dashboard Geral</div>
 
@@ -2618,6 +2727,219 @@ class Component extends DCLogic {
     } else {
       this.setState({ reuniaoPasswordError: true });
     }
+  }
+
+  // "Entregue x medido" — mesma estrutura já usada no Araçuaí–Novo Cruzeiro. Classificação
+  // definida com o usuário em 06/09/2026: itens sem análise real registrada (35 Terraplenagem,
+  // 8 e 41 Segurança Viária) entram como 'internogap', nunca como 'revisao'.
+  // Datas de 'revisao' = recebido da análise mais recente da disciplina correspondente
+  // (Geometria 17/03/2026 → 12/13/34; Hidrologia/Drenagem 07/04/2026 → 14/15/36;
+  // Pavimentação 12/01/2026 → 37). Sondagens (18-21, 27) = 27/11/2025, mesma referência da
+  // planilha Medições_DER.xlsx.
+  entregaXMedidoData = [
+    { numero: 1, categoria: 'custodireto', entrega: null },
+    { numero: 2, categoria: 'custodireto', entrega: null },
+    { numero: 3, categoria: 'custodireto', entrega: null },
+    { numero: 4, categoria: 'custodireto', entrega: null },
+    { numero: 5, categoria: 'custodireto', entrega: null },
+    { numero: 6, categoria: 'custodireto', entrega: null },
+    { numero: 7, categoria: 'custodireto', entrega: null },
+    { numero: 8, categoria: 'internogap', entrega: null },
+    { numero: 9, categoria: 'internogap', entrega: null },
+    { numero: 10, categoria: 'internogap', entrega: null },
+    { numero: 11, categoria: 'internogap', entrega: null },
+    { numero: 12, categoria: 'revisao', entrega: '17/03/2026' },
+    { numero: 13, categoria: 'revisao', entrega: '17/03/2026' },
+    { numero: 14, categoria: 'revisao', entrega: '07/04/2026' },
+    { numero: 15, categoria: 'revisao', entrega: '07/04/2026' },
+    { numero: 16, categoria: 'internogap', entrega: null },
+    { numero: 17, categoria: 'internogap', entrega: null },
+    { numero: 18, categoria: 'ok', entrega: '27/11/2025' },
+    { numero: 19, categoria: 'divergencia', entrega: '27/11/2025' },
+    { numero: 20, categoria: 'divergencia', entrega: '27/11/2025' },
+    { numero: 21, categoria: 'divergencia', entrega: '27/11/2025' },
+    { numero: 22, categoria: 'internogap', entrega: null },
+    { numero: 23, categoria: 'internogap', entrega: null },
+    { numero: 24, categoria: 'internogap', entrega: null },
+    { numero: 25, categoria: 'internogap', entrega: null },
+    { numero: 26, categoria: 'internogap', entrega: null },
+    { numero: 27, categoria: 'divergencia', entrega: '27/11/2025' },
+    { numero: 28, categoria: 'internogap', entrega: null },
+    { numero: 29, categoria: 'internogap', entrega: null },
+    { numero: 30, categoria: 'internogap', entrega: null },
+    { numero: 31, categoria: 'internogap', entrega: null },
+    { numero: 32, categoria: 'internogap', entrega: null },
+    { numero: 33, categoria: 'internogap', entrega: null },
+    { numero: 34, categoria: 'revisao', entrega: '17/03/2026' },
+    { numero: 35, categoria: 'internogap', entrega: null },
+    { numero: 36, categoria: 'revisao', entrega: '07/04/2026' },
+    { numero: 37, categoria: 'revisao', entrega: '12/01/2026' },
+    { numero: 38, categoria: 'internogap', entrega: null },
+    { numero: 39, categoria: 'internogap', entrega: null },
+    { numero: 40, categoria: 'internogap', entrega: null },
+    { numero: 41, categoria: 'internogap', entrega: null },
+    { numero: 42, categoria: 'internogap', entrega: null },
+    { numero: 43, categoria: 'internogap', entrega: null },
+    { numero: 44, categoria: 'internogap', entrega: null },
+    { numero: 45, categoria: 'internogap', entrega: null },
+    { numero: 46, categoria: 'internogap', entrega: null },
+    { numero: 47, categoria: 'internogap', entrega: null },
+    { numero: 48, categoria: 'custodireto', entrega: null },
+    { numero: 49, categoria: 'custodireto', entrega: null },
+    { numero: 50, categoria: 'custodireto', entrega: null },
+    { numero: 51, categoria: 'custodireto', entrega: null },
+    { numero: 52, categoria: 'custodireto', entrega: null },
+    { numero: 53, categoria: 'custodireto', entrega: null },
+    { numero: 54, categoria: 'custodireto', entrega: null },
+    { numero: 55, categoria: 'custodireto', entrega: null },
+    { numero: 56, categoria: 'custodireto', entrega: null },
+    { numero: 57, categoria: 'custodireto', entrega: null },
+    { numero: 58, categoria: 'custodireto', entrega: null },
+    { numero: 59, categoria: 'custodireto', entrega: null },
+    { numero: 60, categoria: 'custodireto', entrega: null },
+    { numero: 61, categoria: 'custodireto', entrega: null },
+    { numero: 62, categoria: 'custodireto', entrega: null },
+    { numero: 63, categoria: 'custodireto', entrega: null },
+    { numero: 64, categoria: 'custodireto', entrega: null },
+    { numero: 65, categoria: 'custodireto', entrega: null },
+  ];
+
+  entregaXMedidoCategorias = {
+    ok:          { rotulo: 'Sem divergência',              legenda: 'Entrega e medição estão alinhadas.',                                              corBg: '#eaf6ec', corTexto: '#2f8f4f', visivelCliente: true },
+    revisao:     { rotulo: 'Em ciclo de revisão',           legenda: 'Etapa de análise ainda em curso.',                                                corBg: '#fdf3e6', corTexto: '#b26a12', visivelCliente: true },
+    divergencia: { rotulo: 'Divergência a validar',         legenda: 'Registro de entrega e valor medido não coincidem.',                               corBg: '#fbe9e7', corTexto: '#b33a3a', visivelCliente: true },
+    custodireto: { rotulo: 'Custo direto — não se aplica',  legenda: 'Item de apoio ao projeto, sem estudo ou entrega técnica associada.',                corBg: '#eef1f4', corTexto: '#5b6774', visivelCliente: true },
+    internogap:  { rotulo: 'Sem correspondência interna',   legenda: 'Uso interno: registro de entrega não discrimina este item com precisão.',          corBg: '#eef1f4', corTexto: '#5b6774', visivelCliente: false },
+  };
+
+  // Quantidade EXECUTADA/necessária em campo (fonte: planilha Medições_DER.xlsx, abas ANDRÉ e
+  // FONTANA, projeto Rubim–Rio do Prado). Independente de qtdReal/qtdJaMedido de
+  // medicaoItemsData. Usada exclusivamente pela Projeção de Serviços.
+  servicosProjecaoQtdExecutadaData = {
+    17: 0, 18: 1, 19: 58.7, 20: 35, 21: 7, 22: 1, 23: 362.24, 24: 38,
+    25: 1, 26: 20.5, 27: 116.72, 38: 0, 39: 5, 46: 0, 47: 0,
+  };
+
+  buildEntregaXMedido() {
+    const clienteMode = !!this.props.isClienteMode;
+    const cats = this.entregaXMedidoCategorias;
+    let linhas = this.entregaXMedidoData.map(e => {
+      const item = this.medicaoItemsData.find(i => i.numero === e.numero);
+      if (!item) return null;
+      const ef = this.medicaoItemEfetivo(item);
+      const totalContrato = item.totalReal || item.totalContrato || 0;
+      const totalJaMedido = ef.totalJaMedido;
+      const cat = cats[e.categoria];
+      const key = 'entregaXMedido-' + e.numero;
+      return {
+        numero: e.numero,
+        descricao: item.descricao,
+        totalContratoFmt: this.fmtMoney(totalContrato),
+        totalJaMedidoFmt: this.fmtMoney(totalJaMedido),
+        saldo: totalContrato - totalJaMedido,
+        pct: ef.pct,
+        entrega: e.entrega || '—',
+        categoria: e.categoria,
+        situacaoLabel: cat.rotulo,
+        situacaoBg: cat.corBg,
+        situacaoTexto: cat.corTexto,
+        isOpen: !!this.state.expanded[key],
+        chevron: this.state.expanded[key] ? '−' : '+',
+        toggle: () => this.toggleCard(key),
+        projecaoServico: this.buildProjecaoServico(e.numero),
+      };
+    }).filter(Boolean);
+
+    if (clienteMode) {
+      linhas = linhas.filter(l => cats[l.categoria].visivelCliente);
+    }
+
+    const legenda = Object.keys(cats)
+      .filter(k => !clienteMode || cats[k].visivelCliente)
+      .map(k => ({ key: k, rotulo: cats[k].rotulo, legenda: cats[k].legenda, corBg: cats[k].corBg, corTexto: cats[k].corTexto }));
+
+    const saldoDivergencia = linhas
+      .filter(l => l.categoria === 'divergencia')
+      .reduce((acc, l) => acc + l.saldo, 0);
+
+    return {
+      aviso: 'Este painel cruza o histórico de envios registrados pela Consol com os valores medidos no contrato. Divergências podem ter causas diversas, como etapa de análise em andamento ou necessidade de atualização do registro, e não indicam, por si só, atraso de qualquer parte envolvida. Todo item aqui exige validação humana antes de qualquer conclusão.',
+      legenda,
+      linhas,
+      totalItens: linhas.length,
+      resumoLabel: 'Saldo agregado em itens sinalizados como divergência a validar',
+      resumoValor: this.fmtMoney(saldoDivergencia),
+      resumoNota: 'Valor de referência, sujeito a confirmação item a item. Não representa uma cobrança nem uma constatação definitiva.',
+    };
+  }
+
+  // Projeção por Serviços — mesma lógica/fórmulas do Araçuaí–Novo Cruzeiro. Cobre apenas os
+  // itens listados em servicosProjecaoQtdExecutadaData.
+  buildProjecaoServico(itemNumero) {
+    const qtdExecutada = this.servicosProjecaoQtdExecutadaData[itemNumero];
+    if (qtdExecutada === undefined) return { hasProjecao: false, hasAditar: false };
+    const item = this.medicaoItemsData.find(x => x.numero === itemNumero);
+    if (!item) return { hasProjecao: false, hasAditar: false };
+    const ef = this.medicaoItemEfetivo(item);
+    const qtdContratada = item.qtdContrato;
+    const valorContratado = item.totalReal || item.totalContrato || 0;
+    if (!qtdContratada || !valorContratado) return { hasProjecao: false, hasAditar: false };
+    const valorUnit = valorContratado / qtdContratada;
+    const valorProjetado = qtdExecutada * valorUnit;
+    const totalJaMedido = ef.totalJaMedido;
+    const saldoFinanceiro = Math.max(valorProjetado - totalJaMedido, 0);
+    const hasAditar = qtdExecutada > qtdContratada;
+    const unidade = item.unidade || '';
+    const fmtQ = (n) => {
+      const casas = (Math.round(n * 100) % 100 === 0) ? 0 : 2;
+      return n.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: 2 }) + ' ' + unidade;
+    };
+    const qtdContratadaFmt = fmtQ(qtdContratada);
+    const qtdExecutadaFmt = fmtQ(qtdExecutada);
+    const projKey = 'projServ-' + itemNumero;
+    const projecaoOpen = !!this.state.expanded[projKey];
+    const toggleProjecao = () => this.toggleCard(projKey);
+    let introTexto, saldoTexto;
+    if (hasAditar) {
+      const qtdExcedenteTxt = fmtQ(qtdExecutada - qtdContratada);
+      introTexto = 'O contrato previu ' + qtdContratadaFmt + ' para este serviço, mas em campo foram necessárias ' + qtdExecutadaFmt + ' — ' + qtdExcedenteTxt + ' a mais que o previsto. Por isso, o Valor Projetado abaixo já considera as ' + qtdExecutadaFmt + ' executadas, e não apenas ' + qtdContratadaFmt + ' do contrato original.';
+      saldoTexto = null;
+    } else {
+      introTexto = 'O contrato prevê ' + qtdContratadaFmt + ' para este serviço; em campo, foram necessárias ' + qtdExecutadaFmt + '. O Valor Projetado abaixo reflete essa quantidade realmente executada.';
+      saldoTexto = saldoFinanceiro > 0.005
+        ? 'O valor medido (' + this.fmtMoney(totalJaMedido) + ') ainda não alcançou o projetado — restam ' + this.fmtMoney(saldoFinanceiro) + ' a incluir em medições futuras, dentro do próprio limite contratual.'
+        : 'O valor medido (' + this.fmtMoney(totalJaMedido) + ') já corresponde ao projetado — nada pendente para este item.';
+    }
+    const resultado = {
+      hasProjecao: true,
+      introTexto,
+      saldoTexto,
+      valorContratadoFmt: this.fmtMoney(valorContratado),
+      qtdContratadaFmt,
+      qtdExecutadaFmt,
+      valorProjetadoFmt: this.fmtMoney(valorProjetado),
+      saldoFinanceiroFmt: this.fmtMoney(saldoFinanceiro),
+      saldoTemValor: saldoFinanceiro > 0.005,
+      projecaoOpen,
+      toggleProjecao,
+      hasAditar,
+      semAditar: !hasAditar,
+      saldoZerado: saldoFinanceiro <= 0.005,
+    };
+    if (hasAditar) {
+      const qtdExcedente = qtdExecutada - qtdContratada;
+      const valorExcedente = qtdExcedente * valorUnit;
+      const pctExcedente = (qtdExcedente / qtdContratada) * 100;
+      const aditKey = 'aditServ-' + itemNumero;
+      resultado.aditarOpen = !!this.state.expanded[aditKey];
+      resultado.toggleAditar = () => this.toggleCard(aditKey);
+      resultado.qtdExcedenteFmt = fmtQ(qtdExcedente);
+      resultado.valorExcedenteFmt = this.fmtMoney(valorExcedente);
+      resultado.pctExcedenteFmt = '+' + pctExcedente.toFixed(1).replace('.', ',') + '%';
+      resultado.aditarIntroTexto = 'A quantidade executada (' + qtdExecutadaFmt + ') ultrapassou a quantidade contratada (' + qtdContratadaFmt + ') em ' + resultado.qtdExcedenteFmt + '. Como o contrato atual só prevê recursos para ' + qtdContratadaFmt + ', essas ' + resultado.qtdExcedenteFmt + ' excedentes não podem ser medidas nem pagas com o valor já contratado — elas dependem da formalização de um termo aditivo, aplicando o mesmo valor unitário do contrato original.';
+      resultado.aditarCalcTexto = 'Cálculo: ' + resultado.qtdExcedenteFmt + ' × ' + this.fmtMoney(valorUnit) + '/' + unidade + ' (mesmo valor unitário do contrato) = ' + resultado.valorExcedenteFmt + '. Somando esse valor ao total já contratado (' + resultado.valorContratadoFmt + '), o valor total do item passa a ser ' + resultado.valorProjetadoFmt + ' — este é o Valor Projetado mostrado no card "Projeção".';
+    }
+    return resultado;
   }
 
   submitMedicaoPassword() {
@@ -6651,6 +6973,9 @@ class Component extends DCLogic {
       isMedicao: active === 'medicao',
       onGerarRelatorioMedicao: () => this.generateRelatorioMedicao(),
       medicaoLocked: !this.state.medicaoUnlocked && !this.props.isClienteMode,
+      showEntregaXMedido: !!this.state.showEntregaXMedido,
+      onToggleEntregaXMedido: () => this.setState({ showEntregaXMedido: !this.state.showEntregaXMedido }),
+      entregaXMedido: this.buildEntregaXMedido(),
       medicaoUnlocked: this.state.medicaoUnlocked || !!this.props.isClienteMode,
       medicaoPasswordDraft: this.state.medicaoPasswordDraft,
       showMedicaoPasswordError: this.state.medicaoPasswordError,
