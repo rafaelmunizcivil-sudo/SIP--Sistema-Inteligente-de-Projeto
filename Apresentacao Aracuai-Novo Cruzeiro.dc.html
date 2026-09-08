@@ -1728,13 +1728,95 @@
               </sc-for>
             </div>
 
-            <div style="font-size:13px;font-weight:700;color:#1f2933;margin:18px 0 8px;">Itens que exigem maior atenção</div>
-            <div style="background:#fbe9e7;border-radius:8px;padding:12px 16px;">
-              <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:6px;">
-                <span style="font-size:13px;color:#b33a3a;">{{ entregaXMedido.resumoLabel }}</span>
-                <span style="font-size:18px;font-weight:700;color:#b33a3a;">{{ entregaXMedido.resumoValor }}</span>
+            <div style="background:#f8f9fb;border:1px solid #eef1f4;border-radius:10px;padding:14px 18px;">
+              <div onClick="{{ entregaXMedido.tabelaToggle }}" style="cursor:pointer;display:flex;justify-content:space-between;align-items:baseline;gap:10px;">
+                <div>
+                  <div style="font-size:11px;color:#8a94a3;text-transform:uppercase;margin-bottom:4px;">{{ entregaXMedido.resumoLabel }}</div>
+                  <div style="font-size:20px;font-weight:700;color:#1f2933;margin-bottom:6px;">{{ entregaXMedido.resumoValor }}</div>
+                </div>
+                <span style="font-size:18px;font-weight:700;color:#8a94a3;width:16px;text-align:center;">{{ entregaXMedido.tabelaChevron }}</span>
               </div>
-              <div style="font-size:11px;color:#b33a3a;line-height:1.5;">{{ entregaXMedido.resumoNota }}</div>
+              <div style="font-size:11px;color:#8a94a3;line-height:1.5;text-align:justify;">{{ entregaXMedido.resumoNota }}</div>
+
+              <sc-if value="{{ entregaXMedido.tabelaOpen }}" hint-placeholder-val="{{ false }}">
+                <sc-if value="{{ entregaXMedido.hasDivergenciaTabela }}" hint-placeholder-val="{{ true }}">
+                  <div style="margin-top:14px;font-family:Arial,Helvetica,sans-serif;">
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;margin-bottom:12px;">
+                      <div style="background:#fff;border:1px solid #cfe3d6;border-radius:8px;padding:12px 14px;">
+                        <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.04em;color:#2f8f4f;margin-bottom:4px;">Já pago pelo DER</div>
+                        <div style="font-size:20px;font-weight:700;color:#2f8f4f;">{{ entregaXMedido.tabelaTotalPagoFmt }}</div>
+                      </div>
+                      <div style="background:#fff;border:1px solid #e6cccc;border-radius:8px;padding:12px 14px;">
+                        <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.04em;color:#a83232;margin-bottom:4px;">A receber</div>
+                        <div style="font-size:20px;font-weight:700;color:#a83232;">{{ entregaXMedido.tabelaTotalReceberFmt }}</div>
+                      </div>
+                    </div>
+                    <div style="overflow-x:auto;border-radius:8px;">
+                      <table style="width:100%;min-width:940px;border-collapse:collapse;font-size:11.5px;background:#fff;">
+                        <thead>
+                          <tr>
+                            <th rowspan="2" style="background:#1f2a37;color:#fff;padding:8px 6px;text-align:center;font-weight:700;white-space:nowrap;">Nº</th>
+                            <th rowspan="2" style="background:#1f2a37;color:#fff;padding:8px 10px;text-align:left;font-weight:700;">Item de Serviço</th>
+                            <th rowspan="2" style="background:#1f2a37;color:#fff;padding:8px 8px;text-align:center;font-weight:700;white-space:nowrap;">Entrega</th>
+                            <th colspan="3" style="background:#2b3a4a;color:#fff;padding:7px 8px;text-align:center;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;font-size:10.5px;">Contrato</th>
+                            <th colspan="4" style="background:#3d6f96;color:#fff;padding:7px 8px;text-align:center;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;font-size:10.5px;">Execução e Medição</th>
+                          </tr>
+                          <tr>
+                            <th style="background:#2b3a4a;color:#dbe4ec;padding:7px 8px;text-align:right;font-weight:600;white-space:nowrap;">Qtd.</th>
+                            <th style="background:#2b3a4a;color:#dbe4ec;padding:7px 8px;text-align:right;font-weight:600;white-space:nowrap;">V. Unit.</th>
+                            <th style="background:#2b3a4a;color:#dbe4ec;padding:7px 8px;text-align:right;font-weight:600;white-space:nowrap;">V. Total</th>
+                            <th style="background:#3d6f96;color:#eaf2f9;padding:7px 8px;text-align:right;font-weight:600;white-space:nowrap;">Qtd. Exec.</th>
+                            <th style="background:#3d6f96;color:#eaf2f9;padding:7px 8px;text-align:right;font-weight:600;white-space:nowrap;">Ref. Executado</th>
+                            <th style="background:#3d6f96;color:#eaf2f9;padding:7px 8px;text-align:right;font-weight:600;white-space:nowrap;">Pago (DER)</th>
+                            <th style="background:#3d6f96;color:#eaf2f9;padding:7px 8px;text-align:right;font-weight:600;white-space:nowrap;">A Receber</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <sc-for list="{{ entregaXMedido.divergenciaLinhas }}" as="d" hint-placeholder-count="5">
+                            <tr onClick="{{ d.toggle }}" style="cursor:pointer;background:{{ d.zebra }};border-bottom:1px solid #e6e9ed;">
+                              <td style="padding:8px 6px;text-align:center;font-weight:700;color:#1f2933;">{{ d.numero }}</td>
+                              <td style="padding:8px 10px;color:#1f2933;">{{ d.chevron }} {{ d.descricao }}</td>
+                              <td style="padding:8px 8px;text-align:center;color:#5b6774;white-space:nowrap;">{{ d.entrega }}</td>
+                              <td style="padding:8px 8px;text-align:right;color:#1f2933;white-space:nowrap;">{{ d.qtdContratoFmt }}</td>
+                              <td style="padding:8px 8px;text-align:right;color:#1f2933;white-space:nowrap;">{{ d.valorUnitFmt }}</td>
+                              <td style="padding:8px 8px;text-align:right;color:#1f2933;white-space:nowrap;">{{ d.valorContratoFmt }}</td>
+                              <td style="padding:8px 8px;text-align:right;background:#eaf2f9;color:#1f2933;white-space:nowrap;">{{ d.qtdExecFmt }}</td>
+                              <td style="padding:8px 8px;text-align:right;background:#eaf2f9;color:#1f2933;white-space:nowrap;">{{ d.refExecutadoFmt }}</td>
+                              <td style="padding:8px 8px;text-align:right;background:#eaf2f9;color:#1f2933;font-weight:600;white-space:nowrap;">{{ d.pagoFmt }}</td>
+                              <td style="padding:8px 8px;text-align:right;background:#eaf2f9;font-weight:700;white-space:nowrap;color:{{ d.aReceberCor }};">{{ d.aReceberFmt }}</td>
+                            </tr>
+                            <sc-if value="{{ d.isOpen }}" hint-placeholder-val="{{ false }}">
+                              <tr>
+                                <td colspan="10" style="padding:14px 16px;background:#fbfcfd;border-bottom:1px solid #e6e9ed;">
+                                  <div style="font-size:13px;font-weight:700;color:#1f2933;margin-bottom:10px;">Projeção — item {{ d.numero }}</div>
+                                  <div style="background:#f8f9fb;border-radius:8px;padding:12px 14px;margin-bottom:12px;">
+                                    <p style="font-size:12.5px;line-height:1.65;color:#5b6774;margin:0;text-align:justify;">{{ d.projecaoServico.introTexto }}</p>
+                                  </div>
+                                  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:8px;">
+                                    <div style="background:#f8f9fb;border-radius:8px;padding:12px;"><div style="font-size:11px;color:#8a94a3;text-transform:uppercase;margin-bottom:4px;">Valor contratado</div><div style="font-size:15px;font-weight:700;color:#1f2933;">{{ d.projecaoServico.valorContratadoFmt }}</div></div>
+                                    <div style="background:#f8f9fb;border-radius:8px;padding:12px;"><div style="font-size:11px;color:#8a94a3;text-transform:uppercase;margin-bottom:4px;">Qtd contratada</div><div style="font-size:15px;font-weight:700;color:#1f2933;">{{ d.projecaoServico.qtdContratadaFmt }}</div></div>
+                                    <div style="background:#f8f9fb;border-radius:8px;padding:12px;"><div style="font-size:11px;color:#8a94a3;text-transform:uppercase;margin-bottom:4px;">Qtd executada/Entregue</div><div style="font-size:15px;font-weight:700;color:#1f2933;">{{ d.projecaoServico.qtdExecutadaFmt }}</div></div>
+                                    <div style="background:#eaf2f9;border-radius:8px;padding:12px;"><div style="font-size:11px;color:#3d6f96;text-transform:uppercase;margin-bottom:4px;">Valor projetado</div><div style="font-size:15px;font-weight:700;color:#1f2933;">{{ d.projecaoServico.valorProjetadoFmt }}</div></div>
+                                    <div style="background:#f8f9fb;border-radius:8px;padding:12px;"><div style="font-size:11px;color:#8a94a3;text-transform:uppercase;margin-bottom:4px;">Saldo financeiro</div><div style="font-size:15px;font-weight:700;color:#1f2933;">{{ d.projecaoServico.saldoFinanceiroFmt }}</div></div>
+                                  </div>
+                                  <p style="font-size:11.5px;line-height:1.5;color:#8a94a3;margin:0;">{{ d.projecaoServico.saldoTexto }}</p>
+                                </td>
+                              </tr>
+                            </sc-if>
+                          </sc-for>
+                        </tbody>
+                        <tfoot>
+                          <tr>
+                            <td colspan="8" style="background:#1f2a37;color:#fff;padding:9px 10px;text-align:right;font-weight:700;letter-spacing:0.04em;">TOTAL</td>
+                            <td style="background:#1f2a37;color:#8fe0a8;padding:9px 8px;text-align:right;font-weight:700;white-space:nowrap;">{{ entregaXMedido.tabelaTotalPagoFmt }}</td>
+                            <td style="background:#1f2a37;color:#ffb3b3;padding:9px 8px;text-align:right;font-weight:700;white-space:nowrap;">{{ entregaXMedido.tabelaTotalReceberFmt }}</td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                  </div>
+                </sc-if>
+              </sc-if>
             </div>
 
           </div>
@@ -3777,17 +3859,70 @@ class Component extends DCLogic {
       .filter(k => !clienteMode || cats[k].visivelCliente)
       .map(k => ({ key: k, rotulo: cats[k].rotulo, legenda: cats[k].legenda, corBg: cats[k].corBg, corTexto: cats[k].corTexto }));
 
-    const saldoDivergencia = linhas
-      .filter(l => l.categoria === 'divergencia')
-      .reduce((acc, l) => acc + l.saldo, 0);
+    // Tabela detalhada (expansível) dentro do card de saldo agregado. Só entram itens
+    // 'divergencia' que JÁ tenham Projeção de Serviços configurada — itens de disciplina
+    // (12, 37, 42...) continuam só na lista principal. Exclusões permanentes: Estudos e
+    // Projetos Ambientais (medição só ao final do projeto) e item 38 (decisão de negócio).
+    const tabelaExcluidos = [38];
+    let totalPagoTab = 0, totalReceberTab = 0;
+    const divergenciaLinhas = linhas.filter(l =>
+      l.categoria === 'divergencia'
+      && l.projecaoServico && l.projecaoServico.hasProjecao
+      && tabelaExcluidos.indexOf(l.numero) === -1
+      && !/ambient/i.test(l.descricao || '')
+    ).map((l, idx) => {
+      const item = this.medicaoItemsData.find(i => i.numero === l.numero);
+      const ef = this.medicaoItemEfetivo(item);
+      const qtdContrato = item.qtdContrato;
+      const valorContrato = item.totalReal || item.totalContrato || 0;
+      const valorUnit = valorContrato / qtdContrato;
+      const qtdExec = this.servicosProjecaoQtdExecutadaData[l.numero];
+      const refExecutado = qtdExec * valorUnit;
+      const pago = ef.totalJaMedido;
+      const aReceber = Math.max(refExecutado - pago, 0);
+      totalPagoTab += pago;
+      totalReceberTab += aReceber;
+      const un = item.unidade || '';
+      const fq = (n) => n.toLocaleString('pt-BR', { minimumFractionDigits: (Math.round(n * 100) % 100 === 0) ? 0 : 2, maximumFractionDigits: 2 }) + ' ' + un;
+      const rowKey = 'divTab-' + l.numero;
+      return {
+        numero: l.numero,
+        descricao: item.descricao,
+        entrega: l.entrega,
+        qtdContratoFmt: fq(qtdContrato),
+        valorUnitFmt: this.fmtMoney(valorUnit),
+        valorContratoFmt: this.fmtMoney(valorContrato),
+        qtdExecFmt: fq(qtdExec),
+        refExecutadoFmt: this.fmtMoney(refExecutado),
+        pagoFmt: this.fmtMoney(pago),
+        aReceberFmt: this.fmtMoney(aReceber),
+        aReceberCor: aReceber > 0.005 ? '#a83232' : '#2f8f4f',
+        zebra: idx % 2 === 0 ? '#ffffff' : '#f4f5f7',
+        isOpen: !!this.state.expanded[rowKey],
+        chevron: this.state.expanded[rowKey] ? '\u2212' : '+',
+        toggle: () => this.toggleCard(rowKey),
+        projecaoServico: l.projecaoServico,
+      };
+    });
+    const tabKey = 'divTabelaSaldo';
 
     return {
+      divergenciaLinhas,
+      hasDivergenciaTabela: divergenciaLinhas.length > 0,
+      tabelaOpen: !!this.state.expanded[tabKey],
+      tabelaChevron: this.state.expanded[tabKey] ? '\u2212' : '+',
+      tabelaToggle: () => this.toggleCard(tabKey),
+      tabelaTotalPagoFmt: this.fmtMoney(totalPagoTab),
+      tabelaTotalReceberFmt: this.fmtMoney(totalReceberTab),
       aviso: 'Este painel cruza o histórico de envios registrados pela Consol com os valores medidos no contrato. Divergências podem ter causas diversas, como etapa de análise em andamento ou necessidade de atualização do registro, e não indicam, por si só, atraso de qualquer parte envolvida. Todo item aqui exige validação humana antes de qualquer conclusão.',
       legenda,
       linhas,
       totalItens: linhas.length,
       resumoLabel: 'Saldo agregado em itens sinalizados como divergência a validar',
-      resumoValor: this.fmtMoney(saldoDivergencia),
+      // Mesmo valor do rodapé "A Receber" da tabela detalhada (só os itens com Projeção
+      // configurada, sobre o Valor Projetado) — nunca a soma bruta de todos os itens
+      // 'divergencia', que não batia com o total mostrado dentro do card.
+      resumoValor: this.fmtMoney(totalReceberTab),
       resumoNota: 'Valor de referência, sujeito a confirmação item a item. Não representa uma cobrança nem uma constatação definitiva.',
     };
   }

@@ -1168,6 +1168,7 @@
                     <div style="font-size:11px;font-weight:700;color:#8a94a3;flex:0 0 auto;min-width:22px;">{{ r.numero }}.</div>
                     <div style="font-size:13.5px;font-weight:600;color:#1f2933;">{{ r.descricao }}</div>
                     <div style="font-size:10.5px;color:#8a94a3;background:#f4f6f8;border-radius:10px;padding:2px 8px;white-space:nowrap;">{{ r.unidade }}</div>
+                    <div style="font-size:10.5px;color:#8a94a3;background:#f4f6f8;border-radius:10px;padding:2px 8px;white-space:nowrap;">P0: Junho/2022</div>
                   </div>
                   <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
                     <div style="text-align:right;">
@@ -1272,6 +1273,7 @@
                     <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:220px;">
                       <div style="font-size:11px;font-weight:700;color:#8a94a3;flex:0 0 auto;min-width:22px;">{{ lx.numero }}.</div>
                       <div style="font-size:13.5px;font-weight:600;color:#1f2933;">{{ lx.descricao }}</div>
+                      <div style="font-size:10.5px;color:#8a94a3;background:#f4f6f8;border-radius:10px;padding:2px 8px;white-space:nowrap;">P0: Junho/2022</div>
                     </div>
                     <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
                       <span style="display:inline-block;background:{{ lx.situacaoBg }};color:{{ lx.situacaoTexto }};font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;white-space:nowrap;">{{ lx.situacaoLabel }}</span>
@@ -1346,9 +1348,107 @@
             </div>
 
             <div style="margin-top:16px;background:#f8f9fb;border:1px solid #eef1f4;border-radius:10px;padding:14px 18px;">
-              <div style="font-size:11px;color:#8a94a3;text-transform:uppercase;margin-bottom:4px;">{{ entregaXMedido.resumoLabel }}</div>
-              <div style="font-size:20px;font-weight:700;color:#1f2933;margin-bottom:6px;">{{ entregaXMedido.resumoValor }}</div>
+              <div onClick="{{ entregaXMedido.tabelaToggle }}" style="cursor:pointer;display:flex;justify-content:space-between;align-items:baseline;gap:10px;">
+                <div>
+                  <div style="font-size:11px;color:#8a94a3;text-transform:uppercase;margin-bottom:4px;">{{ entregaXMedido.resumoLabel }}</div>
+                  <div style="font-size:20px;font-weight:700;color:#1f2933;margin-bottom:6px;">{{ entregaXMedido.resumoValor }}</div>
+                </div>
+                <span style="font-size:18px;font-weight:700;color:#8a94a3;width:16px;text-align:center;">{{ entregaXMedido.tabelaChevron }}</span>
+              </div>
               <div style="font-size:11px;color:#8a94a3;line-height:1.5;text-align:justify;">{{ entregaXMedido.resumoNota }}</div>
+
+              <sc-if value="{{ entregaXMedido.tabelaOpen }}" hint-placeholder-val="{{ false }}">
+                <sc-if value="{{ entregaXMedido.hasDivergenciaTabela }}" hint-placeholder-val="{{ true }}">
+                  <div style="margin-top:14px;font-family:Arial,Helvetica,sans-serif;">
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-bottom:12px;">
+                      <div style="background:#fff;border:1px solid #cfe3d6;border-radius:8px;padding:12px 14px;">
+                        <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.04em;color:#2f8f4f;margin-bottom:4px;">Já pago pelo DER</div>
+                        <div style="font-size:20px;font-weight:700;color:#2f8f4f;">{{ entregaXMedido.tabelaTotalPagoFmt }}</div>
+                      </div>
+                      <div style="background:#fff;border:1px solid #e6cccc;border-radius:8px;padding:12px 14px;">
+                        <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.04em;color:#a83232;margin-bottom:4px;">A receber</div>
+                        <div style="font-size:20px;font-weight:700;color:#a83232;">{{ entregaXMedido.tabelaTotalReceberFmt }}</div>
+                      </div>
+                      <div style="background:#fff;border:1px solid #e2d0b0;border-radius:8px;padding:12px 14px;">
+                        <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.04em;color:#8a5a12;margin-bottom:4px;">A aditar</div>
+                        <div style="font-size:20px;font-weight:700;color:#8a5a12;">{{ entregaXMedido.tabelaTotalAditarFmt }}</div>
+                      </div>
+                    </div>
+                    <div style="overflow-x:auto;border-radius:8px;">
+                      <table style="width:100%;min-width:1040px;border-collapse:collapse;font-size:11.5px;background:#fff;">
+                        <thead>
+                          <tr>
+                            <th rowspan="2" style="background:#1f2a37;color:#fff;padding:8px 6px;text-align:center;font-weight:700;white-space:nowrap;">Nº</th>
+                            <th rowspan="2" style="background:#1f2a37;color:#fff;padding:8px 10px;text-align:left;font-weight:700;">Item de Serviço</th>
+                            <th rowspan="2" style="background:#1f2a37;color:#fff;padding:8px 8px;text-align:center;font-weight:700;white-space:nowrap;">Entrega</th>
+                            <th colspan="3" style="background:#2b3a4a;color:#fff;padding:7px 8px;text-align:center;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;font-size:10.5px;">Contrato</th>
+                            <th colspan="4" style="background:#3d6f96;color:#fff;padding:7px 8px;text-align:center;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;font-size:10.5px;">Execução e Medição</th>
+                            <th style="background:#5c4318;color:#fff;padding:7px 8px;text-align:center;font-weight:700;letter-spacing:0.05em;text-transform:uppercase;font-size:10.5px;">Aditivo</th>
+                          </tr>
+                          <tr>
+                            <th style="background:#2b3a4a;color:#dbe4ec;padding:7px 8px;text-align:right;font-weight:600;white-space:nowrap;">Qtd.</th>
+                            <th style="background:#2b3a4a;color:#dbe4ec;padding:7px 8px;text-align:right;font-weight:600;white-space:nowrap;">V. Unit.</th>
+                            <th style="background:#2b3a4a;color:#dbe4ec;padding:7px 8px;text-align:right;font-weight:600;white-space:nowrap;">V. Total</th>
+                            <th style="background:#3d6f96;color:#eaf2f9;padding:7px 8px;text-align:right;font-weight:600;white-space:nowrap;">Qtd. Exec.</th>
+                            <th style="background:#3d6f96;color:#eaf2f9;padding:7px 8px;text-align:right;font-weight:600;white-space:nowrap;">Ref. Executado</th>
+                            <th style="background:#3d6f96;color:#eaf2f9;padding:7px 8px;text-align:right;font-weight:600;white-space:nowrap;">Pago (DER)</th>
+                            <th style="background:#3d6f96;color:#eaf2f9;padding:7px 8px;text-align:right;font-weight:600;white-space:nowrap;">A Receber</th>
+                            <th style="background:#5c4318;color:#f0dcc0;padding:7px 8px;text-align:right;font-weight:600;white-space:nowrap;">A Aditar</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <sc-for list="{{ entregaXMedido.divergenciaLinhas }}" as="d" hint-placeholder-count="7">
+                            <tr onClick="{{ d.toggle }}" style="cursor:pointer;background:{{ d.zebra }};border-bottom:1px solid #e6e9ed;">
+                              <td style="padding:8px 6px;text-align:center;font-weight:700;color:#1f2933;">{{ d.numero }}</td>
+                              <td style="padding:8px 10px;color:#1f2933;">{{ d.chevron }} {{ d.descricao }}</td>
+                              <td style="padding:8px 8px;text-align:center;color:#5b6774;white-space:nowrap;">{{ d.entrega }}</td>
+                              <td style="padding:8px 8px;text-align:right;color:#1f2933;white-space:nowrap;">{{ d.qtdContratoFmt }}</td>
+                              <td style="padding:8px 8px;text-align:right;color:#1f2933;white-space:nowrap;">{{ d.valorUnitFmt }}</td>
+                              <td style="padding:8px 8px;text-align:right;color:#1f2933;white-space:nowrap;">{{ d.valorContratoFmt }}</td>
+                              <td style="padding:8px 8px;text-align:right;background:#eaf2f9;color:#1f2933;white-space:nowrap;">{{ d.qtdExecFmt }}</td>
+                              <td style="padding:8px 8px;text-align:right;background:#eaf2f9;color:#1f2933;white-space:nowrap;">{{ d.refExecutadoFmt }}</td>
+                              <td style="padding:8px 8px;text-align:right;background:#eaf2f9;color:#1f2933;font-weight:600;white-space:nowrap;">{{ d.pagoFmt }}</td>
+                              <td style="padding:8px 8px;text-align:right;background:#eaf2f9;font-weight:700;white-space:nowrap;color:{{ d.aReceberCor }};">{{ d.aReceberFmt }}</td>
+                              <td style="padding:8px 8px;text-align:right;background:#faf4e9;font-weight:700;white-space:nowrap;color:#8a5a12;">{{ d.aAditarFmt }}</td>
+                            </tr>
+                            <sc-if value="{{ d.isOpen }}" hint-placeholder-val="{{ false }}">
+                              <tr>
+                                <td colspan="11" style="padding:14px 16px;background:#fbfcfd;border-bottom:1px solid #e6e9ed;">
+                                  <div style="font-size:13px;font-weight:700;color:#1f2933;margin-bottom:10px;">Projeção — item {{ d.numero }}</div>
+                                  <div style="background:#f8f9fb;border-radius:8px;padding:12px 14px;margin-bottom:12px;">
+                                    <p style="font-size:12.5px;line-height:1.65;color:#5b6774;margin:0;text-align:justify;">{{ d.projecaoServico.introTexto }}</p>
+                                  </div>
+                                  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:8px;margin-bottom:8px;">
+                                    <div style="background:#f8f9fb;border-radius:8px;padding:12px;"><div style="font-size:11px;color:#8a94a3;text-transform:uppercase;margin-bottom:4px;">Valor contratado</div><div style="font-size:15px;font-weight:700;color:#1f2933;">{{ d.projecaoServico.valorContratadoFmt }}</div></div>
+                                    <div style="background:#f8f9fb;border-radius:8px;padding:12px;"><div style="font-size:11px;color:#8a94a3;text-transform:uppercase;margin-bottom:4px;">Qtd contratada</div><div style="font-size:15px;font-weight:700;color:#1f2933;">{{ d.projecaoServico.qtdContratadaFmt }}</div></div>
+                                    <div style="background:#f8f9fb;border-radius:8px;padding:12px;"><div style="font-size:11px;color:#8a94a3;text-transform:uppercase;margin-bottom:4px;">Qtd executada/Entregue</div><div style="font-size:15px;font-weight:700;color:#1f2933;">{{ d.projecaoServico.qtdExecutadaFmt }}</div></div>
+                                    <div style="background:#eaf2f9;border-radius:8px;padding:12px;"><div style="font-size:11px;color:#3d6f96;text-transform:uppercase;margin-bottom:4px;">Valor projetado</div><div style="font-size:15px;font-weight:700;color:#1f2933;">{{ d.projecaoServico.valorProjetadoFmt }}</div></div>
+                                    <div style="background:#f8f9fb;border-radius:8px;padding:12px;"><div style="font-size:11px;color:#8a94a3;text-transform:uppercase;margin-bottom:4px;">Saldo financeiro</div><div style="font-size:15px;font-weight:700;color:#1f2933;">{{ d.projecaoServico.saldoFinanceiroFmt }}</div></div>
+                                  </div>
+                                  <sc-if value="{{ d.projecaoServico.semAditar }}" hint-placeholder-val="{{ true }}">
+                                    <p style="font-size:11.5px;line-height:1.5;color:#8a94a3;margin:0;">{{ d.projecaoServico.saldoTexto }}</p>
+                                  </sc-if>
+                                  <sc-if value="{{ d.projecaoServico.hasAditar }}" hint-placeholder-val="{{ false }}">
+                                    <p style="font-size:11.5px;line-height:1.55;color:#8a5a12;margin:0;text-align:justify;">{{ d.projecaoServico.aditarCalcTexto }}</p>
+                                  </sc-if>
+                                </td>
+                              </tr>
+                            </sc-if>
+                          </sc-for>
+                        </tbody>
+                        <tfoot>
+                          <tr>
+                            <td colspan="8" style="background:#1f2a37;color:#fff;padding:9px 10px;text-align:right;font-weight:700;letter-spacing:0.04em;">TOTAL</td>
+                            <td style="background:#1f2a37;color:#8fe0a8;padding:9px 8px;text-align:right;font-weight:700;white-space:nowrap;">{{ entregaXMedido.tabelaTotalPagoFmt }}</td>
+                            <td style="background:#1f2a37;color:#ffb3b3;padding:9px 8px;text-align:right;font-weight:700;white-space:nowrap;">{{ entregaXMedido.tabelaTotalReceberFmt }}</td>
+                            <td style="background:#5c4318;color:#f0dcc0;padding:9px 8px;text-align:right;font-weight:700;white-space:nowrap;">{{ entregaXMedido.tabelaTotalAditarFmt }}</td>
+                          </tr>
+                        </tfoot>
+                      </table>
+                    </div>
+                  </div>
+                </sc-if>
+              </sc-if>
             </div>
           </div>
         </sc-if>
@@ -2729,13 +2829,10 @@ class Component extends DCLogic {
     }
   }
 
-  // "Entregue x medido" — mesma estrutura já usada no Araçuaí–Novo Cruzeiro. Classificação
-  // definida com o usuário em 06/09/2026: itens sem análise real registrada (35 Terraplenagem,
-  // 8 e 41 Segurança Viária) entram como 'internogap', nunca como 'revisao'.
-  // Datas de 'revisao' = recebido da análise mais recente da disciplina correspondente
-  // (Geometria 17/03/2026 → 12/13/34; Hidrologia/Drenagem 07/04/2026 → 14/15/36;
-  // Pavimentação 12/01/2026 → 37). Sondagens (18-21, 27) = 27/11/2025, mesma referência da
-  // planilha Medições_DER.xlsx.
+  // "Entregue x medido" — mesma estrutura já usada no Araçuaí–Novo Cruzeiro, mas a
+  // classificação abaixo vem do LEDGER REAL DE MEDIÇÃO DO RUBIM (revisão do usuário em
+  // 06/09/2026), nunca herdada do Araçuaí. Datas parciais no formato '/MM/AAAA' são
+  // intencionais: o ledger registra só mês/ano nesses itens — não completar o dia.
   entregaXMedidoData = [
     { numero: 1, categoria: 'custodireto', entrega: null },
     { numero: 2, categoria: 'custodireto', entrega: null },
@@ -2744,26 +2841,26 @@ class Component extends DCLogic {
     { numero: 5, categoria: 'custodireto', entrega: null },
     { numero: 6, categoria: 'custodireto', entrega: null },
     { numero: 7, categoria: 'custodireto', entrega: null },
-    { numero: 8, categoria: 'internogap', entrega: null },
-    { numero: 9, categoria: 'internogap', entrega: null },
-    { numero: 10, categoria: 'internogap', entrega: null },
-    { numero: 11, categoria: 'internogap', entrega: null },
-    { numero: 12, categoria: 'revisao', entrega: '17/03/2026' },
-    { numero: 13, categoria: 'revisao', entrega: '17/03/2026' },
+    { numero: 8, categoria: 'ok', entrega: '07/2025' },
+    { numero: 9, categoria: 'ok', entrega: '02/2024' },
+    { numero: 10, categoria: 'ok', entrega: '02/2024' },
+    { numero: 11, categoria: 'ok', entrega: '05/2024' },
+    { numero: 12, categoria: 'ok', entrega: '12/2024' },
+    { numero: 13, categoria: 'revisao', entrega: null },
     { numero: 14, categoria: 'revisao', entrega: '07/04/2026' },
     { numero: 15, categoria: 'revisao', entrega: '07/04/2026' },
-    { numero: 16, categoria: 'internogap', entrega: null },
+    { numero: 16, categoria: 'revisao', entrega: null },
     { numero: 17, categoria: 'internogap', entrega: null },
-    { numero: 18, categoria: 'ok', entrega: '27/11/2025' },
+    { numero: 18, categoria: 'divergencia', entrega: '27/11/2025' },
     { numero: 19, categoria: 'divergencia', entrega: '27/11/2025' },
     { numero: 20, categoria: 'divergencia', entrega: '27/11/2025' },
     { numero: 21, categoria: 'divergencia', entrega: '27/11/2025' },
-    { numero: 22, categoria: 'internogap', entrega: null },
-    { numero: 23, categoria: 'internogap', entrega: null },
-    { numero: 24, categoria: 'internogap', entrega: null },
-    { numero: 25, categoria: 'internogap', entrega: null },
-    { numero: 26, categoria: 'internogap', entrega: null },
-    { numero: 27, categoria: 'divergencia', entrega: '27/11/2025' },
+    { numero: 22, categoria: 'ok', entrega: '12/2025' },
+    { numero: 23, categoria: 'ok', entrega: '12/2025' },
+    { numero: 24, categoria: 'ok', entrega: '12/2025' },
+    { numero: 25, categoria: 'divergencia', entrega: '27/11/2025' },
+    { numero: 26, categoria: 'divergencia', entrega: '27/11/2025' },
+    { numero: 27, categoria: 'ok', entrega: '09/2025' },
     { numero: 28, categoria: 'internogap', entrega: null },
     { numero: 29, categoria: 'internogap', entrega: null },
     { numero: 30, categoria: 'internogap', entrega: null },
@@ -2771,17 +2868,17 @@ class Component extends DCLogic {
     { numero: 32, categoria: 'internogap', entrega: null },
     { numero: 33, categoria: 'internogap', entrega: null },
     { numero: 34, categoria: 'revisao', entrega: '17/03/2026' },
-    { numero: 35, categoria: 'internogap', entrega: null },
+    { numero: 35, categoria: 'revisao', entrega: null },
     { numero: 36, categoria: 'revisao', entrega: '07/04/2026' },
     { numero: 37, categoria: 'revisao', entrega: '12/01/2026' },
     { numero: 38, categoria: 'internogap', entrega: null },
-    { numero: 39, categoria: 'internogap', entrega: null },
-    { numero: 40, categoria: 'internogap', entrega: null },
-    { numero: 41, categoria: 'internogap', entrega: null },
+    { numero: 39, categoria: 'divergencia', entrega: '27/11/2025' },
+    { numero: 40, categoria: 'revisao', entrega: null },
+    { numero: 41, categoria: 'revisao', entrega: '28/11/2025' },
     { numero: 42, categoria: 'internogap', entrega: null },
     { numero: 43, categoria: 'internogap', entrega: null },
     { numero: 44, categoria: 'internogap', entrega: null },
-    { numero: 45, categoria: 'internogap', entrega: null },
+    { numero: 45, categoria: 'revisao', entrega: null },
     { numero: 46, categoria: 'internogap', entrega: null },
     { numero: 47, categoria: 'internogap', entrega: null },
     { numero: 48, categoria: 'custodireto', entrega: null },
@@ -2862,7 +2959,63 @@ class Component extends DCLogic {
       .filter(l => l.categoria === 'divergencia')
       .reduce((acc, l) => acc + l.saldo, 0);
 
+    // Tabela detalhada (expansível) dentro do card de saldo agregado — mesma estrutura do
+    // Araçuaí, com o grupo extra "Aditivo". Só entram itens 'divergencia' que JÁ tenham
+    // Projeção de Serviços configurada. Exclusões permanentes: Estudos e Projetos Ambientais
+    // (medição só ao final do projeto) e Projeto de Drenagem (decisão de negócio).
+    let totalPagoTab = 0, totalReceberTab = 0, totalAditarTab = 0;
+    const divergenciaLinhas = linhas.filter(l =>
+      l.categoria === 'divergencia'
+      && l.projecaoServico && l.projecaoServico.hasProjecao
+      && !/ambient|drenagem/i.test(l.descricao || '')
+    ).map((l, idx) => {
+      const item = this.medicaoItemsData.find(i => i.numero === l.numero);
+      const ef = this.medicaoItemEfetivo(item);
+      const qtdContrato = item.qtdContrato;
+      const valorContrato = item.totalReal || item.totalContrato || 0;
+      const valorUnit = valorContrato / qtdContrato;
+      const qtdExec = this.servicosProjecaoQtdExecutadaData[l.numero];
+      const refExecutado = qtdExec * valorUnit;
+      const pago = ef.totalJaMedido;
+      const aReceber = Math.max(refExecutado - pago, 0);
+      const aAditar = qtdExec > qtdContrato ? (qtdExec - qtdContrato) * valorUnit : 0;
+      totalPagoTab += pago;
+      totalReceberTab += aReceber;
+      totalAditarTab += aAditar;
+      const un = item.unidade || '';
+      const fq = (n) => n.toLocaleString('pt-BR', { minimumFractionDigits: (Math.round(n * 100) % 100 === 0) ? 0 : 2, maximumFractionDigits: 2 }) + ' ' + un;
+      const rowKey = 'divTab-' + l.numero;
+      return {
+        numero: l.numero,
+        descricao: item.descricao,
+        entrega: l.entrega,
+        qtdContratoFmt: fq(qtdContrato),
+        valorUnitFmt: this.fmtMoney(valorUnit),
+        valorContratoFmt: this.fmtMoney(valorContrato),
+        qtdExecFmt: fq(qtdExec),
+        refExecutadoFmt: this.fmtMoney(refExecutado),
+        pagoFmt: this.fmtMoney(pago),
+        aReceberFmt: this.fmtMoney(aReceber),
+        aReceberCor: aReceber > 0.005 ? '#a83232' : '#2f8f4f',
+        aAditarFmt: aAditar > 0.005 ? this.fmtMoney(aAditar) : '—',
+        zebra: idx % 2 === 0 ? '#ffffff' : '#f4f5f7',
+        isOpen: !!this.state.expanded[rowKey],
+        chevron: this.state.expanded[rowKey] ? '\u2212' : '+',
+        toggle: () => this.toggleCard(rowKey),
+        projecaoServico: l.projecaoServico,
+      };
+    });
+    const tabKey = 'divTabelaSaldo';
+
     return {
+      divergenciaLinhas,
+      hasDivergenciaTabela: divergenciaLinhas.length > 0,
+      tabelaOpen: !!this.state.expanded[tabKey],
+      tabelaChevron: this.state.expanded[tabKey] ? '\u2212' : '+',
+      tabelaToggle: () => this.toggleCard(tabKey),
+      tabelaTotalPagoFmt: this.fmtMoney(totalPagoTab),
+      tabelaTotalReceberFmt: this.fmtMoney(totalReceberTab),
+      tabelaTotalAditarFmt: this.fmtMoney(totalAditarTab),
       aviso: 'Este painel cruza o histórico de envios registrados pela Consol com os valores medidos no contrato. Divergências podem ter causas diversas, como etapa de análise em andamento ou necessidade de atualização do registro, e não indicam, por si só, atraso de qualquer parte envolvida. Todo item aqui exige validação humana antes de qualquer conclusão.',
       legenda,
       linhas,
