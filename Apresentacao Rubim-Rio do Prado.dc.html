@@ -2955,10 +2955,6 @@ class Component extends DCLogic {
       .filter(k => !clienteMode || cats[k].visivelCliente)
       .map(k => ({ key: k, rotulo: cats[k].rotulo, legenda: cats[k].legenda, corBg: cats[k].corBg, corTexto: cats[k].corTexto }));
 
-    const saldoDivergencia = linhas
-      .filter(l => l.categoria === 'divergencia')
-      .reduce((acc, l) => acc + l.saldo, 0);
-
     // Tabela detalhada (expansível) dentro do card de saldo agregado — mesma estrutura do
     // Araçuaí, com o grupo extra "Aditivo". Só entram itens 'divergencia' que JÁ tenham
     // Projeção de Serviços configurada. Exclusões permanentes: Estudos e Projetos Ambientais
@@ -3021,7 +3017,10 @@ class Component extends DCLogic {
       linhas,
       totalItens: linhas.length,
       resumoLabel: 'Saldo agregado em itens sinalizados como divergência a validar',
-      resumoValor: this.fmtMoney(saldoDivergencia),
+      // Mesmo valor do rodapé "A Receber" da tabela detalhada (só os itens com Projeção
+      // configurada, sobre o Valor Projetado) — nunca a soma bruta de todos os itens
+      // 'divergencia', que não batia com o total mostrado dentro do card.
+      resumoValor: this.fmtMoney(totalReceberTab),
       resumoNota: 'Valor de referência, sujeito a confirmação item a item. Não representa uma cobrança nem uma constatação definitiva.',
     };
   }
