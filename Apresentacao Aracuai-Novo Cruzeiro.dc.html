@@ -3082,13 +3082,52 @@ class Component extends DCLogic {
 
   mapFrameRef = { current: null };
   setMapFrameRef = (el) => { this.mapFrameRef.current = el; if (el) el.srcdoc = this.mapaRegionalHtml; };
-  mapaRegionalHtml = "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"utf-8\">\n<link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.9.4/dist/leaflet.css\" integrity=\"sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H\" crossorigin=\"anonymous\">\n<script src=\"https://unpkg.com/leaflet@1.9.4/dist/leaflet.js\" integrity=\"sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH\" crossorigin=\"anonymous\"><\/script>\n<style>\n  html, body { margin: 0; height: 100%; }\n  #map { width: 100%; height: 100%; }\n  .city-label { font-family: sans-serif; font-size: 13px; font-weight: 700; color: #1f3a5f; text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff; white-space: nowrap; }\n  .route-label { font-family: sans-serif; font-size: 12px; font-weight: 700; color: #8a5a1a; text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff; white-space: nowrap; }\n</style>\n</head>\n<body>\n<div id=\"map\"></div>\n<script>\n  var aracuai = [-16.8508, -42.0664];\n  var novoCruzeiro = [-17.4667, -41.9333];\n\n  var map = L.map('map', { zoomControl: true, attributionControl: true });\n  L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {\n    attribution: '&copy; OpenStreetMap contributors',\n    maxZoom: 19\n  }).addTo(map);\n\n  var bounds = L.latLngBounds([aracuai, novoCruzeiro]);\n  map.fitBounds(bounds, { padding: [60, 60] });\n\n  function drawStraightFallback() {\n    L.polyline([aracuai, novoCruzeiro], { color: '#e8a33d', weight: 5, opacity: 0.9 }).addTo(map);\n  }\n\n  fetch('https://router.project-osrm.org/route/v1/driving/' + aracuai[1] + ',' + aracuai[0] + ';' + novoCruzeiro[1] + ',' + novoCruzeiro[0] + '?overview=full&geometries=geojson')\n    .then(function (r) { return r.json(); })\n    .then(function (data) {\n      if (data.routes && data.routes[0]) {\n        var coords = data.routes[0].geometry.coordinates.map(function (c) { return [c[1], c[0]]; });\n        var line = L.polyline(coords, { color: '#e8a33d', weight: 5, opacity: 0.9 }).addTo(map);\n        map.fitBounds(line.getBounds(), { padding: [60, 60] });\n      } else {\n        drawStraightFallback();\n      }\n    })\n    .catch(function (e) {\n      console.error('Falha na rota OSRM', e);\n      drawStraightFallback();\n    });\n\n  function cityMarker(latlng, name, offsetClass) {\n    L.circleMarker(latlng, { radius: 7, color: '#fff', weight: 2, fillColor: '#1f3a5f', fillOpacity: 1 }).addTo(map);\n    L.marker(latlng, {\n      icon: L.divIcon({ className: '', html: '<div class=\"city-label\" style=\"transform:translate(' + offsetClass + ');\">' + name + '</div>', iconSize: [0, 0] })\n    }).addTo(map);\n  }\n  cityMarker(aracuai, 'Araçuaí', '-100%,-140%');\n  cityMarker(novoCruzeiro, 'Novo Cruzeiro', '10px,-40%');\n\n  var mid = [(aracuai[0] + novoCruzeiro[0]) / 2, (aracuai[1] + novoCruzeiro[1]) / 2];\n  L.marker(mid, {\n    icon: L.divIcon({ className: '', html: '<div class=\"route-label\">LMG-678</div>', iconSize: [0, 0] })\n  }).addTo(map);\n<\/script>\n</body>\n</html>\n";
+  mapaRegionalHtml = "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"utf-8\">\n<link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.9.4/dist/leaflet.css\" integrity=\"sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H\" crossorigin=\"anonymous\">\n<script src=\"https://unpkg.com/leaflet@1.9.4/dist/leaflet.js\" integrity=\"sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH\" crossorigin=\"anonymous\"><\/script>\n<style>\n  html, body { margin: 0; height: 100%; }\n  #map { width: 100%; height: 100%; }\n  .city-label { font-family: sans-serif; font-size: 13px; font-weight: 700; color: #1f3a5f; text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff; white-space: nowrap; }\n  .route-label { font-family: sans-serif; font-size: 12px; font-weight: 700; color: #8a5a1a; text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff; white-space: nowrap; }\n</style>\n</head>\n<body>\n<div id=\"map\"></div>\n<script>\n  var aracuai = [-16.8508, -42.0664];\n  var novoCruzeiro = [-17.4667, -41.9333];\n\n  var map = L.map('map', { zoomControl: true, attributionControl: true });\n  L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {\n    attribution: '&copy; OpenStreetMap contributors',\n    maxZoom: 19,\n    subdomains: 'abc'\n  }).addTo(map);\n\n  var bounds = L.latLngBounds([aracuai, novoCruzeiro]);\n  map.fitBounds(bounds, { padding: [60, 60] });\n\n  function drawStraightFallback() {\n    L.polyline([aracuai, novoCruzeiro], { color: '#e8a33d', weight: 5, opacity: 0.9 }).addTo(map);\n  }\n\n  fetch('https://router.project-osrm.org/route/v1/driving/' + aracuai[1] + ',' + aracuai[0] + ';' + novoCruzeiro[1] + ',' + novoCruzeiro[0] + '?overview=full&geometries=geojson')\n    .then(function (r) { return r.json(); })\n    .then(function (data) {\n      if (data.routes && data.routes[0]) {\n        var coords = data.routes[0].geometry.coordinates.map(function (c) { return [c[1], c[0]]; });\n        var line = L.polyline(coords, { color: '#e8a33d', weight: 5, opacity: 0.9 }).addTo(map);\n        map.fitBounds(line.getBounds(), { padding: [60, 60] });\n      } else {\n        drawStraightFallback();\n      }\n    })\n    .catch(function (e) {\n      console.error('Falha na rota OSRM', e);\n      drawStraightFallback();\n    });\n\n  function cityMarker(latlng, name, offsetClass) {\n    L.circleMarker(latlng, { radius: 7, color: '#fff', weight: 2, fillColor: '#1f3a5f', fillOpacity: 1 }).addTo(map);\n    L.marker(latlng, {\n      icon: L.divIcon({ className: '', html: '<div class=\"city-label\" style=\"transform:translate(' + offsetClass + ');\">' + name + '</div>', iconSize: [0, 0] })\n    }).addTo(map);\n  }\n  cityMarker(aracuai, 'Araçuaí', '-100%,-140%');\n  cityMarker(novoCruzeiro, 'Novo Cruzeiro', '10px,-40%');\n\n  var mid = [(aracuai[0] + novoCruzeiro[0]) / 2, (aracuai[1] + novoCruzeiro[1]) / 2];\n  L.marker(mid, {\n    icon: L.divIcon({ className: '', html: '<div class=\"route-label\">LMG-678</div>', iconSize: [0, 0] })\n  }).addTo(map);\n<\/script>\n</body>\n</html>\n";
+
+  montarAnalisesParaSync() {
+    const paraArray = (meta) => Object.keys(meta || {}).map(n => ({
+      numero: Number(n), recebido: meta[n].recebido, concluido: meta[n].concluido,
+    }));
+    const paraArrayComParte = (metaPorParte) => {
+      const out = [];
+      for (const parte of Object.keys(metaPorParte || {})) {
+        for (const n of Object.keys(metaPorParte[parte] || {})) {
+          out.push({ lote: parte, numero: Number(n), recebido: metaPorParte[parte][n].recebido, concluido: metaPorParte[parte][n].concluido });
+        }
+      }
+      return out;
+    };
+    return {
+      geometria: paraArray(this.geoAnaliseMeta),
+      sinalizacao: paraArray(this.sinalAnaliseMeta),
+      pavimentacao: paraArrayComParte(this.pavAnaliseMeta),
+      intersecao: paraArrayComParte(this.intersecaoAnaliseMeta),
+      terraplenagem: paraArrayComParte(this.terraGeoAnaliseMeta),
+    };
+  }
+
+  syncAnalisesParaFirestore(attempt) {
+    const a = attempt || 0;
+    if (!window.firebase || !firebase.firestore || !firebase.apps || !firebase.apps.length) {
+      if (a > 100) return;
+      setTimeout(() => this.syncAnalisesParaFirestore(a + 1), 500);
+      return;
+    }
+    try {
+      const dados = this.montarAnalisesParaSync();
+      firebase.firestore().collection('analiseDatasPorProjeto').doc('aracuai-nc').set({
+        projeto: 'aracuai-nc', disciplinas: dados,
+        atualizadoEm: firebase.firestore.FieldValue.serverTimestamp(),
+      }, { merge: false });
+    } catch (e) { console.error('Sync de análises para Firestore falhou:', e); }
+  }
 
   componentDidMount() {
 
     this.waitForFirebaseObs(0);
     this.waitForFirebaseMedicao(0);
     this.waitForFirebaseRespostas(0);
+    this.syncAnalisesParaFirestore(0);
     this.medicaoBoletim.dataOrdemInicio = this.fmtDia(this.medicaoBoletim.dataOrdemInicio);
     this.medicaoBoletim.terminoPrevistoExecucao = this.terminoAjustado(this.medicaoBoletim.terminoPrevistoExecucaoOriginal) + ' (prorrogado por paralisações; original ' + this.medicaoBoletim.terminoPrevistoExecucaoOriginal + ')';
     this.medicaoBoletim.terminoPrevistoVigencia = this.terminoAjustado(this.medicaoBoletim.terminoPrevistoVigenciaOriginal) + ' (prorrogado por paralisações; original ' + this.medicaoBoletim.terminoPrevistoVigenciaOriginal + ')';
