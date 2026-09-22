@@ -325,7 +325,89 @@ class Component extends DCLogic {
         if (lote) next.focusLote = lote;
       }
       if (Object.keys(next).length) this.setState(next);
+      if (d && !temDados) this.linkDireto = { projeto, disc: d, numero, lote };
     } catch (e) {}
+    this.waitForFirebaseAnalises(0);
+    this.ouvirDatasDoSistema(0);
+  }
+
+  // Datas reais das análises vindas do arquivo principal de cada projeto (coleção
+  // analiseDatasPorProjeto, gravada a cada carregamento da apresentação). A cópia fixa em
+  // disciplinaAnalisesPorProjeto fica só como reserva enquanto o Firestore não responde.
+  docFirestoreDoProjeto = { 'aracuai': 'aracuai-nc', 'rubim': 'rubim' };
+
+  ouvirDatasDoSistema(attempt) {
+    const a = attempt || 0;
+    if (!(window.firebase && firebase.firestore && firebase.auth)) {
+      if (a > 100) return;
+      setTimeout(() => this.ouvirDatasDoSistema(a + 1), 100);
+      return;
+    }
+    try {
+      if (!firebase.apps || !firebase.apps.length) {
+        firebase.initializeApp({
+          apiKey: "AIzaSyDNBXkzFJFAsOKefmBesSWmwRHgS0i7ACA",
+          authDomain: "sip-sistema-intelig-de-projeto.firebaseapp.com",
+          projectId: "sip-sistema-intelig-de-projeto",
+          storageBucket: "sip-sistema-intelig-de-projeto.firebasestorage.app",
+          messagingSenderId: "957059964424",
+          appId: "1:957059964424:web:30ba5c315b713c2c05bbbd"
+        });
+      }
+      firebase.auth().signInAnonymously().then(() => {
+        Object.keys(this.docFirestoreDoProjeto).forEach(projeto => {
+          firebase.firestore().collection('analiseDatasPorProjeto').doc(this.docFirestoreDoProjeto[projeto])
+            .onSnapshot(snap => {
+              const data = snap && snap.exists ? snap.data() : null;
+              if (!data || !data.disciplinas) return;
+              const porDisc = {};
+              Object.keys(data.disciplinas).forEach(disc => {
+                const lista = (data.disciplinas[disc] || []).slice().sort((x, y) => String(x.lote || '').localeCompare(String(y.lote || '')) || (x.numero - y.numero));
+                if (lista.length) porDisc[disc] = lista;
+              });
+              this.disciplinaAnalisesPorProjeto = { ...this.disciplinaAnalisesPorProjeto, [projeto]: { ...(this.disciplinaAnalisesPorProjeto[projeto] || {}), ...porDisc } };
+              this.setState({ datasSincronizadasEm: Date.now() });
+              this.retomarLinkDireto();
+            }, e => console.error('Leitura de analiseDatasPorProjeto falhou:', e));
+        });
+      }).catch(e => console.error('Firebase auth (datas) falhou:', e));
+    } catch (e) { console.error('Leitura de datas do Firestore falhou:', e); }
+  }
+
+  // Link "Abrir formulário" de uma disciplina que ainda não existia na cópia fixa (ex.: Terraplenagem
+  // de Rubim): quando as datas reais chegam do Firestore, abre direto a tela certa.
+  retomarLinkDireto() {
+    const l = this.linkDireto;
+    if (!l || this.state.screen !== 'menu') return;
+    const lista = (this.disciplinaAnalisesPorProjeto[l.projeto] || {})[l.disc] || [];
+    if (!lista.length) return;
+    const next = { screen: 'password', selectedDisc: l.disc };
+    if (l.numero) next.focusNumero = parseInt(l.numero, 10);
+    if (l.lote) next.focusLote = l.lote;
+    this.linkDireto = null;
+    this.setState(next);
+  }
+
+  projetoParaFirestoreId(projeto) {
+    const mapa = { aracuai: 'aracuai-nc' };
+    return mapa[projeto] || projeto;
+  }
+
+  waitForFirebaseAnalises(attempt) {
+    const a = attempt || 0;
+    if (window.firebase && firebase.firestore && firebase.apps && firebase.apps.length) {
+      try {
+        firebase.firestore().collection('analiseDatasPorProjeto').doc(this.projetoParaFirestoreId(this.state.projeto))
+          .onSnapshot(doc => {
+            if (doc.exists) {
+              this.setState({ analisesSync: doc.data().disciplinas || {} });
+            }
+          });
+      } catch (e) { console.error('Firestore análises error:', e); }
+      return;
+    }
+    if (a > 100) return;
+    setTimeout(() => this.waitForFirebaseAnalises(a + 1), 100);
   }
 
   selectDisc(key) {
@@ -457,11 +539,12 @@ class Component extends DCLogic {
   buildItems() {
     const discKey = this.state.discKey;
     const PRAZO = 20;
-    const porProjeto = this.disciplinaAnalisesPorProjeto[this.state.projeto] || {};
-    const rawAnalises = porProjeto[discKey] || [];
+    const doFirestore = (this.state.analisesSync && this.state.analisesSync[discKey]) || null;
+    const doFallback = (this.disciplinaAnalisesPorProjeto[this.state.projeto] || {})[discKey] || [];
+    const rawAnalises = doFirestore || doFallback;
     if (!rawAnalises.length) return [];
     const today = new Date();
-    const loteLabel = { lote1: 'Lote 1', lote2: 'Lote 2', lote3: 'Lote 3' };
+    const loteLabel = { lote1: 'Lote 1', lote2: 'Lote 2', lote3: 'Lote 3', int1: 'Interseção 1', int2: 'Interseção 2', geral: 'Geral', terra: 'Terraplenagem', geoLote1: 'Geotecnia Lote 1', geoLote2: 'Geotecnia Lote 2', geoLote3: 'Geotecnia Lote 3' };
 
     // Agrupa por lote (undefined = sem lote) pra calcular "próxima análise" dentro do mesmo lote.
     const grupos = new Map();
