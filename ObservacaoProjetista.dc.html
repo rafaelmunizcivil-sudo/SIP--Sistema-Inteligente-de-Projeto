@@ -334,7 +334,7 @@ class Component extends DCLogic {
   // Datas reais das análises vindas do arquivo principal de cada projeto (coleção
   // analiseDatasPorProjeto, gravada a cada carregamento da apresentação). A cópia fixa em
   // disciplinaAnalisesPorProjeto fica só como reserva enquanto o Firestore não responde.
-  docFirestoreDoProjeto = { 'aracuai': 'aracuai-nc', 'rubim': 'rubim' };
+  docFirestoreDoProjeto = { 'aracuai': 'aracuai-nc', 'rubim': 'rubim', 'trinta-reis': 'trinta-reis' };
 
   ouvirDatasDoSistema(attempt) {
     const a = attempt || 0;
@@ -544,7 +544,7 @@ class Component extends DCLogic {
     const rawAnalises = doFirestore || doFallback;
     if (!rawAnalises.length) return [];
     const today = new Date();
-    const loteLabel = { lote1: 'Lote 1', lote2: 'Lote 2', lote3: 'Lote 3', int1: 'Interseção 1', int2: 'Interseção 2', geral: 'Geral', terra: 'Terraplenagem', geoLote1: 'Geotecnia Lote 1', geoLote2: 'Geotecnia Lote 2', geoLote3: 'Geotecnia Lote 3' };
+    const loteLabel = { lote1: 'Lote 1', lote2: 'Lote 2', lote3: 'Lote 3', int1: 'Interseção 1', int2: 'Interseção 2', int3: 'Interseção 3', geral: 'Geral', terra: 'Terraplenagem', geoLote1: 'Geotecnia Lote 1', geoLote2: 'Geotecnia Lote 2', geoLote3: 'Geotecnia Lote 3' };
 
     // Agrupa por lote (undefined = sem lote) pra calcular "próxima análise" dentro do mesmo lote.
     const grupos = new Map();
@@ -563,6 +563,11 @@ class Component extends DCLogic {
         if (proximo) {
           const dias = this.diffDays(conc, this.parseBR(proximo.recebido));
           tempo = dias + ' dias'; atrasado = dias > PRAZO;
+        } else if (a.semPendencias) {
+          tempo = 'Concluído (sem pendências)'; atrasado = false;
+        } else if (a.respostaConsol) {
+          const dias = this.diffDays(conc, this.parseBR(a.respostaConsol));
+          tempo = dias + ' dias (respondida em ' + a.respostaConsol + ')'; atrasado = dias > PRAZO;
         } else {
           const dias = this.diffDays(conc, today);
           tempo = dias + ' dias (em aberto)'; atrasado = dias > PRAZO;

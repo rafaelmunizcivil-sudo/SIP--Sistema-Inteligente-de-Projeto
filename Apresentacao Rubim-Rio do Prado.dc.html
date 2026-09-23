@@ -2717,26 +2717,46 @@ class Component extends DCLogic {
   // Envia as datas reais de cada análise ao Firestore (coleção analiseDatasPorProjeto, doc 'rubim')
   // a cada carregamento — a página ObservacaoProjetista lê daqui, nunca de cópia fixa.
   montarAnalisesParaSync() {
-    const paraArray = (meta) => Object.keys(meta || {}).map(n => ({
+    const cap = (p) => p.charAt(0).toUpperCase() + p.slice(1);
+    const linha = (meta, n, docs, lote) => ({
+      ...(lote ? { lote } : {}),
       numero: Number(n), recebido: meta[n].recebido, concluido: meta[n].concluido,
-    }));
-    const paraArrayComParte = (metaPorParte) => {
+      respostaConsol: meta[n].respostaConsol || null,
+      semPendencias: this.analiseSemPendencias(docs),
+    });
+    const paraArray = (meta, prefixo) => Object.keys(meta || {}).map(n => linha(meta, n, this[prefixo + n + 'DocsData'] || [], null));
+    const paraArrayComParte = (metaPorParte, prefixoDe) => {
       const out = [];
       for (const parte of Object.keys(metaPorParte || {})) {
-        for (const n of Object.keys(metaPorParte[parte] || {})) {
-          out.push({ lote: parte, numero: Number(n), recebido: metaPorParte[parte][n].recebido, concluido: metaPorParte[parte][n].concluido });
-        }
+        const meta = metaPorParte[parte] || {};
+        for (const n of Object.keys(meta)) out.push(linha(meta, n, this[prefixoDe(parte) + n + 'DocsData'] || [], parte));
       }
       return out;
     };
     return {
-      geometria: paraArray(this.geoAnaliseMeta),
-      hidrologia: paraArray(this.hidrologiaAnaliseMeta),
-      terraplenagem: paraArray(this.terraAnaliseMeta),
-      pavimentacao: paraArray(this.pavAnaliseMeta),
-      sinalizacao: paraArray(this.sinalAnaliseMeta),
-      intersecao: paraArrayComParte(this.intersecaoAnaliseMeta),
+      geometria: paraArray(this.geoAnaliseMeta, 'analise'),
+      hidrologia: paraArray(this.hidrologiaAnaliseMeta, 'hidrologiaAnalise'),
+      terraplenagem: paraArray(this.terraAnaliseMeta, 'terraAnalise'),
+      pavimentacao: paraArray(this.pavAnaliseMeta, 'pavAnalise'),
+      sinalizacao: paraArray(this.sinalAnaliseMeta, 'sinalAnalise'),
+      intersecao: paraArrayComParte(this.intersecaoAnaliseMeta, p => 'intersecao' + cap(p) + 'Analise'),
     };
+  }
+
+  entregaAutomaticaPorItem(numero) {
+    const discPorItem = { 14: 'hidrologia', 34: 'geometria', 35: 'terraplenagem', 37: 'pavimentacao', 40: 'intersecao', 41: 'sinalizacao' };
+    const disc = discPorItem[numero];
+    if (!disc) return null;
+    const dados = this.montarAnalisesParaSync()[disc] || [];
+    let melhor = null;
+    for (const a of dados) {
+      for (const d of [a.recebido, a.respostaConsol]) {
+        if (!d) continue;
+        const dt = this.parseBR(d);
+        if (!melhor || dt > melhor.dt) melhor = { dt, txt: d };
+      }
+    }
+    return melhor ? melhor.txt : null;
   }
 
   syncAnalisesParaFirestore(attempt) {
@@ -2942,7 +2962,7 @@ class Component extends DCLogic {
         totalJaMedidoFmt: this.fmtMoney(totalJaMedido),
         saldo: totalContrato - totalJaMedido,
         pct: ef.pct,
-        entrega: e.entrega || '—',
+        entrega: this.entregaAutomaticaPorItem(e.numero) || e.entrega || '—',
         categoria: e.categoria,
         situacaoLabel: cat.rotulo,
         situacaoBg: cat.corBg,
@@ -3041,6 +3061,41 @@ class Component extends DCLogic {
     };
   }
 
+  // Interseção — Projeção combinando os subgrupos (regra aprovada pelo usuário em 23/09/2026, igual nos
+  // 3 projetos): em cada subgrupo usa a análise mais recente que já tem pontos julgados (atendido ou não
+  // atendido); taxa = soma dos atendidos ÷ soma dos julgados.
+  projecaoSubgruposIntersecao(itemNumero) {
+    return itemNumero === 40 ? [['int1', 'Interseção 1'], ['int2', 'Interseção 2'], ['geral', 'Geral']] : null;
+  }
+
+  projecaoIntersecaoBase(subgrupos) {
+    let rodadas = 0, questionamentos = 0, atendido = 0, nao = 0;
+    const partes = [];
+    for (const [g, nome] of subgrupos) {
+      const lista = this.intersecaoAnalisesList(g);
+      const { historico } = this.historicoEAnaliseMaisRecente(lista, null);
+      rodadas += historico.rodadas;
+      questionamentos += historico.questionamentos;
+      for (let i = lista.length - 1; i >= 0; i--) {
+        let a = 0, n = 0;
+        for (const d of lista[i].docs) for (const it of d.items) {
+          const st = (it && typeof it === 'object') ? it.status : null;
+          if (st === 'atendido') a++;
+          else if (st === 'nao') n++;
+        }
+        if (a + n > 0) {
+          atendido += a;
+          nao += n;
+          partes.push(lista[i].numero + ' (' + nome + ')');
+          break;
+        }
+      }
+    }
+    if (!partes.length) return { historico: { rodadas, questionamentos }, analiseMaisRecente: null };
+    const numero = partes.length === 1 ? partes[0] : partes.slice(0, -1).join(', ') + ' e ' + partes[partes.length - 1];
+    return { historico: { rodadas, questionamentos }, analiseMaisRecente: { numero, atendido, nao } };
+  }
+
   historicoEAnaliseMaisRecente(analisesList, groupKey) {
     let rodadas = 0, questionamentos = 0, analiseMaisRecente = null;
     for (const a of analisesList) {
@@ -3079,9 +3134,10 @@ class Component extends DCLogic {
   }
 
   calcularProjecaoDisciplina(itemNumero) {
-    const fonte = this.projecaoDisciplinaFonteConfig(itemNumero);
-    if (!fonte) return null;
-    const { historico, analiseMaisRecente } = this.historicoEAnaliseMaisRecente(fonte.lista, fonte.groupKey);
+    const subgruposInter = this.projecaoSubgruposIntersecao(itemNumero);
+    const fonte = subgruposInter ? null : this.projecaoDisciplinaFonteConfig(itemNumero);
+    if (!subgruposInter && !fonte) return null;
+    const { historico, analiseMaisRecente } = subgruposInter ? this.projecaoIntersecaoBase(subgruposInter) : this.historicoEAnaliseMaisRecente(fonte.lista, fonte.groupKey);
     if (!analiseMaisRecente) return null;
     const item = this.medicaoItemsData.find(x => x.numero === itemNumero);
     if (!item) return null;
@@ -3239,10 +3295,14 @@ class Component extends DCLogic {
       const db = firebase.firestore();
       Object.keys(this.disciplinaAnalisesReais).forEach(disc => {
         const lista = this.disciplinaAnalisesReais[disc];
+        const reais = this.timelineAnalisesFor(disc) || [];
         lista.forEach(a => {
+          const r = reais.find(x => x.numero === a.numero) || {};
           db.collection('analisesAgenda').doc(disc + '_' + a.numero).set({
             disc, numero: a.numero, recebido: a.recebido, concluido: a.concluido,
             ehUltimaAnalise: a.numero === lista[lista.length - 1].numero,
+            respostaConsol: r.respostaConsol || null,
+            semPendencias: !!r.semPendencias,
           }, { merge: true });
         });
       });
@@ -5459,7 +5519,7 @@ Adequar quantidade de suportes de madeira em atendimento as implantações de pl
     6: { recebido: '29/04/2026', concluido: '20/05/2026' },
     7: { recebido: '26/05/2026', concluido: '11/06/2026' },
     8: { recebido: '24/06/2026', concluido: '20/07/2026' },
-    9: { recebido: '27/07/2026', concluido: '11/08/2026' },
+    9: { recebido: '27/07/2026', concluido: '11/08/2026', respostaConsol: '01/09/2026' },
   };
 
   pavAnalise1DocsData = [
@@ -6035,6 +6095,17 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
 
   // Linha do Tempo lê a mesma fonte real da aba Análise (geoAnaliseMeta / intersecaoAnaliseMeta).
   // Disciplinas ainda não migradas continuam lendo disciplinaAnalisesReais (legado).
+  // Uma análise está "sem pendências" quando todos os itens dela foram Atendidos ou Retirados —
+  // nesse caso a disciplina/subgrupo está concluída e a Linha do Tempo não cobra resposta da Projetista.
+  analiseSemPendencias(docs) {
+    let temItem = false;
+    for (const d of docs || []) for (const it of d.items) {
+      temItem = true;
+      const st = (it && typeof it === 'object') ? it.status : null;
+      if (st !== 'atendido' && st !== 'retirado') return false;
+    }
+    return temItem;
+  }
   timelineAnalisesFor(key) {
     if (key === 'geometria') {
       const meta = this.geoAnaliseMeta;
@@ -6043,7 +6114,7 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
         if (!meta[n]) continue;
         const docs = this['analise' + n + 'DocsData'] || [];
         if (!docs.length) continue;
-        out.push({ numero: n, recebido: meta[n].recebido, concluido: meta[n].concluido });
+        out.push({ numero: n, recebido: meta[n].recebido, concluido: meta[n].concluido, respostaConsol: meta[n].respostaConsol || null, semPendencias: this.analiseSemPendencias(docs) });
       }
       return out;
     }
@@ -6054,7 +6125,7 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
         if (!meta[n]) continue;
         const docs = this['terraAnalise' + n + 'DocsData'] || [];
         if (!docs.length) continue;
-        out.push({ numero: n, recebido: meta[n].recebido, concluido: meta[n].concluido });
+        out.push({ numero: n, recebido: meta[n].recebido, concluido: meta[n].concluido, respostaConsol: meta[n].respostaConsol || null, semPendencias: this.analiseSemPendencias(docs) });
       }
       return out;
     }
@@ -6065,7 +6136,7 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
         if (!meta[n]) continue;
         const docs = this['sinalAnalise' + n + 'DocsData'] || [];
         if (!docs.length) continue;
-        out.push({ numero: n, recebido: meta[n].recebido, concluido: meta[n].concluido });
+        out.push({ numero: n, recebido: meta[n].recebido, concluido: meta[n].concluido, respostaConsol: meta[n].respostaConsol || null, semPendencias: this.analiseSemPendencias(docs) });
       }
       return out;
     }
@@ -6076,7 +6147,7 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
         if (!meta[n]) continue;
         const docs = this['pavAnalise' + n + 'DocsData'] || [];
         if (!docs.length) continue;
-        out.push({ numero: n, recebido: meta[n].recebido, concluido: meta[n].concluido });
+        out.push({ numero: n, recebido: meta[n].recebido, concluido: meta[n].concluido, respostaConsol: meta[n].respostaConsol || null, semPendencias: this.analiseSemPendencias(docs) });
       }
       return out;
     }
@@ -6087,7 +6158,7 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
         if (!meta[n]) continue;
         const docs = this['hidrologiaAnalise' + n + 'DocsData'] || [];
         if (!docs.length) continue;
-        out.push({ numero: n, recebido: meta[n].recebido, concluido: meta[n].concluido });
+        out.push({ numero: n, recebido: meta[n].recebido, concluido: meta[n].concluido, respostaConsol: meta[n].respostaConsol || null, semPendencias: this.analiseSemPendencias(docs) });
       }
       return out;
     }
@@ -6100,7 +6171,7 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
         if (!meta[n]) continue;
         const docs = this['intersecao' + cap + 'Analise' + n + 'DocsData'] || [];
         if (!docs.length) continue;
-        out.push({ numero: n, recebido: meta[n].recebido, concluido: meta[n].concluido });
+        out.push({ numero: n, recebido: meta[n].recebido, concluido: meta[n].concluido, respostaConsol: meta[n].respostaConsol || null, semPendencias: this.analiseSemPendencias(docs) });
       }
       return out;
     }
@@ -6219,6 +6290,22 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
           atrasado: dias2 > PRAZO, semAtraso: dias2 <= PRAZO,
           ...this.buildObsInfo(respObsKey, dias2 > PRAZO, a.numero, loteSuffix),
         };
+      } else if (a.semPendencias) {
+        legResp = {
+          sentido: 'Projetista → DER', recebido: this.fmtDia(a.concluido), concluido: null, tempo: 'sem pendências',
+          status: 'Concluído', statusColor: '#2f8f4f',
+          atrasado: false, semAtraso: true,
+          ...this.buildObsInfo(respObsKey, false, a.numero, loteSuffix),
+        };
+      } else if (a.respostaConsol) {
+        const diasResp = this.diffDays(conc, this.parseBR(a.respostaConsol));
+        legResp = {
+          sentido: 'Projetista → DER', recebido: this.fmtDia(a.concluido), concluido: this.fmtDia(a.respostaConsol), tempo: diasResp + ' dias',
+          status: diasResp <= PRAZO ? 'Prazo Cumprido' : 'Atrasado',
+          statusColor: diasResp <= PRAZO ? '#2f8f4f' : '#c0392b',
+          atrasado: diasResp > PRAZO, semAtraso: diasResp <= PRAZO,
+          ...this.buildObsInfo(respObsKey, diasResp > PRAZO, a.numero, loteSuffix),
+        };
       } else {
         const diasAbertos = this.diffDays(conc, today);
         const restam = PRAZO - diasAbertos;
@@ -6246,18 +6333,20 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
     });
 
     const last = analises[analises.length - 1];
-    const diasDecorridos = this.diffDays(this.parseBR(last.concluido), today);
+    let diasDecorridos = this.diffDays(this.parseBR(last.concluido), today);
     const restam = PRAZO - diasDecorridos;
-    let statusAtual, statusAtualColor;
-    if (restam < 0) { statusAtual = 'Atrasado'; statusAtualColor = '#c0392b'; }
+    let statusAtual, statusAtualColor, responsavelAtual = 'Projetista';
+    if (last.semPendencias) { statusAtual = 'Concluído'; statusAtualColor = '#2f8f4f'; responsavelAtual = '—'; diasDecorridos = 0; }
+    else if (last.respostaConsol) { statusAtual = 'Aguardando DER'; statusAtualColor = '#2f6690'; responsavelAtual = 'DER-MG'; diasDecorridos = this.diffDays(this.parseBR(last.respostaConsol), today); }
+    else if (restam < 0) { statusAtual = 'Atrasado'; statusAtualColor = '#c0392b'; }
     else if (restam <= 5) { statusAtual = 'Prazo Vencendo'; statusAtualColor = '#c98a1c'; }
     else { statusAtual = 'Dentro do Prazo'; statusAtualColor = '#2f8f4f'; }
 
     return {
       discButtons, hasLoteButtons: loteButtons.length > 0, loteButtons, hasTimelineData: true, noTimelineData: false,
-      ultimaEntregaProjetista: this.fmtDia(last.recebido),
+      ultimaEntregaProjetista: this.fmtDia(last.respostaConsol || last.recebido),
       ultimaEntregaDER: this.fmtDia(last.concluido),
-      responsavelAtual: 'Projetista',
+      responsavelAtual,
       statusAtual, statusAtualColor, diasDecorridos,
       events,
     };
@@ -7480,7 +7569,7 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
     return '<div style="display:flex;justify-content:flex-end;margin-bottom:24px;"><img src="' + logoUrl + '" style="height:34px;"></div>'
       + '<div style="font-size:11px;font-weight:700;letter-spacing:0.08em;color:#5b6774;text-transform:uppercase;margin-bottom:4px;">Relatório Técnico &mdash; Disciplina</div>'
       + '<h1>' + label + '</h1>'
-      + '<div style="font-size:12px;color:#5b6774;margin-bottom:24px;">Rodovia MG-259 &mdash; Trecho Serro / Trinta Reis &middot; Emitido em ' + hoje + '</div>';
+      + '<div style="font-size:12px;color:#5b6774;margin-bottom:24px;">Rodovia MG-406 &mdash; Trecho Rubim / Rio do Prado &middot; Emitido em ' + hoje + '</div>';
   }
 
   generateRelatorioMedicao() {
@@ -7554,7 +7643,7 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
     return '<div style="display:flex;justify-content:flex-end;margin-bottom:24px;"><img src="' + logoUrl + '" style="height:34px;"></div>'
       + '<div style="font-size:11px;font-weight:700;letter-spacing:0.08em;color:#5b6774;text-transform:uppercase;margin-bottom:4px;">Relat\u00f3rio T\u00e9cnico &mdash; Medi\u00e7\u00e3o</div>'
       + '<h1>Controle de Medi\u00e7\u00e3o e Faturamento</h1>'
-      + '<div style="font-size:12px;color:#5b6774;margin-bottom:24px;">Rodovia MG-259 &mdash; Trecho Serro / Trinta Reis &middot; Emitido em ' + hoje + '</div>';
+      + '<div style="font-size:12px;color:#5b6774;margin-bottom:24px;">Rodovia MG-406 &mdash; Trecho Rubim / Rio do Prado &middot; Emitido em ' + hoje + '</div>';
   }
 
   generateRelatorioTerceiros() {
@@ -7629,12 +7718,21 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
     return '<div style="display:flex;justify-content:flex-end;margin-bottom:24px;"><img src="' + logoUrl + '" style="height:34px;"></div>'
       + '<div style="font-size:11px;font-weight:700;letter-spacing:0.08em;color:#5b6774;text-transform:uppercase;margin-bottom:4px;">Relat\u00f3rio T\u00e9cnico &mdash; ' + kicker + '</div>'
       + '<h1>' + title + '</h1>'
-      + '<div style="font-size:12px;color:#5b6774;margin-bottom:24px;">Rodovia MG-259 &mdash; Trecho Serro / Trinta Reis &middot; Emitido em ' + hoje + '</div>';
+      + '<div style="font-size:12px;color:#5b6774;margin-bottom:24px;">Rodovia MG-406 &mdash; Trecho Rubim / Rio do Prado &middot; Emitido em ' + hoje + '</div>';
+  }
+
+  relatorioBlocosDisciplina(key) {
+    const simples = { geometria: 'geoAnalisesList', hidrologia: 'hidrologiaAnalisesList', terraplenagem: 'terraAnalisesList', pavimentacao: 'pavAnalisesList', sinalizacao: 'sinalAnalisesList' };
+    if (simples[key]) return [{ titulo: null, numerosList: this[simples[key]]() }];
+    if (key === 'intersecao') return [['int1', 'Interseção 1'], ['int2', 'Interseção 2'], ['geral', 'Geral']].map(([g, t]) => ({ titulo: t, numerosList: this.intersecaoAnalisesList(g) }));
+    return [];
   }
 
   generateRelatorioDisciplina(m) {
-    if (m.key === 'geometria') this.generateRelatorioGeometria(m.label);
-    else this.generateRelatorioPlaceholder(m.label);
+    const blocos = this.relatorioBlocosDisciplina(m.key);
+    if (!blocos.some(bl => bl.numerosList.length)) this.generateRelatorioPlaceholder(m.label);
+    else if (blocos.length === 1) this.generateRelatorioAnaliseGenerico(m.label, blocos[0].numerosList);
+    else this.generateRelatorioMultiLote(m.label, blocos);
   }
 
   generateRelatorioPlaceholder(label) {
@@ -7644,32 +7742,48 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
     this.openRelatorioWindow(this.buildRelatorioShellHtml('Relatório - ' + label, body));
   }
 
-  generateRelatorioGeometria(label) {
-    const allDocs = [this.analise1DocsData, this.analise2DocsData, this.analise3DocsData, this.analise4DocsData, this.analise5DocsData, this.analise6DocsData, this.analise7DocsData, this.analise8DocsData, this.analise9DocsData, this.analise10DocsData, this.analise11DocsData, this.analise12DocsData, this.analise13DocsData, this.analise14DocsData, this.analise15DocsData];
-    const datas = ['12/01/2024', '07/03/2024', '13/05/2024', '04/06/2024', '06/01/2025', '11/03/2025', '07/05/2025', '07/07/2025', '08/08/2025', '29/09/2025', '10/12/2025', '09/02/2026', '12/03/2026', '25/03/2026', '08/05/2026'];
+  generateRelatorioAnaliseGenerico(label, numerosList) {
+    const body = this.relatorioHeaderHtml(label) + this.relatorioSumarioHtml(['Resumo Geral', 'Questionamentos por Análise', 'Questionamentos por Documento (acumulado)']) + this.buildRelatorioAnaliseChunk(numerosList) + this.relatorioFooterHtml();
+    this.openRelatorioWindow(this.buildRelatorioShellHtml('Relatório - ' + label, body));
+  }
+
+  generateRelatorioMultiLote(label, lotes) {
+    const body = this.relatorioHeaderHtml(label)
+      + this.relatorioSumarioHtml(lotes.map(l => l.titulo || ('Lote ' + l.num + ' (' + l.km + ' km)')))
+      + lotes.map(l => '<h1 style="margin-top:28px;page-break-before:always;">' + (l.titulo || ('Lote ' + l.num + ' (' + l.km + ' km)')) + '</h1>' + this.buildRelatorioAnaliseChunk(l.numerosList)).join('')
+      + this.relatorioFooterHtml();
+    this.openRelatorioWindow(this.buildRelatorioShellHtml('Relatório - ' + label, body));
+  }
+
+  buildRelatorioAnaliseChunk(numerosList) {
+    if (!numerosList || !numerosList.length) return '<p>Nenhuma análise cadastrada ainda.</p>';
+    const allDocs = numerosList.map(x => x.docs);
+    const datas = numerosList.map(x => x.data);
     const totals = allDocs.map(docs => docs.reduce((s, d) => s + d.items.length, 0));
-    const totalQuestionamentos = totals.reduce((a, b) => a + b, 0);
-    const media = (totalQuestionamentos / totals.length).toFixed(1).replace('.', ',');
-    const statusOf = (it) => (typeof it === 'string' ? null : it.status);
+    const totalQuestionamentosSum = totals.reduce((a, b) => a + b, 0);
+    const media = (totalQuestionamentosSum / totals.length).toFixed(1).replace('.', ',');
     const tally = (docs) => {
-      let atendido = 0, parcial = 0, nao = 0, novo = 0;
+      let atendido = 0, parcial = 0, nao = 0, retirado = 0, novo = 0;
       const perDoc = {};
       for (const d of docs) {
         perDoc[d.label] = (perDoc[d.label] || 0) + d.items.length;
         for (const it of d.items) {
-          const s = statusOf(it);
+          const s = (it && typeof it === 'object') ? it.status : null;
           if (s === 'atendido') atendido++;
           else if (s === 'parcial') parcial++;
           else if (s === 'nao') nao++;
-          else if (s === 'novo') novo++;
+          else if (s === 'retirado') retirado++;
+          else if (s === 'pendente') {}
+          else novo++;
         }
       }
-      return { atendido, parcial, nao, novo, perDoc };
+      return { atendido, parcial, nao, retirado, novo, perDoc };
     };
     const tallies = allDocs.map(tally);
     const totAtendido = tallies.reduce((s, t) => s + t.atendido, 0);
     const totParcial = tallies.reduce((s, t) => s + t.parcial, 0);
     const totNao = tallies.reduce((s, t) => s + t.nao, 0);
+    const totRetirado = tallies.reduce((s, t) => s + t.retirado, 0);
     const totNovo = tallies.reduce((s, t) => s + t.novo, 0);
 
     const labelTotals = {};
@@ -7679,31 +7793,25 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
 
     const rows = totals.map((t, i) => {
       const tl = tallies[i];
-      const cells = i === 0
-        ? '<td style="text-align:right;color:#8a94a3;">&mdash;</td><td style="text-align:right;color:#8a94a3;">&mdash;</td><td style="text-align:right;color:#8a94a3;">&mdash;</td><td style="text-align:right;color:#8a94a3;">&mdash;</td>'
-        : '<td style="text-align:right;">' + tl.atendido + '</td><td style="text-align:right;">' + tl.parcial + '</td><td style="text-align:right;">' + tl.nao + '</td><td style="text-align:right;">' + tl.novo + '</td>';
-      return '<tr' + (i % 2 ? ' style="background:#eef1f4;"' : '') + '><td>Análise ' + (i + 1) + '</td><td>' + this.fmtDia(datas[i]) + '</td><td style="text-align:right;font-weight:700;">' + t + '</td>' + cells + '</tr>';
+      const cells = '<td style="text-align:right;">' + tl.atendido + '</td><td style="text-align:right;">' + tl.parcial + '</td><td style="text-align:right;">' + tl.nao + '</td><td style="text-align:right;">' + tl.retirado + '</td><td style="text-align:right;">' + tl.novo + '</td>';
+      return '<tr' + (i % 2 ? ' style="background:#eef1f4;"' : '') + '><td>Análise ' + numerosList[i].numero + '</td><td>' + this.fmtDia(datas[i]) + '</td><td style="text-align:right;font-weight:700;">' + t + '</td>' + cells + '</tr>';
     }).join('');
 
-    const body = this.relatorioHeaderHtml(label)
-      + this.relatorioSumarioHtml(['Resumo Geral', 'Questionamentos por Análise', 'Questionamentos por Documento (acumulado)'])
-      + '<h2>Tabela 01 – Resumo Geral</h2>'
+    return '<h2>Tabela 01 – Resumo Geral</h2>'
       + '<table style="font-size:12px;"><tbody>'
       + '<tr><td style="color:#5b6774;">Total de análises cadastradas</td><td style="text-align:right;font-weight:700;">' + totals.length + '</td></tr>'
-      + '<tr><td style="color:#5b6774;">Total de questionamentos (todas as análises)</td><td style="text-align:right;font-weight:700;">' + totalQuestionamentos + '</td></tr>'
+      + '<tr><td style="color:#5b6774;">Total de questionamentos (soma de todas as análises)</td><td style="text-align:right;font-weight:700;">' + totalQuestionamentosSum + '</td></tr>'
       + '<tr><td style="color:#5b6774;">Média de questionamentos por análise</td><td style="text-align:right;font-weight:700;">' + media + '</td></tr>'
+      + '<tr><td style="color:#5b6774;">Total de itens novos (questionamentos únicos)</td><td style="text-align:right;font-weight:700;color:#7a4fc9;">' + totNovo + '</td></tr>'
       + '<tr><td style="color:#5b6774;">Total atendido</td><td style="text-align:right;font-weight:700;color:#2e7d4f;">' + totAtendido + '</td></tr>'
       + '<tr><td style="color:#5b6774;">Total atendido parcialmente</td><td style="text-align:right;font-weight:700;color:#b8860b;">' + totParcial + '</td></tr>'
       + '<tr><td style="color:#5b6774;">Total não atendido</td><td style="text-align:right;font-weight:700;color:#9b2c22;">' + totNao + '</td></tr>'
-      + '<tr><td style="color:#5b6774;">Total de itens novos</td><td style="text-align:right;font-weight:700;color:#e05a4e;">' + totNovo + '</td></tr>'
+      + '<tr><td style="color:#5b6774;">Total retirado pelo DER-MG</td><td style="text-align:right;font-weight:700;color:#6b7480;">' + totRetirado + '</td></tr>'
       + '</tbody></table>'
       + '<h2>Tabela 02 – Questionamentos por Análise</h2>'
-      + '<table><thead><tr><th>Análise</th><th>Data</th><th style="text-align:right;">Total</th><th style="text-align:right;">Atendido</th><th style="text-align:right;">Parcial</th><th style="text-align:right;">Não Atendido</th><th style="text-align:right;">Novos</th></tr></thead><tbody>' + rows + '</tbody></table>'
-      + '<p style="font-size:10.5px;color:#8a94a3;margin-top:6px;">Análise 1 não possui indicadores comparativos por não haver análise anterior para comparação.</p>'
+      + '<table><thead><tr><th>Análise</th><th>Data</th><th style="text-align:right;">Total</th><th style="text-align:right;">Atendido</th><th style="text-align:right;">Parcial</th><th style="text-align:right;">Não Atendido</th><th style="text-align:right;">Retirado</th><th style="text-align:right;">Novo</th></tr></thead><tbody>' + rows + '</tbody></table>'
       + '<h2>Tabela 03 – Questionamentos por Documento (acumulado)</h2>'
-      + '<table><thead><tr><th>Documento</th><th style="text-align:right;">Total</th></tr></thead><tbody>' + docRows + '</tbody></table>'
-      + this.relatorioFooterHtml();
-    this.openRelatorioWindow(this.buildRelatorioShellHtml('Relatório - ' + label, body));
+      + '<table><thead><tr><th>Documento</th><th style="text-align:right;">Total</th></tr></thead><tbody>' + docRows + '</tbody></table>';
   }
 
   // ===== Relatório Geral — visão consolidada para a diretoria (Visão Geral + todas as disciplinas + Medição + Controle de Terceiros) =====
@@ -7717,7 +7825,7 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
 
     const capa = '<div style="display:flex;justify-content:flex-end;margin-bottom:24px;"><img src="' + logoUrl + '" style="height:34px;"></div>'
       + '<div style="font-size:11px;font-weight:700;letter-spacing:0.08em;color:#5b6774;text-transform:uppercase;margin-bottom:4px;">Relatório Geral &mdash; Apresentação à Diretoria</div>'
-      + '<h1>Rodovia MG-259 &mdash; Trecho Serro / Trinta Reis</h1>'
+      + '<h1>Rodovia MG-406 &mdash; Trecho Rubim / Rio do Prado</h1>'
       + '<div style="font-size:12px;color:#5b6774;margin-bottom:24px;">Emitido em ' + hoje + '</div>'
       + sumario;
 
@@ -7733,34 +7841,31 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
       + '<tr><td style="color:#5b6774;">Valor Inicial do Contrato</td><td>' + b.valorInicialContrato + '</td></tr>'
       + '<tr><td style="color:#5b6774;">Última Medição Registrada</td><td>' + esc(b.medicaoAtual) + '</td></tr>'
       + '</tbody></table>'
-      + '<p style="margin-top:16px;">O contrato encontra-se, na data deste relatório, com <strong>' + b.pctExecutado + '</strong> do seu valor total executado, tendo avançado <strong>' + b.pctDestaMedicao + '</strong> somente na última medição registrada (' + esc(b.medicaoAtualCurta) + '). A obra é executada pela ' + esc(b.contratada) + ' sob regime de ' + esc(b.regimeExecucao).toLowerCase() + ', com ordem de início em ' + b.dataOrdemInicio + ' e término de execução previsto para ' + b.terminoPrevistoExecucao + '. Das disciplinas de projeto acompanhadas, ' + this.materiaMeta.filter(m => m.modeled).length + ' de ' + this.materiaMeta.length + ' já possuem análises técnicas cadastradas e comparáveis entre pareceres sucessivos do DER-MG.</p>';
+      + '<p style="margin-top:16px;">O contrato encontra-se, na data deste relatório, com <strong>' + b.pctExecutado + '</strong> do seu valor total executado, tendo avançado <strong>' + b.pctDestaMedicao + '</strong> somente na última medição registrada (' + esc(b.medicaoAtualCurta) + '). A obra é executada pela ' + esc(b.contratada) + ' sob regime de ' + esc(b.regimeExecucao).toLowerCase() + ', com ordem de início em ' + b.dataOrdemInicio + ' e término de execução previsto para ' + b.terminoPrevistoExecucao + '. Das disciplinas de projeto acompanhadas, ' + this.materiaMeta.filter(m => this.relatorioBlocosDisciplina(m.key).some(bl => bl.numerosList.length)).length + ' de ' + this.materiaMeta.length + ' já possuem análises técnicas cadastradas e comparáveis entre pareceres sucessivos do DER-MG.</p>';
 
     // ---- 2. Disciplinas ----
-    const allDocs = [this.analise1DocsData, this.analise2DocsData, this.analise3DocsData, this.analise4DocsData, this.analise5DocsData, this.analise6DocsData, this.analise7DocsData, this.analise8DocsData, this.analise9DocsData, this.analise10DocsData, this.analise11DocsData, this.analise12DocsData, this.analise13DocsData, this.analise14DocsData, this.analise15DocsData];
-    const datas = ['12/01/2024', '07/03/2024', '13/05/2024', '04/06/2024', '06/01/2025', '11/03/2025', '07/05/2025', '07/07/2025', '08/08/2025', '29/09/2025', '10/12/2025', '09/02/2026', '12/03/2026', '25/03/2026', '08/05/2026'];
-    const totals = allDocs.map(docs => docs.reduce((s, d) => s + d.items.length, 0));
-    const statusOf = (it) => (typeof it === 'string' ? null : it.status);
-    const tally = (docs) => {
-      let atendido = 0, parcial = 0, nao = 0, novo = 0;
-      for (const d of docs) for (const it of d.items) {
-        const s = statusOf(it);
-        if (s === 'atendido') atendido++; else if (s === 'parcial') parcial++; else if (s === 'nao') nao++; else if (s === 'novo') novo++;
-      }
-      return { atendido, parcial, nao, novo };
-    };
-    const tallies = allDocs.map(tally);
-    const totalQuestionamentos = totals.reduce((a, s) => a + s, 0);
-    const ultimaTally = tallies[tallies.length - 1];
-    const variacao = totals[totals.length - 1] - totals[totals.length - 2];
-    const tendencia = variacao > 0 ? ('um aumento de ' + variacao + ' questionamentos') : variacao < 0 ? ('uma redução de ' + Math.abs(variacao) + ' questionamentos') : 'estabilidade no volume de questionamentos';
-    const rows = totals.map((t, i) => '<tr' + (i % 2 ? ' style="background:#eef1f4;"' : '') + '><td>Análise ' + (i + 1) + '</td><td>' + this.fmtDia(datas[i]) + '</td><td style="text-align:right;font-weight:700;">' + t + '</td></tr>').join('');
-
-    const secaoGeometria = '<div style="break-before:page;"></div><h1>2. Análise por Disciplina</h1><h2>2.1 Geometria</h2>'
-      + '<p>A disciplina de Geometria acumula ' + totals.length + ' análises técnicas do DER-MG, totalizando <strong>' + totalQuestionamentos + ' questionamentos</strong> desde o início do acompanhamento, com média de ' + (totalQuestionamentos / totals.length).toFixed(1).replace('.', ',') + ' questionamentos por análise. Na última análise (nº ' + totals.length + ', concluída em ' + this.fmtDia(datas[datas.length - 1]) + '), foram registrados ' + totals[totals.length - 1] + ' questionamentos, uma variação em relação à análise anterior que representa ' + tendencia + '. Do total da última rodada, <strong>' + ultimaTally.atendido + '</strong> itens foram integralmente atendidos, <strong>' + ultimaTally.parcial + '</strong> atendidos parcialmente, <strong>' + ultimaTally.nao + '</strong> permanecem não atendidos e <strong>' + ultimaTally.novo + '</strong> são questionamentos novos introduzidos nesta rodada. A evolução indica ' + (ultimaTally.nao === 0 ? 'convergência do projeto geométrico, sem pendências em aberto na última análise' : (ultimaTally.nao + ' pendência(s) que ainda demandam resposta da projetista antes do encerramento desta disciplina')) + '.</p>'
-      + '<table><thead><tr><th>Análise</th><th>Data</th><th style="text-align:right;">Total de Questionamentos</th></tr></thead><tbody>' + rows + '</tbody></table>'
-      + '<h2>2.2 Demais Disciplinas</h2>'
-      + '<p>' + this.materiaMeta.filter(m => m.key !== 'geometria').map(m => esc(m.label)).join(', ') + ' ainda aguardam o recebimento de pareceres técnicos do DER-MG para compor análises comparáveis. Assim que os primeiros documentos forem recebidos, cada uma passará a contar com o mesmo padrão de indicadores (questionamentos por análise, comparativo sequencial e itens recorrentes) já consolidado para Geometria.</p>';
-
+    const statusDe = (it) => (it && typeof it === 'object') ? it.status : null;
+    const discsComAnalise = this.materiaMeta.map(m => ({ m, blocos: this.relatorioBlocosDisciplina(m.key).filter(bl => bl.numerosList.length) })).filter(x => x.blocos.length);
+    const discsSemAnalise = this.materiaMeta.filter(m => !discsComAnalise.some(x => x.m.key === m.key));
+    const secoesDisc = discsComAnalise.map((x, k) => {
+      const linhas = x.blocos.flatMap(bl => bl.numerosList.map(a => ({ rotulo: 'Análise ' + a.numero + (bl.titulo ? ' — ' + bl.titulo : ''), a })));
+      let novos = 0, atendidos = 0;
+      const rowsD = linhas.map((l, i2) => {
+        const t = l.a.docs.reduce((s2, d) => s2 + d.items.length, 0);
+        for (const d of l.a.docs) for (const it of d.items) {
+          const st = statusDe(it);
+          if (st === 'atendido') atendidos++;
+          else if (st !== 'nao' && st !== 'parcial' && st !== 'retirado' && st !== 'pendente') novos++;
+        }
+        return '<tr' + (i2 % 2 ? ' style="background:#eef1f4;"' : '') + '><td>' + esc(l.rotulo) + '</td><td>' + this.fmtDia(l.a.data) + '</td><td style="text-align:right;font-weight:700;">' + t + '</td></tr>';
+      }).join('');
+      const ultima = linhas.reduce((u, l) => (!u || this.parseBR(l.a.data) > this.parseBR(u.a.data)) ? l : u, null);
+      return '<h2>2.' + (k + 1) + ' ' + esc(x.m.label) + '</h2>'
+        + '<p>A disciplina acumula ' + linhas.length + ' análises técnicas do DER-MG, com <strong>' + novos + ' questionamentos</strong> levantados ao todo, dos quais ' + atendidos + ' já foram atendidos. A última análise registrada é a ' + esc(ultima.rotulo) + ', de ' + this.fmtDia(ultima.a.data) + '.</p>'
+        + '<table><thead><tr><th>Análise</th><th>Data</th><th style="text-align:right;">Total de Questionamentos</th></tr></thead><tbody>' + rowsD + '</tbody></table>';
+    }).join('');
+    const secaoGeometria = '<div style="break-before:page;"></div><h1>2. Análise por Disciplina</h1>' + secoesDisc
+      + (discsSemAnalise.length ? '<h2>2.' + (discsComAnalise.length + 1) + ' Demais Disciplinas</h2><p>' + discsSemAnalise.map(m => esc(m.label)).join(', ') + ' ainda não receberam pareceres técnicos do DER-MG.</p>' : '');
     // ---- 3. Medição ----
     const items = this.medicaoItemsData;
     const efetivos = items.map(i => ({ i, ef: this.medicaoItemEfetivo(i) }));

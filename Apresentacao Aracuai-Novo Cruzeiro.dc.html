@@ -3216,26 +3216,30 @@ class Component extends DCLogic {
   mapaRegionalHtml = "<!DOCTYPE html>\n<html>\n<head>\n<meta charset=\"utf-8\">\n<link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.9.4/dist/leaflet.css\" integrity=\"sha384-sHL9NAb7lN7rfvG5lfHpm643Xkcjzp4jFvuavGOndn6pjVqS6ny56CAt3nsEVT4H\" crossorigin=\"anonymous\">\n<script src=\"https://unpkg.com/leaflet@1.9.4/dist/leaflet.js\" integrity=\"sha384-cxOPjt7s7Iz04uaHJceBmS+qpjv2JkIHNVcuOrM+YHwZOmJGBXI00mdUXEq65HTH\" crossorigin=\"anonymous\"><\/script>\n<style>\n  html, body { margin: 0; height: 100%; }\n  #map { width: 100%; height: 100%; }\n  .city-label { font-family: sans-serif; font-size: 13px; font-weight: 700; color: #1f3a5f; text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff; white-space: nowrap; }\n  .route-label { font-family: sans-serif; font-size: 12px; font-weight: 700; color: #8a5a1a; text-shadow: 0 0 3px #fff, 0 0 3px #fff, 0 0 3px #fff; white-space: nowrap; }\n</style>\n</head>\n<body>\n<div id=\"map\"></div>\n<script>\n  var aracuai = [-16.8508, -42.0664];\n  var novoCruzeiro = [-17.4667, -41.9333];\n\n  var map = L.map('map', { zoomControl: true, attributionControl: true });\n  L.tileLayer('https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png', {\n    attribution: '&copy; OpenStreetMap contributors',\n    maxZoom: 19,\n    subdomains: 'abc'\n  }).addTo(map);\n\n  var bounds = L.latLngBounds([aracuai, novoCruzeiro]);\n  map.fitBounds(bounds, { padding: [60, 60] });\n\n  function drawStraightFallback() {\n    L.polyline([aracuai, novoCruzeiro], { color: '#e8a33d', weight: 5, opacity: 0.9 }).addTo(map);\n  }\n\n  fetch('https://router.project-osrm.org/route/v1/driving/' + aracuai[1] + ',' + aracuai[0] + ';' + novoCruzeiro[1] + ',' + novoCruzeiro[0] + '?overview=full&geometries=geojson')\n    .then(function (r) { return r.json(); })\n    .then(function (data) {\n      if (data.routes && data.routes[0]) {\n        var coords = data.routes[0].geometry.coordinates.map(function (c) { return [c[1], c[0]]; });\n        var line = L.polyline(coords, { color: '#e8a33d', weight: 5, opacity: 0.9 }).addTo(map);\n        map.fitBounds(line.getBounds(), { padding: [60, 60] });\n      } else {\n        drawStraightFallback();\n      }\n    })\n    .catch(function (e) {\n      console.error('Falha na rota OSRM', e);\n      drawStraightFallback();\n    });\n\n  function cityMarker(latlng, name, offsetClass) {\n    L.circleMarker(latlng, { radius: 7, color: '#fff', weight: 2, fillColor: '#1f3a5f', fillOpacity: 1 }).addTo(map);\n    L.marker(latlng, {\n      icon: L.divIcon({ className: '', html: '<div class=\"city-label\" style=\"transform:translate(' + offsetClass + ');\">' + name + '</div>', iconSize: [0, 0] })\n    }).addTo(map);\n  }\n  cityMarker(aracuai, 'Araçuaí', '-100%,-140%');\n  cityMarker(novoCruzeiro, 'Novo Cruzeiro', '10px,-40%');\n\n  var mid = [(aracuai[0] + novoCruzeiro[0]) / 2, (aracuai[1] + novoCruzeiro[1]) / 2];\n  L.marker(mid, {\n    icon: L.divIcon({ className: '', html: '<div class=\"route-label\">LMG-678</div>', iconSize: [0, 0] })\n  }).addTo(map);\n<\/script>\n</body>\n</html>\n";
 
   montarAnalisesParaSync() {
-    const paraArray = (meta) => Object.keys(meta || {}).map(n => ({
+    const cap = (p) => p.charAt(0).toUpperCase() + p.slice(1);
+    const linha = (meta, n, docs, lote) => ({
+      ...(lote ? { lote } : {}),
       numero: Number(n), recebido: meta[n].recebido, concluido: meta[n].concluido,
-    }));
-    const paraArrayComParte = (metaPorParte) => {
+      respostaConsol: meta[n].respostaConsol || null,
+      semPendencias: this.analiseSemPendencias(docs),
+    });
+    const paraArray = (meta, prefixo) => Object.keys(meta || {}).map(n => linha(meta, n, this[prefixo + n + 'DocsData'] || [], null));
+    const paraArrayComParte = (metaPorParte, prefixoDe) => {
       const out = [];
       for (const parte of Object.keys(metaPorParte || {})) {
-        for (const n of Object.keys(metaPorParte[parte] || {})) {
-          out.push({ lote: parte, numero: Number(n), recebido: metaPorParte[parte][n].recebido, concluido: metaPorParte[parte][n].concluido });
-        }
+        const meta = metaPorParte[parte] || {};
+        for (const n of Object.keys(meta)) out.push(linha(meta, n, this[prefixoDe(parte) + n + 'DocsData'] || [], parte));
       }
       return out;
     };
     return {
-      geometria: paraArray(this.geoAnaliseMeta),
-      sinalizacao: paraArray(this.sinalAnaliseMeta),
-      pavimentacao: paraArrayComParte(this.pavAnaliseMeta),
-      intersecao: paraArrayComParte(this.intersecaoAnaliseMeta),
-      terraplenagem: paraArrayComParte(this.terraGeoAnaliseMeta),
-      drenagem: paraArrayComParte(this.drenAnaliseMeta),
-      hidrologia: paraArray(this.hidroAnaliseMeta),
+      geometria: paraArray(this.geoAnaliseMeta, 'analise'),
+      sinalizacao: paraArray(this.sinalAnaliseMeta, 'sinalAnalise'),
+      pavimentacao: paraArrayComParte(this.pavAnaliseMeta, p => 'pav' + cap(p) + 'Analise'),
+      intersecao: paraArrayComParte(this.intersecaoAnaliseMeta, p => 'intersecao' + cap(p) + 'Analise'),
+      terraplenagem: paraArrayComParte(this.terraGeoAnaliseMeta, p => 'terraGeo' + cap(p) + 'Analise'),
+      drenagem: paraArrayComParte(this.drenAnaliseMeta, p => 'dren' + cap(p) + 'Analise'),
+      hidrologia: paraArray(this.hidroAnaliseMeta, 'hidroAnalise'),
     };
   }
 
@@ -3382,10 +3386,14 @@ class Component extends DCLogic {
       const db = firebase.firestore();
       Object.keys(this.disciplinaAnalisesReais).forEach(disc => {
         const lista = this.disciplinaAnalisesReais[disc];
+        const reais = this.timelineAnalisesFor(disc) || [];
         lista.forEach(a => {
+          const r = reais.find(x => x.numero === a.numero) || {};
           db.collection('analisesAgenda').doc(disc + '_' + a.numero).set({
             disc, numero: a.numero, recebido: a.recebido, concluido: a.concluido,
             ehUltimaAnalise: a.numero === lista[lista.length - 1].numero,
+            respostaConsol: r.respostaConsol || null,
+            semPendencias: !!r.semPendencias,
           }, { merge: true });
         });
       });
@@ -3883,6 +3891,7 @@ Volume 2, será aprovado somente após a finalização da análise de toda a ext
     geometria: [
       { numero: 1, recebido: '01/02/2024', concluido: '05/02/2024' },
       { numero: 2, recebido: '30/04/2024', concluido: '13/05/2024' },
+      { numero: 3, recebido: '30/04/2024', concluido: '13/05/2024' },
       { numero: 4, recebido: '20/05/2024', concluido: '10/06/2024' },
       { numero: 5, recebido: '30/07/2024', concluido: '14/08/2024' },
       { numero: 6, recebido: '16/10/2024', concluido: '08/11/2024' },
@@ -8046,6 +8055,17 @@ Permanente (APP), avaliando eventuais restrições à utilização destes pontos
   // Timeline (RAP-derived): built only from the real recebido/concluido dates already
   // recorded per Análise de Geometria (analiseDisciplinas). PRAZO = 20 dias corridos,
   // applied both to DER's análise turnaround and to the Projetista's response turnaround.
+  // Uma análise está "sem pendências" quando todos os itens dela foram Atendidos ou Retirados —
+  // nesse caso a disciplina/subgrupo está concluída e a Linha do Tempo não cobra resposta da Projetista.
+  analiseSemPendencias(docs) {
+    let temItem = false;
+    for (const d of docs || []) for (const it of d.items) {
+      temItem = true;
+      const st = (it && typeof it === 'object') ? it.status : null;
+      if (st !== 'atendido' && st !== 'retirado') return false;
+    }
+    return temItem;
+  }
   timelineAnalisesFor(key) {
     if (key === 'geometria') {
       const meta = this.geoAnaliseMeta;
@@ -8054,7 +8074,7 @@ Permanente (APP), avaliando eventuais restrições à utilização destes pontos
         if (!meta[n]) continue;
         const docs = this['analise' + n + 'DocsData'] || [];
         if (!docs.length) continue;
-        out.push({ numero: n, recebido: meta[n].recebido, concluido: meta[n].concluido });
+        out.push({ numero: n, recebido: meta[n].recebido, concluido: meta[n].concluido, respostaConsol: meta[n].respostaConsol || null, semPendencias: this.analiseSemPendencias(docs) });
       }
       return out;
     }
@@ -8065,7 +8085,7 @@ Permanente (APP), avaliando eventuais restrições à utilização destes pontos
         if (!meta[n]) continue;
         const docs = this['hidroAnalise' + n + 'DocsData'] || [];
         if (!docs.length) continue;
-        out.push({ numero: n, recebido: meta[n].recebido, concluido: meta[n].concluido });
+        out.push({ numero: n, recebido: meta[n].recebido, concluido: meta[n].concluido, respostaConsol: meta[n].respostaConsol || null, semPendencias: this.analiseSemPendencias(docs) });
       }
       return out;
     }
@@ -8078,7 +8098,7 @@ Permanente (APP), avaliando eventuais restrições à utilização destes pontos
         if (!meta[n]) continue;
         const docs = this['terraGeo' + cap + 'Analise' + n + 'DocsData'] || [];
         if (!docs.length) continue;
-        out.push({ numero: n, recebido: meta[n].recebido, concluido: meta[n].concluido });
+        out.push({ numero: n, recebido: meta[n].recebido, concluido: meta[n].concluido, respostaConsol: meta[n].respostaConsol || null, semPendencias: this.analiseSemPendencias(docs) });
       }
       return out;
     }
@@ -8091,7 +8111,7 @@ Permanente (APP), avaliando eventuais restrições à utilização destes pontos
         if (!meta[n]) continue;
         const docs = this['intersecao' + cap + 'Analise' + n + 'DocsData'] || [];
         if (!docs.length) continue;
-        out.push({ numero: n, recebido: meta[n].recebido, concluido: meta[n].concluido });
+        out.push({ numero: n, recebido: meta[n].recebido, concluido: meta[n].concluido, respostaConsol: meta[n].respostaConsol || null, semPendencias: this.analiseSemPendencias(docs) });
       }
       return out;
     }
@@ -8102,7 +8122,7 @@ Permanente (APP), avaliando eventuais restrições à utilização destes pontos
         if (!meta[n]) continue;
         const docs = this['sinalAnalise' + n + 'DocsData'] || [];
         if (!docs.length) continue;
-        out.push({ numero: n, recebido: meta[n].recebido, concluido: meta[n].concluido });
+        out.push({ numero: n, recebido: meta[n].recebido, concluido: meta[n].concluido, respostaConsol: meta[n].respostaConsol || null, semPendencias: this.analiseSemPendencias(docs) });
       }
       return out;
     }
@@ -8115,7 +8135,7 @@ Permanente (APP), avaliando eventuais restrições à utilização destes pontos
         if (!meta[n]) continue;
         const docs = this['pav' + cap + 'Analise' + n + 'DocsData'] || [];
         if (!docs.length) continue;
-        out.push({ numero: n, recebido: meta[n].recebido, concluido: meta[n].concluido });
+        out.push({ numero: n, recebido: meta[n].recebido, concluido: meta[n].concluido, respostaConsol: meta[n].respostaConsol || null, semPendencias: this.analiseSemPendencias(docs) });
       }
       return out;
     }
@@ -8128,7 +8148,7 @@ Permanente (APP), avaliando eventuais restrições à utilização destes pontos
         if (!meta[n]) continue;
         const docs = this['dren' + cap + 'Analise' + n + 'DocsData'] || [];
         if (!docs.length) continue;
-        out.push({ numero: n, recebido: meta[n].recebido, concluido: meta[n].concluido });
+        out.push({ numero: n, recebido: meta[n].recebido, concluido: meta[n].concluido, respostaConsol: meta[n].respostaConsol || null, semPendencias: this.analiseSemPendencias(docs) });
       }
       return out;
     }
@@ -8208,6 +8228,22 @@ Permanente (APP), avaliando eventuais restrições à utilização destes pontos
           atrasado: dias2 > PRAZO, semAtraso: dias2 <= PRAZO,
           ...this.buildObsInfo(respObsKey, dias2 > PRAZO, a.numero, loteSuffix),
         };
+      } else if (a.semPendencias) {
+        legResp = {
+          sentido: 'Projetista → DER', recebido: this.fmtDia(a.concluido), concluido: null, tempo: 'sem pendências',
+          status: 'Concluído', statusColor: '#2f8f4f',
+          atrasado: false, semAtraso: true,
+          ...this.buildObsInfo(respObsKey, false, a.numero, loteSuffix),
+        };
+      } else if (a.respostaConsol) {
+        const diasResp = this.diffDays(conc, this.parseBR(a.respostaConsol));
+        legResp = {
+          sentido: 'Projetista → DER', recebido: this.fmtDia(a.concluido), concluido: this.fmtDia(a.respostaConsol), tempo: diasResp + ' dias',
+          status: diasResp <= PRAZO ? 'Prazo Cumprido' : 'Atrasado',
+          statusColor: diasResp <= PRAZO ? '#2f8f4f' : '#c0392b',
+          atrasado: diasResp > PRAZO, semAtraso: diasResp <= PRAZO,
+          ...this.buildObsInfo(respObsKey, diasResp > PRAZO, a.numero, loteSuffix),
+        };
       } else {
         const diasAbertos = this.diffDays(conc, today);
         const restam = PRAZO - diasAbertos;
@@ -8235,18 +8271,20 @@ Permanente (APP), avaliando eventuais restrições à utilização destes pontos
     });
 
     const last = analises[analises.length - 1];
-    const diasDecorridos = this.diffDays(this.parseBR(last.concluido), today);
+    let diasDecorridos = this.diffDays(this.parseBR(last.concluido), today);
     const restam = PRAZO - diasDecorridos;
-    let statusAtual, statusAtualColor;
-    if (restam < 0) { statusAtual = 'Atrasado'; statusAtualColor = '#c0392b'; }
+    let statusAtual, statusAtualColor, responsavelAtual = 'Projetista';
+    if (last.semPendencias) { statusAtual = 'Concluído'; statusAtualColor = '#2f8f4f'; responsavelAtual = '—'; diasDecorridos = 0; }
+    else if (last.respostaConsol) { statusAtual = 'Aguardando DER'; statusAtualColor = '#2f6690'; responsavelAtual = 'DER-MG'; diasDecorridos = this.diffDays(this.parseBR(last.respostaConsol), today); }
+    else if (restam < 0) { statusAtual = 'Atrasado'; statusAtualColor = '#c0392b'; }
     else if (restam <= 5) { statusAtual = 'Prazo Vencendo'; statusAtualColor = '#c98a1c'; }
     else { statusAtual = 'Dentro do Prazo'; statusAtualColor = '#2f8f4f'; }
 
     return {
       discButtons, hasLoteButtons: loteButtons.length > 0, loteButtons, geoLoteButtons: tlGeoLoteButtons, showGeoLoteButtons: tlShowGeoLote, hasTimelineData: true, noTimelineData: false,
-      ultimaEntregaProjetista: this.fmtDia(last.recebido),
+      ultimaEntregaProjetista: this.fmtDia(last.respostaConsol || last.recebido),
       ultimaEntregaDER: this.fmtDia(last.concluido),
-      responsavelAtual: 'Projetista',
+      responsavelAtual,
       statusAtual, statusAtualColor, diasDecorridos,
       events,
     };
@@ -8266,86 +8304,6 @@ Permanente (APP), avaliando eventuais restrições à utilização destes pontos
 
   toggleItemHistorico(key) {
     this.setState(s => ({ itensRepHistorico: { ...s.itensRepHistorico, [key]: !s.itensRepHistorico[key] } }));
-  }
-
-  buildGeoItensRepetidos() {
-    const raw = this.buildGeoObservacoesRaw();
-    const statusColors = {
-      atendido: { color: '#2f8f4f', bg: '#eef8f0', label: 'Atendido' },
-      parcial: { color: '#b5541f', bg: '#fdf1e8', label: 'Atendido Parcialmente' },
-      nao: { color: '#c0392b', bg: '#fbeaea', label: 'Não Atendido' },
-      novo: { color: '#2f6690', bg: '#eaf1f7', label: 'Item Novo' },
-      pendente: { color: '#8a94a3', bg: '#f4f6f8', label: 'Reiterando Análise Anterior' },
-    };
-    const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9\s]/g, '').replace(/\s+/g, ' ').trim();
-
-    const pending = raw.filter(i => i.totalRepeticoes >= 3 && i.statusKey !== 'atendido');
-
-    const items = pending.map((i, idx) => {
-      const key = norm(i.text);
-      const selected = this.state.itensRepSelected[key] ?? i.ultimaAnaliseNumero;
-      const historicoOpen = !!this.state.itensRepHistorico[key];
-      const primaryColor = this.props.primaryColor ?? '#1f3a5f';
-      const analiseButtons = i.analisesNumeros.map(numero => ({
-        numero,
-        bg: selected === numero ? primaryColor : '#f4f6f8',
-        fg: selected === numero ? '#fff' : '#5b6774',
-        select: () => this.selectItemAnalise(key, numero),
-      }));
-      // need per-analise status; re-derive from raw occurrences stored on the item (analisesNumeros aligns 1:1 with a status trail we don't retain) -
-      // rebuild via buildGeoObservacoesRaw's underlying map is not retained per numero->status here, so recompute quickly:
-      return {
-        n: idx + 1, key, text: i.text,
-        statusLabel: (statusColors[i.statusKey] || statusColors.pendente).label,
-        statusColor: (statusColors[i.statusKey] || statusColors.pendente).color,
-        statusBg: (statusColors[i.statusKey] || statusColors.pendente).bg,
-        totalRepeticoes: i.totalRepeticoes,
-        analiseButtons,
-        selectedNumero: selected,
-        historicoOpen, toggleHistorico: () => this.toggleItemHistorico(key),
-        historicoLabel: historicoOpen ? 'Ocultar Histórico' : 'Ver Histórico Completo',
-        _norm: key,
-      };
-    });
-
-    // attach per-análise status trail and selected-detail using a second pass over raw analise data
-    const analiseList = [
-      { numero: 1, docs: this.analise1DocsData },
-      { numero: 2, docs: this.analise2DocsData },
-      { numero: 3, docs: this.analise3DocsData },
-      { numero: 4, docs: this.analise4DocsData },
-      { numero: 5, docs: this.analise5DocsData },
-    ];
-    const statusByKeyByNumero = new Map();
-    for (const an of analiseList) {
-      for (const doc of an.docs) {
-        for (const it of doc.items) {
-          const text = typeof it === 'string' ? it : it.text;
-          const status = typeof it === 'string' ? null : it.status;
-          if (!text || text.startsWith('[')) continue;
-          const key = norm(text);
-          if (!statusByKeyByNumero.has(key)) statusByKeyByNumero.set(key, new Map());
-          statusByKeyByNumero.get(key).set(an.numero, status);
-        }
-      }
-    }
-
-    for (const item of items) {
-      const trail = statusByKeyByNumero.get(item._norm) || new Map();
-      const selStatus = trail.get(item.selectedNumero) || null;
-      const sc = statusColors[selStatus || 'pendente'] || statusColors.pendente;
-      item.selectedStatusLabel = sc.label;
-      item.selectedStatusColor = sc.color;
-      item.selectedStatusBg = sc.bg;
-      item.historico = item.analiseButtons.map(b => {
-        const st = trail.get(b.numero) || null;
-        const s = statusColors[st || 'pendente'] || statusColors.pendente;
-        return { numero: b.numero, statusLabel: s.label, statusColor: s.color };
-      });
-      delete item._norm;
-    }
-
-    return { items, hasItems: items.length > 0, noItems: items.length === 0 };
   }
 
   geoAnalisesList() {
@@ -8381,10 +8339,6 @@ Permanente (APP), avaliando eventuais restrições à utilização destes pontos
       { numero: 7, data: '17/03/2026', docs: this.sinalAnalise7DocsData },
       { numero: 8, data: '07/04/2026', docs: this.sinalAnalise8DocsData },
     ].filter(a => a.docs && a.docs.length);
-  }
-
-  sinalAtendidoOverrides() {
-    return { 2: 51, 3: 68, 4: 58, 5: 51, 6: 26, 7: 12, 8: 27 };
   }
 
   buildGeoObservacoesRaw() {
@@ -8502,29 +8456,6 @@ Permanente (APP), avaliando eventuais restrições à utilização destes pontos
     }));
 
     return { items, filterButtons, hasItems: items.length > 0, noItems: items.length === 0, totalRecorrentes: raw.length };
-  }
-
-  buildGeoInsights() {
-    const totals = [this.analise1DocsData, this.analise2DocsData, this.analise4DocsData, this.analise5DocsData, this.analise6DocsData, this.analise7DocsData, this.analise8DocsData, this.analise9DocsData, this.analise10DocsData, this.analise11DocsData, this.analise12DocsData, this.analise13DocsData, this.analise14DocsData, this.analise15DocsData, this.analise16DocsData, this.analise17DocsData]
-      .map(docs => docs.reduce((s, d) => s + d.items.length, 0));
-    const n = totals.length;
-    const insights = [];
-    if (n >= 2) {
-      const last = totals[n - 1], prev = totals[n - 2];
-      const pct = prev ? Math.round(((last - prev) / prev) * 100) : 0;
-      const verbo = pct >= 0 ? 'aumento' : 'redução';
-      insights.push('A disciplina Geometria apresentou ' + verbo + ' de ' + Math.abs(pct) + '% no número de questionamentos entre as análises ' + (n - 1) + ' e ' + n + '.');
-    }
-    const labelTotals = {};
-    for (const docs of [this.analise1DocsData, this.analise2DocsData, this.analise4DocsData, this.analise5DocsData, this.analise6DocsData, this.analise7DocsData, this.analise8DocsData, this.analise9DocsData, this.analise10DocsData, this.analise11DocsData, this.analise12DocsData, this.analise13DocsData, this.analise14DocsData, this.analise15DocsData, this.analise16DocsData, this.analise17DocsData])
-      for (const d of docs) labelTotals[d.label] = (labelTotals[d.label] || 0) + d.items.length;
-    const topAssuntos = Object.entries(labelTotals).sort((a, b) => b[1] - a[1]).slice(0, 2).map(e => e[0]);
-    if (topAssuntos.length) {
-      insights.push('Os assuntos mais recorrentes continuam concentrados em ' + topAssuntos.join(' e ') + '.');
-    }
-    const raw = this.buildGeoObservacoesRaw();
-    insights.push('Atualmente existem ' + raw.length + ' ' + (raw.length === 1 ? 'item repetido' : 'itens repetidos') + ' há 3 ou mais análises consecutivas.');
-    return insights;
   }
 
   buildGeoDashboard() {
@@ -9130,6 +9061,41 @@ Permanente (APP), avaliando eventuais restrições à utilização destes pontos
   // Sinalização, onde o item de serviço corresponde à disciplina inteira).
   // A "análise mais recente" usa a última rodada com dados reais, contando status explícito — dado
   // 100% ao vivo, nunca hardcoded, nunca tirado de print.
+  // Interseção — Projeção combinando os subgrupos (regra aprovada pelo usuário em 23/09/2026, igual nos
+  // 3 projetos): em cada subgrupo usa a análise mais recente que já tem pontos julgados (atendido ou não
+  // atendido); taxa = soma dos atendidos ÷ soma dos julgados.
+  projecaoSubgruposIntersecao(itemNumero) {
+    return itemNumero === 42 ? [['int1', 'Interseção 1'], ['int2', 'Interseção 2'], ['geral', 'Geral']] : null;
+  }
+
+  projecaoIntersecaoBase(subgrupos) {
+    let rodadas = 0, questionamentos = 0, atendido = 0, nao = 0;
+    const partes = [];
+    for (const [g, nome] of subgrupos) {
+      const lista = this.intersecaoAnalisesList(g);
+      const { historico } = this.historicoEAnaliseMaisRecente(lista, null);
+      rodadas += historico.rodadas;
+      questionamentos += historico.questionamentos;
+      for (let i = lista.length - 1; i >= 0; i--) {
+        let a = 0, n = 0;
+        for (const d of lista[i].docs) for (const it of d.items) {
+          const st = (it && typeof it === 'object') ? it.status : null;
+          if (st === 'atendido') a++;
+          else if (st === 'nao') n++;
+        }
+        if (a + n > 0) {
+          atendido += a;
+          nao += n;
+          partes.push(lista[i].numero + ' (' + nome + ')');
+          break;
+        }
+      }
+    }
+    if (!partes.length) return { historico: { rodadas, questionamentos }, analiseMaisRecente: null };
+    const numero = partes.length === 1 ? partes[0] : partes.slice(0, -1).join(', ') + ' e ' + partes[partes.length - 1];
+    return { historico: { rodadas, questionamentos }, analiseMaisRecente: { numero, atendido, nao } };
+  }
+
   historicoEAnaliseMaisRecente(analisesList, groupKey) {
     let rodadas = 0, questionamentos = 0, analiseMaisRecente = null;
     for (const a of analisesList) {
@@ -9424,9 +9390,10 @@ Permanente (APP), avaliando eventuais restrições à utilização destes pontos
     if (itemNumero === 39) return this.calcularProjecaoPavimentacao();
     if (itemNumero === 37) return this.calcularProjecaoTerraGeo();
     if (itemNumero === 38) return this.calcularProjecaoDrenagem();
-    const fonte = this.projecaoFonteConfig(itemNumero);
-    if (!fonte) return null;
-    const { historico, analiseMaisRecente } = this.historicoEAnaliseMaisRecente(fonte.lista, fonte.groupKey);
+    const subgruposInter = this.projecaoSubgruposIntersecao(itemNumero);
+    const fonte = subgruposInter ? null : this.projecaoFonteConfig(itemNumero);
+    if (!subgruposInter && !fonte) return null;
+    const { historico, analiseMaisRecente } = subgruposInter ? this.projecaoIntersecaoBase(subgruposInter) : this.historicoEAnaliseMaisRecente(fonte.lista, fonte.groupKey);
     if (!analiseMaisRecente) return null;
     const item = this.medicaoItemsData.find(x => x.numero === itemNumero);
     if (!item) return null;
@@ -9955,6 +9922,21 @@ Permanente (APP), avaliando eventuais restrições à utilização destes pontos
       ];
       this.generateRelatorioMultiLote(m.label, lotes);
     }
+    else if (m.key === 'intersecao') {
+      this.generateRelatorioMultiLote(m.label, [
+        { titulo: 'Interseção 1', numerosList: this.intersecaoAnalisesList('int1') },
+        { titulo: 'Interseção 2', numerosList: this.intersecaoAnalisesList('int2') },
+        { titulo: 'Geral', numerosList: this.intersecaoAnalisesList('geral') },
+      ]);
+    }
+    else if (m.key === 'terraplenagem') {
+      this.generateRelatorioMultiLote(m.label, [
+        { titulo: 'Terraplenagem', numerosList: this.terraGeoAnalisesList('terra') },
+        { titulo: 'Geotecnia — Lote 1 (' + this.loteExtensoesKm.lote1 + ' km)', numerosList: this.terraGeoAnalisesList('geoLote1') },
+        { titulo: 'Geotecnia — Lote 2 (' + this.loteExtensoesKm.lote2 + ' km)', numerosList: this.terraGeoAnalisesList('geoLote2') },
+        { titulo: 'Geotecnia — Lote 3 (' + this.loteExtensoesKm.lote3 + ' km)', numerosList: this.terraGeoAnalisesList('geoLote3') },
+      ]);
+    }
     else this.generateRelatorioPlaceholder(m.label);
   }
 
@@ -9975,38 +9957,41 @@ Permanente (APP), avaliando eventuais restrições à utilização destes pontos
   // gera UM relatório com os 3 lotes, nunca só o lote selecionado na tela.
   generateRelatorioMultiLote(label, lotes) {
     const body = this.relatorioHeaderHtml(label)
-      + this.relatorioSumarioHtml(lotes.map(l => 'Lote ' + l.num + ' (' + l.km + ' km)'))
-      + lotes.map(l => '<h1 style="margin-top:28px;page-break-before:always;">Lote ' + l.num + ' (' + l.km + ' km)</h1>' + this.buildRelatorioAnaliseChunk(l.numerosList)).join('')
+      + this.relatorioSumarioHtml(lotes.map(l => l.titulo || ('Lote ' + l.num + ' (' + l.km + ' km)')))
+      + lotes.map(l => '<h1 style="margin-top:28px;page-break-before:always;">' + (l.titulo || ('Lote ' + l.num + ' (' + l.km + ' km)')) + '</h1>' + this.buildRelatorioAnaliseChunk(l.numerosList)).join('')
       + this.relatorioFooterHtml();
     this.openRelatorioWindow(this.buildRelatorioShellHtml('Relatório - ' + label, body));
   }
 
   buildRelatorioAnaliseChunk(numerosList) {
+    if (!numerosList || !numerosList.length) return '<p>Nenhuma análise cadastrada ainda.</p>';
     const allDocs = numerosList.map(x => x.docs);
     const datas = numerosList.map(x => x.data);
     const totals = allDocs.map(docs => docs.reduce((s, d) => s + d.items.length, 0));
     const totalQuestionamentosSum = totals.reduce((a, b) => a + b, 0);
     const media = (totalQuestionamentosSum / totals.length).toFixed(1).replace('.', ',');
-    const statusOf = (it) => (typeof it === 'string' ? null : it.status);
     const tally = (docs) => {
-      let atendido = 0, parcial = 0, nao = 0, novo = 0;
+      let atendido = 0, parcial = 0, nao = 0, retirado = 0, novo = 0;
       const perDoc = {};
       for (const d of docs) {
         perDoc[d.label] = (perDoc[d.label] || 0) + d.items.length;
         for (const it of d.items) {
-          const s = statusOf(it);
+          const s = (it && typeof it === 'object') ? it.status : null;
           if (s === 'atendido') atendido++;
           else if (s === 'parcial') parcial++;
           else if (s === 'nao') nao++;
-          else if (s === 'novo') novo++;
+          else if (s === 'retirado') retirado++;
+          else if (s === 'pendente') {}
+          else novo++;
         }
       }
-      return { atendido, parcial, nao, novo, perDoc };
+      return { atendido, parcial, nao, retirado, novo, perDoc };
     };
     const tallies = allDocs.map(tally);
     const totAtendido = tallies.reduce((s, t) => s + t.atendido, 0);
     const totParcial = tallies.reduce((s, t) => s + t.parcial, 0);
     const totNao = tallies.reduce((s, t) => s + t.nao, 0);
+    const totRetirado = tallies.reduce((s, t) => s + t.retirado, 0);
     const totNovo = tallies.reduce((s, t) => s + t.novo, 0);
 
     const labelTotals = {};
@@ -10016,25 +10001,23 @@ Permanente (APP), avaliando eventuais restrições à utilização destes pontos
 
     const rows = totals.map((t, i) => {
       const tl = tallies[i];
-      const cells = i === 0
-        ? '<td style="text-align:right;color:#8a94a3;">&mdash;</td><td style="text-align:right;color:#8a94a3;">&mdash;</td><td style="text-align:right;color:#8a94a3;">&mdash;</td><td style="text-align:right;color:#8a94a3;">&mdash;</td>'
-        : '<td style="text-align:right;">' + tl.atendido + '</td><td style="text-align:right;">' + tl.parcial + '</td><td style="text-align:right;">' + tl.nao + '</td><td style="text-align:right;">' + tl.novo + '</td>';
-      return '<tr' + (i % 2 ? ' style="background:#eef1f4;"' : '') + '><td>Análise ' + (i + 1) + '</td><td>' + this.fmtDia(datas[i]) + '</td><td style="text-align:right;font-weight:700;">' + t + '</td>' + cells + '</tr>';
+      const cells = '<td style="text-align:right;">' + tl.atendido + '</td><td style="text-align:right;">' + tl.parcial + '</td><td style="text-align:right;">' + tl.nao + '</td><td style="text-align:right;">' + tl.retirado + '</td><td style="text-align:right;">' + tl.novo + '</td>';
+      return '<tr' + (i % 2 ? ' style="background:#eef1f4;"' : '') + '><td>Análise ' + numerosList[i].numero + '</td><td>' + this.fmtDia(datas[i]) + '</td><td style="text-align:right;font-weight:700;">' + t + '</td>' + cells + '</tr>';
     }).join('');
 
     return '<h2>Tabela 01 – Resumo Geral</h2>'
       + '<table style="font-size:12px;"><tbody>'
       + '<tr><td style="color:#5b6774;">Total de análises cadastradas</td><td style="text-align:right;font-weight:700;">' + totals.length + '</td></tr>'
-      + '<tr><td style="color:#5b6774;">Total de questionamentos (todas as análises)</td><td style="text-align:right;font-weight:700;">' + totalQuestionamentosSum + '</td></tr>'
+      + '<tr><td style="color:#5b6774;">Total de questionamentos (soma de todas as análises)</td><td style="text-align:right;font-weight:700;">' + totalQuestionamentosSum + '</td></tr>'
       + '<tr><td style="color:#5b6774;">Média de questionamentos por análise</td><td style="text-align:right;font-weight:700;">' + media + '</td></tr>'
+      + '<tr><td style="color:#5b6774;">Total de itens novos (questionamentos únicos)</td><td style="text-align:right;font-weight:700;color:#7a4fc9;">' + totNovo + '</td></tr>'
       + '<tr><td style="color:#5b6774;">Total atendido</td><td style="text-align:right;font-weight:700;color:#2e7d4f;">' + totAtendido + '</td></tr>'
       + '<tr><td style="color:#5b6774;">Total atendido parcialmente</td><td style="text-align:right;font-weight:700;color:#b8860b;">' + totParcial + '</td></tr>'
       + '<tr><td style="color:#5b6774;">Total não atendido</td><td style="text-align:right;font-weight:700;color:#9b2c22;">' + totNao + '</td></tr>'
-      + '<tr><td style="color:#5b6774;">Total de itens novos</td><td style="text-align:right;font-weight:700;color:#e05a4e;">' + totNovo + '</td></tr>'
+      + '<tr><td style="color:#5b6774;">Total retirado pelo DER-MG</td><td style="text-align:right;font-weight:700;color:#6b7480;">' + totRetirado + '</td></tr>'
       + '</tbody></table>'
       + '<h2>Tabela 02 – Questionamentos por Análise</h2>'
-      + '<table><thead><tr><th>Análise</th><th>Data</th><th style="text-align:right;">Total</th><th style="text-align:right;">Atendido</th><th style="text-align:right;">Parcial</th><th style="text-align:right;">Não Atendido</th><th style="text-align:right;">Novos</th></tr></thead><tbody>' + rows + '</tbody></table>'
-      + '<p style="font-size:10.5px;color:#8a94a3;margin-top:6px;">Análise 1 não possui indicadores comparativos por não haver análise anterior para comparação.</p>'
+      + '<table><thead><tr><th>Análise</th><th>Data</th><th style="text-align:right;">Total</th><th style="text-align:right;">Atendido</th><th style="text-align:right;">Parcial</th><th style="text-align:right;">Não Atendido</th><th style="text-align:right;">Retirado</th><th style="text-align:right;">Novo</th></tr></thead><tbody>' + rows + '</tbody></table>'
       + '<h2>Tabela 03 – Questionamentos por Documento (acumulado)</h2>'
       + '<table><thead><tr><th>Documento</th><th style="text-align:right;">Total</th></tr></thead><tbody>' + docRows + '</tbody></table>';
   }
@@ -10052,7 +10035,7 @@ Permanente (APP), avaliando eventuais restrições à utilização destes pontos
       + '<h2>Sumário</h2><ol style="font-size:12px;line-height:2;">' + secoes.map(s => '<li>' + s + '</li>').join('') + '</ol>';
 
     const b = this.medicaoBoletim;
-    const modeledCount = this.materiaMeta.filter(m => ['geometria', 'sinalizacao', 'pavimentacao', 'hidrologia', 'drenagem'].includes(m.key)).length;
+    const modeledCount = this.materiaMeta.filter(m => ['geometria', 'sinalizacao', 'pavimentacao', 'hidrologia', 'drenagem', 'intersecao', 'terraplenagem'].includes(m.key)).length;
     const secaoVisaoGeral = '<div style="break-before:page;"></div><h1>1. Visão Geral do Contrato</h1>'
       + '<table style="font-size:11.5px;"><tbody>'
       + '<tr><td style="color:#5b6774;width:44%;">Obra/Serviço</td><td style="font-weight:700;">' + esc(b.obraServico) + '</td></tr>'
@@ -10074,7 +10057,7 @@ Permanente (APP), avaliando eventuais restrições à utilização destes pontos
         let atendido = 0, parcial = 0, nao = 0, novo = 0;
         for (const d of docs) for (const it of d.items) {
           const s2 = statusOf(it);
-          if (s2 === 'atendido') atendido++; else if (s2 === 'parcial') parcial++; else if (s2 === 'nao') nao++; else if (s2 === 'novo') novo++;
+          if (s2 === 'atendido') atendido++; else if (s2 === 'parcial') parcial++; else if (s2 === 'nao') nao++; else if (s2 !== 'retirado' && s2 !== 'pendente') novo++;
         }
         return { atendido, parcial, nao, novo };
       };
@@ -10086,7 +10069,7 @@ Permanente (APP), avaliando eventuais restrições à utilização destes pontos
         + this.buildRelatorioAnaliseChunk(numerosList);
     };
 
-    const outrasDisc = this.materiaMeta.filter(m => !['geometria', 'sinalizacao', 'pavimentacao', 'hidrologia', 'drenagem'].includes(m.key)).map(m => esc(m.label)).join(', ');
+    const outrasDisc = this.materiaMeta.filter(m => !['geometria', 'sinalizacao', 'pavimentacao', 'hidrologia', 'drenagem', 'intersecao', 'terraplenagem'].includes(m.key)).map(m => esc(m.label)).join(', ');
     const secaoDisciplinas = '<div style="break-before:page;"></div><h1>2. Análise por Disciplina</h1>'
       + narrarDisciplina('2.1 Geometria', this.geoAnalisesList())
       + narrarDisciplina('2.2 Sinalização', this.sinalAnalisesList())
@@ -10095,7 +10078,11 @@ Permanente (APP), avaliando eventuais restrições à utilização destes pontos
       + narrarDisciplina('2.4 Estudos Hidrológicos', this.hidroAnalisesList())
       + '<h2>2.5 Drenagem</h2><p>Disciplina dividida em 3 lotes, cada um com numeração de análise independente.</p>'
       + ['lote1', 'lote2', 'lote3'].map((l, i) => '<h2 style="page-break-before:always;">Lote ' + (i + 1) + ' (' + this.loteExtensoesKm[l] + ' km)</h2>' + (this.drenAnalisesList(l).length ? this.buildRelatorioAnaliseChunk(this.drenAnalisesList(l)) : '<p>Nenhuma análise cadastrada ainda para este lote.</p>')).join('')
-      + '<h2>2.6 Demais Disciplinas</h2><p>' + outrasDisc + ' ainda aguardam recebimento de pareceres técnicos do DER-MG.</p>';
+      + '<h2>2.6 Interseção</h2><p>Disciplina dividida em 3 subgrupos, cada um com numeração de análise independente.</p>'
+      + [['int1', 'Interseção 1'], ['int2', 'Interseção 2'], ['geral', 'Geral']].map(([g, t]) => '<h2 style="page-break-before:always;">' + t + '</h2>' + this.buildRelatorioAnaliseChunk(this.intersecaoAnalisesList(g))).join('')
+      + '<h2>2.7 Geotécnico e Terraplenagem</h2><p>Terraplenagem e Geotecnia são analisadas separadamente; a Geotecnia é dividida em 3 lotes.</p>'
+      + [['terra', 'Terraplenagem'], ['geoLote1', 'Geotecnia — Lote 1'], ['geoLote2', 'Geotecnia — Lote 2'], ['geoLote3', 'Geotecnia — Lote 3']].map(([k, t]) => '<h2 style="page-break-before:always;">' + t + '</h2>' + this.buildRelatorioAnaliseChunk(this.terraGeoAnalisesList(k))).join('')
+      + (outrasDisc ? '<h2>2.8 Demais Disciplinas</h2><p>' + outrasDisc + ' ainda aguardam recebimento de pareceres técnicos do DER-MG.</p>' : '');
 
     const items = this.medicaoItemsData;
     const secaoMedicao = '<div style="break-before:page;"></div><h1>3. Controle de Medição e Faturamento</h1>'
