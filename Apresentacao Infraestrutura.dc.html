@@ -2939,7 +2939,37 @@ class Component extends DCLogic {
     this.setState(s => ({ envio: { ...s.envio, passo: 1 } }));
   }
 
+  // O projeto carrega de novo a biblioteca do Firebase (scripts do <helmet>); quando isso acontece depois
+  // do login, a variável global "firebase" passa a ser uma cópia nova, ainda sem o app iniciado.
+  // Esta função garante o app iniciado e a sessão do usuário restaurada antes de ler/gravar.
+  async firebasePronto() {
+    if (!firebase.apps || !firebase.apps.length) {
+      firebase.initializeApp({
+        apiKey: "AIzaSyDNBXkzFJFAsOKefmBesSWmwRHgS0i7ACA",
+        authDomain: "sip-sistema-intelig-de-projeto.firebaseapp.com",
+        projectId: "sip-sistema-intelig-de-projeto",
+        storageBucket: "sip-sistema-intelig-de-projeto.firebasestorage.app",
+        messagingSenderId: "957059964424",
+        appId: "1:957059964424:web:30ba5c315b713c2c05bbbd"
+      });
+    }
+    const auth = firebase.auth();
+    if (!auth.currentUser) {
+      await new Promise(resolve => {
+        let feito = false;
+        const off = auth.onAuthStateChanged(() => {
+          Promise.resolve().then(() => off());
+          if (!feito) { feito = true; resolve(); }
+        });
+        setTimeout(() => { if (!feito) { feito = true; resolve(); } }, 8000);
+      });
+    }
+    if (!auth.currentUser) throw new Error('sua sessão expirou. Saia do SIP e entre de novo.');
+    return firebase;
+  }
+
   async gravarRodadas(disc, parte, rodadas, origem, arquivoNome) {
+    await this.firebasePronto();
     const db = firebase.firestore();
     const p = this.props.permissoes || {};
     const quem = p.email || '';
@@ -2981,6 +3011,7 @@ class Component extends DCLogic {
     const rotuloParte = partes ? (partes.find(x => x[0] === parte) || [parte, parte])[1] : '';
     this.setState({ historico: { aberto: true, disc, label: label + (rotuloParte ? ' — ' + rotuloParte : ''), parte, carregando: true, lista: [], msg: '' } });
     try {
+      await this.firebasePronto();
       const snap = await firebase.firestore().collection('analisesFontes').doc(this.idFonte(disc, parte)).collection('envios').get();
       const lista = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => String(b.quandoTexto || '').localeCompare(String(a.quandoTexto || '')));
       this.setState(s => ({ historico: { ...s.historico, carregando: false, lista } }));
