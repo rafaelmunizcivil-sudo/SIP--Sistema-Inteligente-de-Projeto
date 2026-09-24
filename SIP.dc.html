@@ -921,9 +921,42 @@ class Component extends DCLogic {
     return JSON.stringify([l.nome, l.perfil, l.ativo, l.projetos.slice().sort(), l.abas.medicao, l.abas.terceiros, l.disciplinas.slice().sort()]);
   }
 
+  // A página de um projeto pode recarregar a biblioteca do Firebase; antes de usar a Administração,
+  // garante o app iniciado e a sessão restaurada — e que ela é a do usuário logado (não anônima).
+  async sessaoPronta() {
+    if (!firebase.apps || !firebase.apps.length) {
+      firebase.initializeApp({
+        apiKey: "AIzaSyDNBXkzFJFAsOKefmBesSWmwRHgS0i7ACA",
+        authDomain: "sip-sistema-intelig-de-projeto.firebaseapp.com",
+        projectId: "sip-sistema-intelig-de-projeto",
+        storageBucket: "sip-sistema-intelig-de-projeto.firebasestorage.app",
+        messagingSenderId: "957059964424",
+        appId: "1:957059964424:web:30ba5c315b713c2c05bbbd"
+      });
+    }
+    const auth = firebase.auth();
+    if (!auth.currentUser) {
+      await new Promise(resolve => {
+        let feito = false;
+        const off = auth.onAuthStateChanged(() => {
+          Promise.resolve().then(() => off());
+          if (!feito) { feito = true; resolve(); }
+        });
+        setTimeout(() => { if (!feito) { feito = true; resolve(); } }, 8000);
+      });
+    }
+    const u = auth.currentUser;
+    const esperado = this.state.usuarioSip && this.state.usuarioSip.uid;
+    if (!u || u.isAnonymous || (esperado && u.uid !== esperado)) {
+      throw new Error('Sua sessão no SIP foi perdida. Clique em "Sair" e entre de novo com o seu e-mail e senha.');
+    }
+    return u;
+  }
+
   async goAdmin() {
     this.setState({ view: 'admin', selectedProjetoId: null, adminCarregando: true, adminMsg: '' });
     try {
+      await this.sessaoPronta();
       const snap = await this.db().collection('usuarios').get();
       const existentes = snap.docs.map(d => this.linhaDeUsuario({ uid: d.id, ...d.data() }, false));
       const emails = new Set(existentes.map(l => l.email));
@@ -932,7 +965,7 @@ class Component extends DCLogic {
       this.setState({ adminLinhas: linhas, adminCarregando: false,
         adminMsg: pendentes.length ? pendentes.length + ' funcionário(s) da planilha inicial ainda não foram criados (linhas amarelas). Confira e clique em "Salvar alterações" para criar os logins.' : '', adminMsgTipo: 'info' });
     } catch (e) {
-      this.setState({ adminCarregando: false, adminMsg: 'Não foi possível carregar os funcionários: ' + ((e && e.message) || e), adminMsgTipo: 'erro' });
+      this.setState({ adminCarregando: false, adminMsg: (e && e.message && e.message.indexOf('Sua sessão') === 0) ? e.message : 'Não foi possível carregar os funcionários: ' + ((e && e.message) || e), adminMsgTipo: 'erro' });
     }
   }
 
@@ -985,6 +1018,7 @@ class Component extends DCLogic {
     for (const l of alteradas) {
       if (!l.nome.trim() || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(l.email)) { this.setState({ adminMsg: 'Preencha nome e um e-mail válido em todas as linhas novas antes de salvar.', adminMsgTipo: 'erro' }); return; }
     }
+    try { await this.sessaoPronta(); } catch (e) { this.setState({ adminMsg: e.message, adminMsgTipo: 'erro' }); return; }
     this.setState({ adminSalvando: true, adminMsg: 'Salvando ' + alteradas.length + ' linha(s)...', adminMsgTipo: 'info' });
     const erros = [];
     let ok = 0;
@@ -1078,6 +1112,7 @@ class Component extends DCLogic {
       if (input) input.value = '';
       return;
     }
+    try { await this.sessaoPronta(); } catch (e) { this.setState({ migraStatus: e.message, migraTipo: 'erro' }); if (input) input.value = ''; return; }
     const db = this.db();
     const quem = (this.state.usuarioSip && this.state.usuarioSip.email) || '';
     const resumo = [];

@@ -2687,11 +2687,8 @@ class Component extends DCLogic {
         projeto: 'trinta-reis', disciplinas: dados,
         atualizadoEm: firebase.firestore.FieldValue.serverTimestamp(),
       }, { merge: false }).catch(e => console.error('Sync de análises para Firestore falhou:', e));
-      if (firebase.auth && !firebase.auth().currentUser) {
-        firebase.auth().signInAnonymously().then(gravar).catch(() => gravar());
-      } else {
-        gravar();
-      }
+      // Nunca faz login anônimo aqui: isso trocaria a sessão do funcionário logado no SIP.
+      this.firebasePronto().then(() => gravar()).catch(() => {});
     } catch (e) { console.error('Sync de análises para Firestore falhou:', e); }
   }
 
