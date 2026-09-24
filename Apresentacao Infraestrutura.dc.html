@@ -170,6 +170,9 @@
           <p style="margin:0;font-size:14px;color:#5b6774;max-width:680px;line-height:1.6;">
             Pareceres e pendências recebidos do órgão (DER-MG) para cada matéria técnica do projeto.
           </p>
+          <sc-if value="{{ temOrigemDados }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:8px;font-size:11.5px;color:#8a94a3;">{{ origemDados }}</div>
+          </sc-if>
         </div>
 
         <div style="display:flex;flex-direction:column;gap:12px;">
@@ -2508,7 +2511,62 @@ class Component extends DCLogic {
     } catch (e) { console.error('Sync de análises para Firestore falhou:', e); }
   }
 
+  // ===== Fase 2 — dados das análises vindos do banco (Firestore) =====
+  // As análises passam a ser lidas de analisesFontes/{projeto__disciplina__parte} + rodadas/{numero}.
+  // O banco preenche as MESMAS estruturas (…AnaliseMeta e …DocsData) que todo o resto do código usa;
+  // enquanto o banco não responde (ou se falhar), valem os dados que já estão no arquivo.
+  PROJETO_DADOS = 'trinta-reis';
+  mapaFontesBanco = { geometria: { meta: 'geoAnaliseMeta', prefixo: 'analise' }, terraplenagem: { meta: 'terraAnaliseMeta', prefixo: 'terraAnalise' }, intersecao: { meta: 'intersecaoAnaliseMeta', prefixo: 'intersecao{Parte}Analise', comParte: true } };
+
+  carregarDadosDoBanco(attempt) {
+    const a = attempt || 0;
+    if (!(window.firebase && firebase.firestore && firebase.apps && firebase.apps.length && firebase.auth && firebase.auth().currentUser)) {
+      if (a > 150) return;
+      setTimeout(() => this.carregarDadosDoBanco(a + 1), 200);
+      return;
+    }
+    const cap = (p) => p.charAt(0).toUpperCase() + p.slice(1);
+    const db = firebase.firestore();
+    db.collection('analisesFontes').where('projeto', '==', this.PROJETO_DADOS).get().then(async (snap) => {
+      let aplicadas = 0;
+      for (const doc of snap.docs) {
+        const f = doc.data();
+        const cfg = this.mapaFontesBanco[f.disciplina];
+        if (!cfg) continue;
+        const parte = f.parte || null;
+        if (cfg.comParte && !parte) continue;
+        const prefixo = cfg.comParte ? cfg.prefixo.replace('{Parte}', cap(parte)) : cfg.prefixo;
+        const rods = await doc.ref.collection('rodadas').get();
+        if (rods.empty) continue;
+        const metaNova = {};
+        const antigo = cfg.comParte ? ((this[cfg.meta] || {})[parte] || {}) : (this[cfg.meta] || {});
+        for (const n of Object.keys(antigo)) this[prefixo + n + 'DocsData'] = [];
+        rods.forEach(r => {
+          const d = r.data();
+          const numero = Number(d.numero || r.id);
+          const { docs, numero: _n, ...datas } = d;
+          metaNova[numero] = datas;
+          this[prefixo + numero + 'DocsData'] = docs || [];
+        });
+        if (cfg.comParte) this[cfg.meta] = { ...(this[cfg.meta] || {}), [parte]: metaNova };
+        else this[cfg.meta] = metaNova;
+        aplicadas++;
+      }
+      this.dadosDoBanco = { fontes: aplicadas, em: new Date() };
+      this.setState({ dadosBancoVersao: Date.now() });
+      if (aplicadas) this.syncAnalisesParaFirestore(0);
+    }).catch(e => console.error('Leitura das análises no banco falhou (usando os dados do arquivo):', e));
+  }
+
+  rotuloOrigemDados() {
+    const d = this.dadosDoBanco;
+    if (!d || !d.fontes) return '';
+    const hh = String(d.em.getHours()).padStart(2, '0') + ':' + String(d.em.getMinutes()).padStart(2, '0');
+    return 'Dados carregados do banco de dados às ' + hh + ' (' + d.fontes + (d.fontes === 1 ? ' fonte' : ' fontes') + ').';
+  }
+
   componentDidMount() {
+    this.carregarDadosDoBanco(0);
     this.waitForFirebaseObs(0);
     this.waitForFirebaseMedicao(0);
     this.waitForFirebaseRespostas(0);
@@ -5350,6 +5408,7 @@ Estaca 1308+0 a 1452+0 LD;`, status: 'atendido' },
 
   renderVals() {
     const active = this.abaAtiva();
+    const origemDados = this.rotuloOrigemDados();
     const onVoltarProjetos = this.props.onVoltarProjetos || null;
     const navDisciplinasOpen = !!this.state.expanded['nav-disciplinas'];
     const navItems = [
@@ -5424,6 +5483,8 @@ Estaca 1308+0 a 1452+0 LD;`, status: 'atendido' },
       setMapFrameRef: this.setMapFrameRef,
       onVoltarProjetos,
       isHome: active === 'home',
+      temOrigemDados: !!origemDados,
+      origemDados,
       isGeometria: active === 'geometria',
       isTerraplenagem: active === 'terraplenagem',
       isAnalise: active === 'analise',
