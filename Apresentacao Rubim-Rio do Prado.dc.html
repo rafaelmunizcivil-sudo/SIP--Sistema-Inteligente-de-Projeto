@@ -517,6 +517,45 @@
                           </div>
                         </sc-if>
 
+                        <sc-if value="{{ disc.isDin }}" hint-placeholder-val="{{ false }}">
+                          <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:18px;margin-bottom:22px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+                              <div style="font-size:12px;font-weight:700;color:#9fb3c8;text-transform:uppercase;letter-spacing:0.05em;">Questionamentos por Análise</div>
+                              <div style="display:flex;gap:8px;">
+                                <div style="background:rgba(122,79,201,0.15);border:1px solid rgba(122,79,201,0.35);border-radius:8px;padding:6px 14px;text-align:center;">
+                                  <div style="font-size:9px;color:#b79ce8;font-weight:600;text-transform:uppercase;">Total de Itens</div>
+                                  <div style="font-size:15px;font-weight:700;color:#fff;">{{ disc.dinChart.totalItens }}</div>
+                                </div>
+                                <div style="background:rgba(47,143,79,0.15);border:1px solid rgba(47,143,79,0.35);border-radius:8px;padding:6px 14px;text-align:center;">
+                                  <div style="font-size:9px;color:#5fbf83;font-weight:600;text-transform:uppercase;">Total Atendidos</div>
+                                  <div style="font-size:15px;font-weight:700;color:#fff;">{{ disc.dinChart.totalAtendidos }}</div>
+                                </div>
+                              </div>
+                            </div>
+                            <div style="display:flex;align-items:flex-end;overflow-x:auto;">
+                              <sc-for list="{{ disc.dinChart.rodadas }}" as="r" hint-placeholder-count="5">
+                                <div style="text-align:center;padding:0 14px;border-left:1.5px dashed rgba(255,255,255,0.18);">
+                                  <div style="font-size:11px;font-weight:600;color:#c3d2df;margin-bottom:4px;">A{{ r.numero }}</div>
+                                  <div style="display:flex;gap:4px;align-items:flex-end;height:160px;">
+                                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;"><div style="font-size:9px;color:#5fbf83;margin-bottom:2px;">{{ r.atendido }}</div><div style="width:13px;background:#2f8f4f;height:{{ r.atendidoH }}px;border-radius:2px 2px 0 0;"></div></div>
+                                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;"><div style="font-size:9px;color:#e07f7f;margin-bottom:2px;">{{ r.nao }}</div><div style="width:13px;background:#c94545;height:{{ r.naoH }}px;border-radius:2px 2px 0 0;"></div></div>
+                                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;"><div style="font-size:9px;color:#d9bb5c;margin-bottom:2px;">{{ r.parcial }}</div><div style="width:13px;background:#c99a1f;height:{{ r.parcialH }}px;border-radius:2px 2px 0 0;"></div></div>
+                                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;"><div style="font-size:9px;color:#9aa3ad;margin-bottom:2px;">{{ r.retirado }}</div><div style="width:13px;background:#6b7480;height:{{ r.retiradoH }}px;border-radius:2px 2px 0 0;"></div></div>
+                                    <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;"><div style="font-size:9px;color:#b79ce8;margin-bottom:2px;">{{ r.novo }}</div><div style="width:13px;background:#7a4fc9;height:{{ r.novoH }}px;border-radius:2px 2px 0 0;"></div></div>
+                                  </div>
+                                </div>
+                              </sc-for>
+                            </div>
+                            <div style="display:flex;gap:14px;margin-top:16px;flex-wrap:wrap;">
+                              <div style="display:flex;align-items:center;gap:5px;"><div style="width:9px;height:9px;border-radius:2px;background:#2f8f4f;"></div><div style="font-size:10px;color:#d7e4ee;">Atendido</div></div>
+                              <div style="display:flex;align-items:center;gap:5px;"><div style="width:9px;height:9px;border-radius:2px;background:#c94545;"></div><div style="font-size:10px;color:#d7e4ee;">Não atendido</div></div>
+                              <div style="display:flex;align-items:center;gap:5px;"><div style="width:9px;height:9px;border-radius:2px;background:#c99a1f;"></div><div style="font-size:10px;color:#d7e4ee;">Atendido parcialmente</div></div>
+                              <div style="display:flex;align-items:center;gap:5px;"><div style="width:9px;height:9px;border-radius:2px;background:#6b7480;"></div><div style="font-size:10px;color:#d7e4ee;">Item retirado</div></div>
+                              <div style="display:flex;align-items:center;gap:5px;"><div style="width:9px;height:9px;border-radius:2px;background:#7a4fc9;"></div><div style="font-size:10px;color:#d7e4ee;">Novo</div></div>
+                            </div>
+                          </div>
+                        </sc-if>
+
                         <sc-if value="{{ disc.isInter }}" hint-placeholder-val="{{ false }}">
                           <div style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:10px;padding:18px;margin-bottom:22px;">
                             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
@@ -2881,6 +2920,7 @@ class Component extends DCLogic {
       return out;
     };
     return {
+      ...this.analisesDinParaSync(),
       geometria: paraArray(this.geoAnaliseMeta, 'analise'),
       hidrologia: paraArray(this.hidrologiaAnaliseMeta, 'hidrologiaAnalise'),
       terraplenagem: paraArray(this.terraAnaliseMeta, 'terraAnalise'),
@@ -2892,7 +2932,7 @@ class Component extends DCLogic {
 
   entregaAutomaticaPorItem(numero) {
     const discPorItem = { 14: 'hidrologia', 34: 'geometria', 35: 'terraplenagem', 37: 'pavimentacao', 40: 'intersecao', 41: 'sinalizacao' };
-    const disc = discPorItem[numero];
+    const disc = discPorItem[numero] || this.discDinPorItem(numero);
     if (!disc) return null;
     const dados = this.montarAnalisesParaSync()[disc] || [];
     let melhor = null;
@@ -2948,8 +2988,8 @@ class Component extends DCLogic {
       for (const doc of snap.docs) {
         const f = doc.data();
         if (f.ultimoEnvio) this.ultimosEnvios[doc.id] = f.ultimoEnvio;
-        const cfg = this.mapaFontesBanco[f.disciplina];
-        if (!cfg) continue;
+        const cfg = this.cfgFonte(f.disciplina);
+        if (cfg.dinamica && f.parte) continue;
         const parte = f.parte || null;
         if (cfg.comParte && !parte) continue;
         const prefixo = cfg.comParte ? cfg.prefixo.replace('{Parte}', cap(parte)) : cfg.prefixo;
@@ -2967,6 +3007,7 @@ class Component extends DCLogic {
         });
         if (cfg.comParte) this[cfg.meta] = { ...(this[cfg.meta] || {}), [parte]: metaNova };
         else this[cfg.meta] = metaNova;
+        if (cfg.dinamica) this.disciplinasDinamicas[f.disciplina] = true;
         aplicadas++;
       }
       this.dadosDoBanco = { fontes: aplicadas, em: new Date() };
@@ -3145,7 +3186,7 @@ class Component extends DCLogic {
 
   podeEnviarPlanilha(disc) {
     const p = this.props.permissoes;
-    if (!p || this.props.isClienteMode || !this.mapaFontesBanco[disc]) return false;
+    if (!p || this.props.isClienteMode || !this.materiaMeta.some(m => m.key === disc)) return false;
     if (p.perfil === 'Administrador' || p.perfil === 'Supervisor') return true;
     return p.perfil === 'Funcionário' && !!p.acessoCompleto && (p.disciplinas || []).includes(disc);
   }
@@ -3164,7 +3205,7 @@ class Component extends DCLogic {
   }
 
   rodadasAtuais(disc, parte) {
-    const cfg = this.mapaFontesBanco[disc];
+    const cfg = this.cfgFonte(disc);
     const cap = (p) => p.charAt(0).toUpperCase() + p.slice(1);
     const meta = cfg.comParte ? ((this[cfg.meta] || {})[parte] || {}) : (this[cfg.meta] || {});
     const prefixo = cfg.comParte ? cfg.prefixo.replace('{Parte}', cap(parte)) : cfg.prefixo;
@@ -3422,6 +3463,150 @@ class Component extends DCLogic {
         fecharHistorico: () => this.fecharHistorico(),
       });
     }
+    return out;
+  }
+
+  // ===== Fase 5 — motor genérico de disciplina =====
+  // Disciplina que ainda não tem código próprio: ao receber a primeira planilha, os dados vão para o banco
+  // e este motor monta tudo (análises, card, dashboard, Linha do Tempo, Projeção, relatório e datas da
+  // ObservacaoProjetista) com o MESMO layout das disciplinas já configuradas.
+  disciplinasDinamicas = {};
+
+  cfgFonte(disc) {
+    if (this.mapaFontesBanco[disc]) return this.mapaFontesBanco[disc];
+    return { meta: 'din_' + disc + '_Meta', prefixo: 'din_' + disc + '_A', dinamica: true };
+  }
+
+  metaDin(disc) {
+    return this['din_' + disc + '_Meta'] || {};
+  }
+
+  prefixoDin(disc) {
+    return 'din_' + disc + '_A';
+  }
+
+  listaDin(disc) {
+    const meta = this.metaDin(disc);
+    const prefixo = this.prefixoDin(disc);
+    return Object.keys(meta).map(Number).sort((a, b) => a - b)
+      .map(n => ({ numero: n, data: meta[n].concluido, docs: this[prefixo + n + 'DocsData'] || [] }))
+      .filter(a => a.docs.length);
+  }
+
+  buildAnalisesDin(disc) {
+    const cardOpen = (key) => this.state.expanded[key] === undefined ? false : this.state.expanded[key];
+    const meta = this.metaDin(disc);
+    const prefixoDocs = this.prefixoDin(disc);
+    const badgeOf = (n) => n + (n === 1 ? ' questionamento' : ' questionamentos');
+    const textOf = (it) => (typeof it === 'string' ? it : it.text);
+    const buildDocs = (docsData, prefix) => docsData.map(d => {
+      const items = d.items.map((it, i) => {
+        const st = (it && typeof it === 'object') ? it.status : null;
+        const sm = st ? this.statusMeta[st] : null;
+        return { n: i + 1, text: textOf(it), statusLabel: sm ? sm.label : null, statusColor: sm ? sm.color : '', statusBg: sm ? sm.bg : '' };
+      });
+      const key = prefix + '-' + d.key;
+      return { key, label: d.label, count: items.length, items, toggle: () => this.toggleCard(key), isOpen: !!this.state.expanded[key], chevron: this.state.expanded[key] ? '−' : '+' };
+    });
+    const tally = (docsData) => {
+      let atendido = 0, parcial = 0, nao = 0, novo = 0, pendente = 0, retirado = 0;
+      for (const d of docsData) for (const it of d.items) {
+        const st = (it && typeof it === 'object') ? it.status : null;
+        if (st === 'atendido') atendido++;
+        else if (st === 'parcial') parcial++;
+        else if (st === 'nao') nao++;
+        else if (st === 'pendente') pendente++;
+        else if (st === 'retirado') retirado++;
+        else novo++;
+      }
+      const reiterando = atendido + parcial + nao + pendente;
+      return { atendido, parcial, nao, novo, pendente, reiterando };
+    };
+
+    const cards = [];
+    for (let numero = 1; numero <= 20; numero++) {
+      const docsData = this[prefixoDocs + numero + 'DocsData'] || [];
+      if (!meta[numero] || !docsData.length) continue;
+      const prefix = 'd' + disc + numero;
+      const docs = buildDocs(docsData, prefix);
+      const total = docs.reduce((s, d) => s + d.count, 0);
+      const t = tally(docsData);
+      const key = 'din-' + disc + '-analise-' + numero;
+      cards.push({
+        key, numero, isFirst: numero === 1,
+        recebido: this.fmtDia(meta[numero].recebido), concluido: this.fmtDia(meta[numero].concluido),
+        total, docs,
+        badgeLabel: badgeOf(total),
+        comparativo: numero === 1 ? null : { reiterando: t.reiterando, novo: t.novo, atendido: t.atendido, parcial: t.parcial, nao: t.nao },
+        isOpen: cardOpen(key), chevron: cardOpen(key) ? '−' : '+', toggle: () => this.toggleCard(key),
+      });
+    }
+    return cards;
+  }
+
+  chartDin(disc) {
+    const meta = this.metaDin(disc);
+    const prefixoDocs = this.prefixoDin(disc);
+    let acumTotal = 0, acumAtendido = 0;
+    const rodadas = [];
+    for (let numero = 1; numero <= 20; numero++) {
+      const docsData = this[prefixoDocs + numero + 'DocsData'] || [];
+      if (!meta[numero] || !docsData.length) continue;
+      let atendido = 0, nao = 0, parcial = 0, retirado = 0, novo = 0;
+      for (const d of docsData) for (const it of d.items) {
+        const st = (it && typeof it === 'object') ? it.status : null;
+        if (st === 'atendido') atendido++;
+        else if (st === 'nao') nao++;
+        else if (st === 'parcial') parcial++;
+        else if (st === 'retirado') retirado++;
+        else novo++;
+      }
+      acumTotal += novo;
+      acumAtendido += atendido;
+      rodadas.push({ numero, atendido, nao, parcial, retirado, novo });
+    }
+    const maxVal = Math.max(1, ...rodadas.flatMap(r => [r.atendido, r.nao, r.parcial, r.retirado, r.novo]));
+    const altura = (v) => Math.round((v / maxVal) * 140);
+    return {
+      totalItens: acumTotal,
+      totalAtendidos: acumAtendido,
+      rodadas: rodadas.map(r => ({
+        numero: r.numero,
+        atendido: r.atendido, atendidoH: altura(r.atendido),
+        nao: r.nao, naoH: altura(r.nao),
+        parcial: r.parcial, parcialH: altura(r.parcial),
+        retirado: r.retirado, retiradoH: altura(r.retirado),
+        novo: r.novo, novoH: altura(r.novo),
+      })),
+    };
+  }
+
+  dashboardDin(disc) {
+    const filtros = this.state.dinFiltros || {};
+    return this.dashboardFor(this.listaDin(disc), filtros[disc] || 'geral', (f) => this.setState(s => ({ dinFiltros: { ...(s.dinFiltros || {}), [disc]: f } })), null, false);
+  }
+
+  observacoesDin(disc) {
+    const filtros = this.state.dinObsFiltros || {};
+    return this.obsFor(this.obsRawFor(this.listaDin(disc)), filtros[disc] || 'todos', (f) => this.setState(s => ({ dinObsFiltros: { ...(s.dinObsFiltros || {}), [disc]: f } })));
+  }
+
+  discDinPorItem(numero) {
+    const m = this.materiaMeta.find(x => this.disciplinasDinamicas[x.key] && parseInt(x.label, 10) === Number(numero));
+    return m ? m.key : null;
+  }
+
+  analisesDinParaSync() {
+    const out = {};
+    Object.keys(this.disciplinasDinamicas).forEach(disc => {
+      const meta = this.metaDin(disc);
+      const prefixo = this.prefixoDin(disc);
+      out[disc] = Object.keys(meta).map(Number).sort((a, b) => a - b).filter(n => (this[prefixo + n + 'DocsData'] || []).length).map(n => ({
+        numero: n, recebido: meta[n].recebido, concluido: meta[n].concluido,
+        respostaConsol: meta[n].respostaConsol || null,
+        semPendencias: this.analiseSemPendencias(this[prefixo + n + 'DocsData']),
+      }));
+    });
     return out;
   }
 
@@ -3782,7 +3967,7 @@ class Component extends DCLogic {
       case 37: return { lista: this.pavAnalisesList(), groupKey: null };
       case 41: return { lista: this.sinalAnalisesList(), groupKey: null };
       case 35: return { lista: this.terraAnalisesList(), groupKey: null };
-      default: return null;
+      default: { const disc = this.discDinPorItem(itemNumero); return disc ? { lista: this.listaDin(disc), groupKey: null } : null; }
     }
   }
 
@@ -6791,6 +6976,12 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
     return temItem;
   }
   timelineAnalisesFor(key) {
+    if (this.disciplinasDinamicas[key]) {
+      const meta = this.metaDin(key);
+      const prefixo = this.prefixoDin(key);
+      return Object.keys(meta).map(Number).sort((a, b) => a - b).filter(n => (this[prefixo + n + 'DocsData'] || []).length)
+        .map(n => ({ numero: n, recebido: meta[n].recebido, concluido: meta[n].concluido, respostaConsol: meta[n].respostaConsol || null, semPendencias: this.analiseSemPendencias(this[prefixo + n + 'DocsData']) }));
+    }
     if (key === 'geometria') {
       const meta = this.geoAnaliseMeta;
       const out = [];
@@ -8152,9 +8343,10 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
     const discOpen = (key) => !!this.state.expanded['disc-' + key];
     return this.materiaMeta.map(m => {
       const key = 'disc-' + m.key;
-      const analises = (m.key === 'geometria' ? this.buildGeoAnalises() : m.key === 'seguranca' ? this.buildSegurancaAnalises() : m.key === 'hidrologia' ? this.buildHidrologiaAnalises() : m.key === 'sinalizacao' ? this.buildSinalAnalises() : m.key === 'pavimentacao' ? this.buildPavAnalises() : m.key === 'terraplenagem' ? this.buildTerraAnalises() : m.key === 'intersecao' ? this.buildIntersecaoAnalises(this.state.intersecaoSubgrupo || 'int1') : []).map(a => ({ ...a, ...this.respostaFields(m.key, a.numero) }));
-      const dashboard = m.key === 'geometria' ? this.buildGeoDashboard() : m.key === 'hidrologia' ? this.buildHidrologiaDashboard() : m.key === 'sinalizacao' ? this.buildSinalDashboard() : m.key === 'pavimentacao' ? this.buildPavDashboard() : m.key === 'terraplenagem' ? this.buildTerraDashboard() : m.key === 'intersecao' ? this.buildIntersecaoDashboard(this.state.intersecaoSubgrupo || 'int1') : null;
-      const observacoes = this.props.isClienteMode ? null : (m.key === 'geometria' ? this.buildGeoObservacoes() : m.key === 'hidrologia' ? this.buildHidrologiaObservacoes() : m.key === 'sinalizacao' ? this.buildSinalObservacoes() : m.key === 'pavimentacao' ? this.buildPavObservacoes() : m.key === 'terraplenagem' ? this.buildTerraObservacoes() : null);
+      const isDin = !!this.disciplinasDinamicas[m.key];
+      const analises = (isDin ? this.buildAnalisesDin(m.key) : m.key === 'geometria' ? this.buildGeoAnalises() : m.key === 'seguranca' ? this.buildSegurancaAnalises() : m.key === 'hidrologia' ? this.buildHidrologiaAnalises() : m.key === 'sinalizacao' ? this.buildSinalAnalises() : m.key === 'pavimentacao' ? this.buildPavAnalises() : m.key === 'terraplenagem' ? this.buildTerraAnalises() : m.key === 'intersecao' ? this.buildIntersecaoAnalises(this.state.intersecaoSubgrupo || 'int1') : []).map(a => ({ ...a, ...this.respostaFields(m.key, a.numero) }));
+      const dashboard = isDin ? this.dashboardDin(m.key) : m.key === 'geometria' ? this.buildGeoDashboard() : m.key === 'hidrologia' ? this.buildHidrologiaDashboard() : m.key === 'sinalizacao' ? this.buildSinalDashboard() : m.key === 'pavimentacao' ? this.buildPavDashboard() : m.key === 'terraplenagem' ? this.buildTerraDashboard() : m.key === 'intersecao' ? this.buildIntersecaoDashboard(this.state.intersecaoSubgrupo || 'int1') : null;
+      const observacoes = this.props.isClienteMode ? null : (isDin ? this.observacoesDin(m.key) : m.key === 'geometria' ? this.buildGeoObservacoes() : m.key === 'hidrologia' ? this.buildHidrologiaObservacoes() : m.key === 'sinalizacao' ? this.buildSinalObservacoes() : m.key === 'pavimentacao' ? this.buildPavObservacoes() : m.key === 'terraplenagem' ? this.buildTerraObservacoes() : null);
       const isGeo = m.key === 'geometria';
       const geoChart = isGeo ? this.buildGeoQuestionamentosChart() : null;
       if (isGeo && dashboard && geoChart) {
@@ -8191,6 +8383,11 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
         dashboard.totalQuestionamentos = terraChart.totalItens;
         dashboard.media = dashboard.totalAnalises ? Math.round((terraChart.totalItens / dashboard.totalAnalises) * 10) / 10 : 0;
       }
+      const dinChart = isDin ? this.chartDin(m.key) : null;
+      if (isDin && dashboard && dinChart) {
+        dashboard.totalQuestionamentos = dinChart.totalItens;
+        dashboard.media = dashboard.totalAnalises ? Math.round((dinChart.totalItens / dashboard.totalAnalises) * 10) / 10 : 0;
+      }
       const loteButtons = isInter ? this.buildIntersecaoSubgrupoButtons() : [];
       return {
         key: m.key, code: m.code, label: m.label,
@@ -8201,11 +8398,12 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
         isSinal: isSinal && !!sinalChart && sinalChart.rodadas.length > 0, notSinal: !isSinal, sinalChart,
         isTerra: isTerra && !!terraChart && terraChart.rodadas.length > 0, notTerra: !isTerra, terraChart,
         loteButtons, hasLoteButtons: loteButtons.length > 0,
+        isDin: isDin && !!dinChart && dinChart.rodadas.length > 0, dinChart,
         iconBg: analises.length ? '#2f6690' : '#b7c0ca',
         isOpen: discOpen(m.key), chevron: discOpen(m.key) ? '−' : '+', toggle: () => this.toggleCard('disc-' + m.key),
         analises, hasAnalises: analises.length > 0, noAnalises: analises.length === 0, dashboard, observacoes,
         mostrarQuestionamentos: !this.props.isClienteMode || m.key === 'geometria',
-        mostrarQuestionamentosLegado: (!this.props.isClienteMode || m.key === 'geometria') && m.key !== 'geometria' && m.key !== 'intersecao' && m.key !== 'hidrologia' && m.key !== 'pavimentacao' && m.key !== 'sinalizacao' && m.key !== 'terraplenagem',
+        mostrarQuestionamentosLegado: !isDin && (!this.props.isClienteMode || m.key === 'geometria') && m.key !== 'geometria' && m.key !== 'intersecao' && m.key !== 'hidrologia' && m.key !== 'pavimentacao' && m.key !== 'sinalizacao' && m.key !== 'terraplenagem',
         gerarRelatorio: (e) => { e.stopPropagation(); this.generateRelatorioDisciplina(m); },
         podeEnviar: this.podeEnviarPlanilha(m.key),
         abrirEnvio: (e) => { e.stopPropagation(); this.abrirEnvio(m.key, m.label); },
@@ -8414,6 +8612,7 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
   }
 
   relatorioBlocosDisciplina(key) {
+    if (this.disciplinasDinamicas[key]) return [{ titulo: null, numerosList: this.listaDin(key) }];
     const simples = { geometria: 'geoAnalisesList', hidrologia: 'hidrologiaAnalisesList', terraplenagem: 'terraAnalisesList', pavimentacao: 'pavAnalisesList', sinalizacao: 'sinalAnalisesList' };
     if (simples[key]) return [{ titulo: null, numerosList: this[simples[key]]() }];
     if (key === 'intersecao') return [['int1', 'Interseção 1'], ['int2', 'Interseção 2'], ['geral', 'Geral']].map(([g, t]) => ({ titulo: t, numerosList: this.intersecaoAnalisesList(g) }));
