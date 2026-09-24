@@ -3111,6 +3111,37 @@ class Component extends DCLogic {
     { st: 90, terr: 90, proj: 95 }, { st: 100, terr: 120, proj: 90 },
   ];
 
+  // ===== Permissões do funcionário logado (login individual — Etapa 2) =====
+  // Vêm do SIP pela prop "permissoes". Sem permissões (Área do Cliente ou SIP antigo) = comportamento de antes.
+  abaPermitida(key) {
+    const p = this.props.permissoes;
+    if (!p) return true;
+    if (key === 'medicao') return !!(p.abas && p.abas.medicao);
+    if (key === 'controle-terceiros') return !!(p.abas && p.abas.terceiros);
+    if (!p.acessoCompleto) return false;
+    if (key === 'linha-tempo') return !!p.verTudo || (p.disciplinas || []).length > 0;
+    return true;
+  }
+
+  abaAtiva() {
+    const atual = this.state.active;
+    if (this.abaPermitida(atual)) return atual;
+    return ['home', 'analise', 'linha-tempo', 'medicao', 'controle-terceiros'].find(k => this.abaPermitida(k)) || atual;
+  }
+
+  disciplinaPermitida(key) {
+    const p = this.props.permissoes;
+    if (!p || p.verTudo) return true;
+    return (p.disciplinas || []).includes(key);
+  }
+
+  timelineDiscEfetiva() {
+    const atual = this.state.timelineDisc;
+    if (this.disciplinaPermitida(atual)) return atual;
+    const primeira = this.materiaMeta.find(m => this.disciplinaPermitida(m.key));
+    return primeira ? primeira.key : atual;
+  }
+
   setActiveSection(key) {
     this.setState({ active: key, linhaTempoSub: null });
   }
@@ -3623,7 +3654,7 @@ Estaca 1308+0 a 1452+0 LD;`, status: 'atendido' },
   // externally via ObservacaoProjetista.dc.html). New observation required day 1 of atraso,
   // then again every 10 days while the atraso persists — each entry keeps its own date.
   buildObsInfo(obsKey, atrasado, numero, lote) {
-    const formLink = 'ObservacaoProjetista.html?projeto=' + this.PROJETO + '&disc=' + (this.state.timelineDisc || 'geometria') + '&numero=' + numero + (lote ? '&lote=' + lote : '');
+    const formLink = 'ObservacaoProjetista.html?projeto=' + this.PROJETO + '&disc=' + (this.timelineDiscEfetiva() || 'geometria') + '&numero=' + numero + (lote ? '&lote=' + lote : '');
     const list = (this.state.firestoreObs[obsKey] || []).slice().sort((a, b) => this.tsMillis(a.criadoEm || a.preenchidoEm) - this.tsMillis(b.criadoEm || b.preenchidoEm));
     const historico = list.map(d => ({ texto: d.texto || '', autor: d.nome || '', data: this.fmtTimestamp(d.criadoEm || d.preenchidoEm) }));
     let obsPendente = false, proximaEm = '';
@@ -3712,8 +3743,8 @@ Estaca 1308+0 a 1452+0 LD;`, status: 'atendido' },
 
   buildLinhaTempo() {
     const PRAZO = 20;
-    const selected = this.state.timelineDisc;
-    const discButtons = this.materiaMeta.map(m => ({
+    const selected = this.timelineDiscEfetiva();
+    const discButtons = this.materiaMeta.filter(m => this.disciplinaPermitida(m.key)).map(m => ({
       key: m.key, label: m.label,
       bg: selected === m.key ? (this.props.primaryColor ?? '#1f3a5f') : '#fff',
       fg: selected === m.key ? '#fff' : '#5b6774',
@@ -5318,7 +5349,7 @@ Estaca 1308+0 a 1452+0 LD;`, status: 'atendido' },
   }
 
   renderVals() {
-    const active = this.state.active;
+    const active = this.abaAtiva();
     const onVoltarProjetos = this.props.onVoltarProjetos || null;
     const navDisciplinasOpen = !!this.state.expanded['nav-disciplinas'];
     const navItems = [
@@ -5347,7 +5378,7 @@ Estaca 1308+0 a 1452+0 LD;`, status: 'atendido' },
     const ABAS_ESCONDIDAS_CLIENTE = ['disciplinas', 'avisos', 'consultas', 'controle-terceiros', 'reuniao-externa', 'linha-tempo'];
     const navItemsFiltrados = this.props.isClienteMode
       ? navItems.filter(item => !ABAS_ESCONDIDAS_CLIENTE.includes(item.key))
-      : navItems;
+      : navItems.filter(item => this.abaPermitida(item.key));
 
     const materiaCards = this.materiaMeta.map(m => ({
       key: m.key, code: m.code, label: m.label, desc: m.desc,
@@ -5408,11 +5439,11 @@ Estaca 1308+0 a 1452+0 LD;`, status: 'atendido' },
       mostrarPainelGerencialMedicao: !this.props.isClienteMode,
       isMedicao: active === 'medicao',
       onGerarRelatorioMedicao: () => this.generateRelatorioMedicao(),
-      medicaoLocked: !this.state.medicaoUnlocked && !this.props.isClienteMode,
+      medicaoLocked: !this.state.medicaoUnlocked && !this.props.isClienteMode && !this.props.permissoes,
       showEntregaXMedido: !!this.state.showEntregaXMedido,
       onToggleEntregaXMedido: () => this.setState({ showEntregaXMedido: !this.state.showEntregaXMedido }),
       entregaXMedido: this.buildEntregaXMedido(),
-      medicaoUnlocked: this.state.medicaoUnlocked || !!this.props.isClienteMode,
+      medicaoUnlocked: this.state.medicaoUnlocked || !!this.props.isClienteMode || !!this.props.permissoes,
       medicaoPasswordDraft: this.state.medicaoPasswordDraft,
       showMedicaoPasswordError: this.state.medicaoPasswordError,
       onMedicaoPasswordChange: (e) => this.onMedicaoPasswordChange(e),
@@ -5426,8 +5457,8 @@ Estaca 1308+0 a 1452+0 LD;`, status: 'atendido' },
       onGerarRelatorioTerceiros: () => this.generateRelatorioTerceiros(),
       onExportarTerceirosExcel: () => this.exportarTerceirosExcel(),
       onGerarRelatorioGeral: () => this.generateRelatorioGeral(),
-      terceirosLocked: !this.state.terceirosUnlocked,
-      terceirosUnlocked: this.state.terceirosUnlocked,
+      terceirosLocked: !this.state.terceirosUnlocked && !this.props.permissoes,
+      terceirosUnlocked: this.state.terceirosUnlocked || !!this.props.permissoes,
       terceirosPasswordDraft: this.state.terceirosPasswordDraft,
       showTerceirosPasswordError: this.state.terceirosPasswordError,
       onTerceirosPasswordChange: (e) => this.onTerceirosPasswordChange(e),

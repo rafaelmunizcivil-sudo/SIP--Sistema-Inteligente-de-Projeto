@@ -301,32 +301,6 @@
       </div>
     </sc-if>
 
-    <!-- ===================== CORRESPONDÊNCIAS/COMUNICAÇÕES ===================== -->
-    <sc-if value="{{ isCorrespondencias }}" hint-placeholder-val="{{ false }}">
-      <div data-screen-label="Correspondências/Comunicações">
-        <div style="margin-bottom:24px;">
-          <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;color:#2f6690;text-transform:uppercase;margin-bottom:6px;">Correspondências/Comunicações</div>
-          <h1 style="margin:0;font-size:28px;color:#1f3a5f;font-weight:700;">Correspondências e Comunicações</h1>
-        </div>
-        <div style="padding:40px;background:#fff;border:1.5px dashed #c9d2db;border-radius:10px;text-align:center;">
-          <div style="font-size:12.5px;font-weight:600;color:#8a94a3;">Nenhuma correspondência cadastrada ainda.</div>
-        </div>
-      </div>
-    </sc-if>
-
-    <!-- ===================== CONSULTAS ===================== -->
-    <sc-if value="{{ isConsultas }}" hint-placeholder-val="{{ false }}">
-      <div data-screen-label="Consultas">
-        <div style="margin-bottom:24px;">
-          <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;color:#2f6690;text-transform:uppercase;margin-bottom:6px;">Consultas</div>
-          <h1 style="margin:0;font-size:28px;color:#1f3a5f;font-weight:700;">Consultas</h1>
-        </div>
-        <div style="padding:40px;background:#fff;border:1.5px dashed #c9d2db;border-radius:10px;text-align:center;">
-          <div style="font-size:12.5px;font-weight:600;color:#8a94a3;">Nenhuma consulta cadastrada ainda.</div>
-        </div>
-      </div>
-    </sc-if>
-
     <!-- ===================== MEDIÇÃO ===================== -->
     <sc-if value="{{ isMedicao }}" hint-placeholder-val="{{ false }}">
       <div data-screen-label="Medição">
@@ -401,48 +375,6 @@
       </div>
     </sc-if>
 
-    <!-- ===================== REUNIÃO EXTERNA ===================== -->
-    <sc-if value="{{ isReuniaoExterna }}" hint-placeholder-val="{{ false }}">
-      <div data-screen-label="Reunião Externa">
-        <div style="margin-bottom:24px;">
-          <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;color:#2f6690;text-transform:uppercase;margin-bottom:6px;">Reunião Externa</div>
-          <h1 style="margin:0;font-size:28px;color:#1f3a5f;font-weight:700;">Reunião Externa</h1>
-        </div>
-        <sc-if value="{{ reuniaoLocked }}" hint-placeholder-val="{{ true }}">
-          <div style="max-width:360px;background:#fff;border:1px solid #dde3ea;border-radius:10px;padding:24px;">
-            <div style="font-size:13px;font-weight:700;color:#1f2933;margin-bottom:10px;">Área restrita</div>
-            <div style="position:relative;">
-              <input type="{{ reuniaoPasswordInputType }}" value="{{ reuniaoPasswordDraft }}" onChange="{{ onReuniaoPasswordChange }}" placeholder="Senha" style="width:100%;box-sizing:border-box;font-size:13px;padding:9px 12px;border:1px solid #dde3ea;border-radius:8px;margin-bottom:10px;">
-              <sc-if value="{{ reuniaoPasswordVisible }}" hint-placeholder-val="{{ false }}">
-                <div onClick="{{ toggleReuniaoPasswordVisible }}" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:#8a94a3;display:flex;">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.5 18.5 0 0 1 5.06-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-                </div>
-              </sc-if>
-              <sc-if value="{{ reuniaoPasswordHidden }}" hint-placeholder-val="{{ true }}">
-                <div onClick="{{ toggleReuniaoPasswordVisible }}" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:#8a94a3;display:flex;">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-                </div>
-              </sc-if>
-            </div>
-            <sc-if value="{{ reuniaoPasswordError }}" hint-placeholder-val="{{ false }}">
-              <div style="font-size:11.5px;color:#c0392b;margin-bottom:10px;">Senha incorreta.</div>
-            </sc-if>
-            <div onClick="{{ onReuniaoPasswordSubmit }}" style="font-size:12.5px;font-weight:700;color:#fff;background:{{ primaryColor }};padding:9px 18px;border-radius:8px;cursor:pointer;width:fit-content;">Entrar</div>
-          </div>
-        </sc-if>
-        <sc-if value="{{ reuniaoUnlocked }}" hint-placeholder-val="{{ false }}">
-          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px;">
-            <sc-for list="{{ disciplinas }}" as="disc" hint-placeholder-count="7">
-              <div style="font-size:12.5px;font-weight:600;padding:8px 14px;border-radius:20px;background:#fff;border:1px solid #dde3ea;color:#5b6774;">{{ disc.label }}</div>
-            </sc-for>
-          </div>
-          <div style="padding:40px;background:#fff;border:1.5px dashed #c9d2db;border-radius:10px;text-align:center;">
-            <div style="font-size:12.5px;font-weight:600;color:#8a94a3;">Nenhuma análise cadastrada ainda para este projeto.</div>
-          </div>
-        </sc-if>
-      </div>
-    </sc-if>
-
   </main>
 </div>
 
@@ -457,7 +389,6 @@ class Component extends DCLogic {
     expanded: {},
     medicaoPasswordDraft: '', medicaoPasswordError: false, medicaoUnlocked: false,
     terceirosPasswordDraft: '', terceirosPasswordError: false, terceirosUnlocked: false,
-    reuniaoPasswordDraft: '', reuniaoPasswordError: false, reuniaoUnlocked: false,
   };
 
   // Ordem replicada do print de pastas enviado pelo usuário (ago/2026).
@@ -575,6 +506,24 @@ class Component extends DCLogic {
     this.setState(s => ({ expanded: { ...s.expanded, [key]: !s.expanded[key] } }));
   }
 
+  // ===== Permissões do funcionário logado (login individual — Etapa 2) =====
+  // Vêm do SIP pela prop "permissoes". Sem permissões (Área do Cliente ou SIP antigo) = comportamento de antes.
+  abaPermitida(key) {
+    const p = this.props.permissoes;
+    if (!p) return true;
+    if (key === 'medicao') return !!(p.abas && p.abas.medicao);
+    if (key === 'controle-terceiros') return !!(p.abas && p.abas.terceiros);
+    if (!p.acessoCompleto) return false;
+    if (key === 'linha-tempo') return !!p.verTudo || (p.disciplinas || []).length > 0;
+    return true;
+  }
+
+  abaAtiva() {
+    const atual = this.state.active;
+    if (this.abaPermitida(atual)) return atual;
+    return ['home', 'analise', 'linha-tempo', 'medicao', 'controle-terceiros'].find(k => this.abaPermitida(k)) || atual;
+  }
+
   setActive(key) { this.setState({ active: key }); }
 
   buildRelatorioShellHtml(title, bodyHtml) {
@@ -618,34 +567,21 @@ class Component extends DCLogic {
     if (this.state.terceirosPasswordDraft === this.medicaoSenha) this.setState({ terceirosUnlocked: true, terceirosPasswordError: false });
     else this.setState({ terceirosPasswordError: true });
   }
-  onReuniaoPasswordChange(e) { this.setState({ reuniaoPasswordDraft: e.target.value }); }
-
-  toggleReuniaoPasswordVisible() {
-    this.setState({ reuniaoPasswordVisible: !this.state.reuniaoPasswordVisible });
-  }
-  submitReuniaoPassword() {
-    if (this.state.reuniaoPasswordDraft === this.medicaoSenha) this.setState({ reuniaoUnlocked: true, reuniaoPasswordError: false });
-    else this.setState({ reuniaoPasswordError: true });
-  }
-
   renderVals() {
     const primaryColor = this.props.primaryColor ?? '#1f3a5f';
-    const active = this.state.active;
+    const active = this.abaAtiva();
     const navDefs = [
       { key: 'home', code: 'VG', label: 'Visão Geral' },
       { key: 'analise', code: 'AN', label: 'Análise' },
       { key: 'linha-tempo', code: 'LT', label: 'Linha do Tempo' },
-      { key: 'correspondencias', code: 'CC', label: 'Correspondências/\nComunicações' },
-      { key: 'consultas', code: 'CO', label: 'Consultas' },
       { key: 'medicao', code: 'ME', label: 'Medição' },
       { key: 'controle-terceiros', code: 'CT', label: 'Controle de\nTerceiros' },
-      { key: 'reuniao-externa', code: 'RE', label: 'Reunião Externa' },
     ];
 
     return {
       primaryColor,
       onVoltarProjetos: this.props.onVoltarProjetos ?? null,
-      navItems: navDefs.map(n => ({
+      navItems: navDefs.filter(n => this.abaPermitida(n.key)).map(n => ({
         key: n.key, code: n.code, label: n.label,
         bg: active === n.key ? '#2f6690' : 'transparent',
         iconBg: active === n.key ? '#4f8fc0' : 'rgba(255,255,255,0.12)',
@@ -654,12 +590,8 @@ class Component extends DCLogic {
       isHome: active === 'home',
       isAnalise: active === 'analise',
       isLinhaTempo: active === 'linha-tempo',
-      isCorrespondencias: active === 'correspondencias',
-      isConsultas: active === 'consultas',
       isMedicao: active === 'medicao',
       isControleTerceiros: active === 'controle-terceiros',
-      isReuniaoExterna: active === 'reuniao-externa',
-
       disciplinas: this.materiaMeta.map(m => {
         const analises = m.key === 'tracado' ? this.buildTracadoAnalises() : m.key === 'trafego' ? this.buildTrafegoAnalises() : m.key === 'geologico' ? this.buildGeologicoAnalises() : [];
         return {
@@ -691,8 +623,8 @@ class Component extends DCLogic {
       })),
       todayLeft: 3.5,
 
-      medicaoLocked: !this.state.medicaoUnlocked,
-      medicaoUnlocked: this.state.medicaoUnlocked,
+      medicaoLocked: !this.state.medicaoUnlocked && !this.props.permissoes,
+      medicaoUnlocked: this.state.medicaoUnlocked || !!this.props.permissoes,
       medicaoPasswordDraft: this.state.medicaoPasswordDraft,
       medicaoPasswordError: this.state.medicaoPasswordError,
       onMedicaoPasswordChange: (e) => this.onMedicaoPasswordChange(e),
@@ -702,8 +634,8 @@ class Component extends DCLogic {
       toggleMedicaoPasswordVisible: () => this.toggleMedicaoPasswordVisible(),
       onMedicaoPasswordSubmit: () => this.submitMedicaoPassword(),
 
-      terceirosLocked: !this.state.terceirosUnlocked,
-      terceirosUnlocked: this.state.terceirosUnlocked,
+      terceirosLocked: !this.state.terceirosUnlocked && !this.props.permissoes,
+      terceirosUnlocked: this.state.terceirosUnlocked || !!this.props.permissoes,
       terceirosPasswordDraft: this.state.terceirosPasswordDraft,
       terceirosPasswordError: this.state.terceirosPasswordError,
       onTerceirosPasswordChange: (e) => this.onTerceirosPasswordChange(e),
@@ -712,17 +644,6 @@ class Component extends DCLogic {
       terceirosPasswordInputType: this.state.terceirosPasswordVisible ? 'text' : 'password',
       toggleTerceirosPasswordVisible: () => this.toggleTerceirosPasswordVisible(),
       onTerceirosPasswordSubmit: () => this.submitTerceirosPassword(),
-
-      reuniaoLocked: !this.state.reuniaoUnlocked,
-      reuniaoUnlocked: this.state.reuniaoUnlocked,
-      reuniaoPasswordDraft: this.state.reuniaoPasswordDraft,
-      reuniaoPasswordError: this.state.reuniaoPasswordError,
-      onReuniaoPasswordChange: (e) => this.onReuniaoPasswordChange(e),
-      reuniaoPasswordVisible: this.state.reuniaoPasswordVisible,
-      reuniaoPasswordHidden: !this.state.reuniaoPasswordVisible,
-      reuniaoPasswordInputType: this.state.reuniaoPasswordVisible ? 'text' : 'password',
-      toggleReuniaoPasswordVisible: () => this.toggleReuniaoPasswordVisible(),
-      onReuniaoPasswordSubmit: () => this.submitReuniaoPassword(),
     };
   }
 }

@@ -46,7 +46,6 @@
       .sip-projetos-row{flex-direction:column;}
       .sip-projetos-sidebar{width:100%!important;flex:0 0 auto!important;}
       .sip-projetos-content{padding:20px 16px!important;}
-      .sip-visita-form{padding:14px!important;}
     }
   </style>
 
@@ -106,24 +105,64 @@
       <div style="position:relative;z-index:2;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:40px;text-align:center;">
         <div style="font-size:12px;font-weight:700;letter-spacing:0.15em;color:#8fb4ff;">ACESSO RESTRITO</div>
         <div style="font-size:22px;font-weight:800;color:#fff;margin-bottom:6px;">Área CONSOL</div>
-        <div style="position:relative;width:260px;">
-          <input type="{{ senhaConsolInputType }}" value="{{ senhaConsolInput }}" sc-camel-on-change="{{ setSenhaConsolInput }}" placeholder="Digite a senha" style="width:100%;padding:12px 42px 12px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.25);background:rgba(255,255,255,0.06);color:#fff;font-size:14px;text-align:center;box-sizing:border-box;">
-          <sc-if value="{{ senhaConsolVisible }}" hint-placeholder-val="{{ false }}">
-            <div sc-camel-on-click="{{ toggleSenhaConsolVisible }}" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:rgba(255,255,255,0.6);display:flex;">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.5 18.5 0 0 1 5.06-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-            </div>
-          </sc-if>
-          <sc-if value="{{ senhaConsolHidden }}" hint-placeholder-val="{{ true }}">
-            <div sc-camel-on-click="{{ toggleSenhaConsolVisible }}" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:rgba(255,255,255,0.6);display:flex;">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            </div>
-          </sc-if>
+        <div style="width:300px;display:flex;flex-direction:column;gap:6px;">
+          <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.75);text-align:left;">E-mail</div>
+          <input type="email" value="{{ loginEmail }}" sc-camel-on-change="{{ setLoginEmail }}" placeholder="seu.nome@consol.eng.br" style="width:100%;padding:12px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.28);background:rgba(255,255,255,0.06);color:#fff;font-size:14px;box-sizing:border-box;font-family:inherit;">
+        </div>
+        <div style="width:300px;display:flex;flex-direction:column;gap:6px;">
+          <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.75);text-align:left;">Senha</div>
+          <div style="position:relative;width:100%;">
+            <input type="{{ senhaConsolInputType }}" value="{{ senhaConsolInput }}" sc-camel-on-change="{{ setSenhaConsolInput }}" placeholder="Digite a senha" style="width:100%;padding:12px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.28);background:rgba(255,255,255,0.06);color:#fff;font-size:14px;box-sizing:border-box;font-family:inherit;padding-right:42px;">
+            <sc-if value="{{ senhaConsolVisible }}" hint-placeholder-val="{{ false }}">
+              <div sc-camel-on-click="{{ toggleSenhaConsolVisible }}" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:rgba(255,255,255,0.6);display:flex;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.5 18.5 0 0 1 5.06-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
+              </div>
+            </sc-if>
+            <sc-if value="{{ senhaConsolHidden }}" hint-placeholder-val="{{ true }}">
+              <div sc-camel-on-click="{{ toggleSenhaConsolVisible }}" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:rgba(255,255,255,0.6);display:flex;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </div>
+            </sc-if>
+          </div>
         </div>
         <sc-if value="{{ hasSenhaConsolErro }}" hint-placeholder-val="{{ false }}">
-          <div style="color:#ff6b81;font-size:12.5px;">{{ senhaConsolErro }}</div>
+          <div style="width:300px;color:#ff8fa0;font-size:12.5px;text-align:left;">{{ senhaConsolErro }}</div>
         </sc-if>
-        <div sc-camel-on-click="{{ confirmSenhaConsol }}" class="sip-btn-primary" style="cursor:pointer;background:#0066ff;color:#fff;font-weight:700;font-size:14px;padding:12px 32px;border-radius:8px;margin-top:6px;opacity:{{ senhaConsolLoadingOpacity }};">{{ senhaConsolBtnLabel }}</div>
-        <div sc-camel-on-click="{{ voltarAcessoFromSenha }}" style="cursor:pointer;color:rgba(255,255,255,0.5);font-size:13px;margin-top:10px;">← Voltar</div>
+        <sc-if value="{{ hasLoginMsg }}" hint-placeholder-val="{{ false }}">
+          <div style="width:300px;color:#7fe0a8;font-size:12.5px;text-align:left;line-height:1.5;">{{ loginMsg }}</div>
+        </sc-if>
+        <div sc-camel-on-click="{{ confirmSenhaConsol }}" class="sip-btn-primary" style="width:300px;box-sizing:border-box;cursor:pointer;background:#0066ff;color:#fff;font-weight:700;font-size:14px;padding:12px 32px;border-radius:8px;margin-top:6px;opacity:{{ senhaConsolLoadingOpacity }};">{{ senhaConsolBtnLabel }}</div>
+        <div sc-camel-on-click="{{ esqueciSenha }}" style="cursor:pointer;color:#8fb4ff;font-size:13px;text-decoration:underline;">Esqueci minha senha</div>
+        <div sc-camel-on-click="{{ voltarAcessoFromSenha }}" style="cursor:pointer;color:rgba(255,255,255,0.5);font-size:13px;margin-top:6px;">← Voltar</div>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- ===================== TROCA DE SENHA ===================== -->
+  <sc-if value="{{ isTrocaSenhaView }}" hint-placeholder-val="{{ false }}">
+    <div style="position:relative;min-height:100vh;overflow:hidden;background:radial-gradient(circle at 30% 35%, rgba(0,102,255,0.30), transparent 55%), radial-gradient(circle at 70% 65%, rgba(255,45,85,0.25), transparent 55%), #050505;">
+      <div style="position:relative;z-index:2;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:40px;text-align:center;">
+        <div style="font-size:12px;font-weight:700;letter-spacing:0.15em;color:#8fb4ff;">{{ trocaSenhaEtiqueta }}</div>
+        <div style="font-size:22px;font-weight:800;color:#fff;">Olá, {{ usuarioPrimeiroNome }}</div>
+        <div style="width:340px;margin:0 0 6px;font-size:13.5px;line-height:1.55;color:rgba(255,255,255,0.72);">{{ trocaSenhaTexto }}</div>
+        <div style="width:340px;display:flex;flex-direction:column;gap:6px;">
+          <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.75);text-align:left;">Nova senha</div>
+          <input type="password" value="{{ novaSenha }}" sc-camel-on-change="{{ setNovaSenha }}" style="width:100%;padding:12px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.28);background:rgba(255,255,255,0.06);color:#fff;font-size:14px;box-sizing:border-box;font-family:inherit;">
+        </div>
+        <div style="width:340px;display:flex;flex-direction:column;gap:6px;">
+          <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,0.75);text-align:left;">Confirmar nova senha</div>
+          <input type="password" value="{{ confirmaSenha }}" sc-camel-on-change="{{ setConfirmaSenha }}" style="width:100%;padding:12px 16px;border-radius:8px;border:1px solid rgba(255,255,255,0.28);background:rgba(255,255,255,0.06);color:#fff;font-size:14px;box-sizing:border-box;font-family:inherit;">
+        </div>
+        <div style="width:340px;text-align:left;font-size:12.5px;line-height:1.7;">
+          <div style="color:{{ reqTamanhoCor }};">{{ reqTamanhoIcone }} Pelo menos 6 caracteres</div>
+          <div style="color:{{ reqIguaisCor }};">{{ reqIguaisIcone }} As duas senhas são iguais</div>
+          <div style="color:{{ reqProvisoriaCor }};">{{ reqProvisoriaIcone }} Diferente da senha provisória</div>
+        </div>
+        <sc-if value="{{ hasTrocaErro }}" hint-placeholder-val="{{ false }}">
+          <div style="width:340px;color:#ff8fa0;font-size:12.5px;text-align:left;">{{ trocaErro }}</div>
+        </sc-if>
+        <div sc-camel-on-click="{{ confirmarTrocaSenha }}" class="sip-btn-primary" style="width:340px;box-sizing:border-box;cursor:pointer;background:#0066ff;color:#fff;font-weight:700;font-size:14px;padding:12px 32px;border-radius:8px;margin-top:6px;opacity:{{ trocaLoadingOpacity }};">{{ trocaBtnLabel }}</div>
+        <div sc-camel-on-click="{{ sairOuVoltarDaTroca }}" style="cursor:pointer;color:rgba(255,255,255,0.6);font-size:13px;">{{ trocaSairLabel }}</div>
       </div>
     </div>
   </sc-if>
@@ -211,12 +250,20 @@
   <!-- ===================== APP SHELL ===================== -->
   <sc-if value="{{ isApp }}" hint-placeholder-val="{{ false }}">
     <div style="display:flex;flex-direction:column;min-height:100vh;">
-      <sc-if value="{{ isProjetosView }}" hint-placeholder-val="{{ true }}">
+      <sc-if value="{{ mostrarTopbar }}" hint-placeholder-val="{{ true }}">
         <div style="height:56px;flex:0 0 56px;background:#1f3a5f;display:flex;align-items:center;justify-content:space-between;padding:0 24px;">
           <div style="display:flex;align-items:center;gap:16px;">
             <div sc-camel-on-click="{{ goProjetos }}" class="sip-topbar-title" style="font-size:13px;font-weight:700;color:#fff;letter-spacing:0.03em;cursor:pointer;white-space:nowrap;">SIP - Sistema Inteligente de Projetos</div>
           </div>
-          <div class="sip-topbar-sub" style="font-size:12px;color:rgba(255,255,255,0.65);white-space:nowrap;">Modo aberto · sem login</div>
+          <sc-if value="{{ isUsuarioNomeado }}" hint-placeholder-val="{{ false }}">
+            <div class="sip-topbar-sub" style="display:flex;align-items:center;gap:16px;font-size:12.5px;color:rgba(255,255,255,0.85);white-space:nowrap;">
+              <div>{{ usuarioLabel }}</div>
+              <div sc-camel-on-click="{{ sair }}" style="cursor:pointer;color:#fff;font-weight:700;">Sair</div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ naoUsuarioNomeado }}" hint-placeholder-val="{{ true }}">
+            <div class="sip-topbar-sub" style="font-size:12px;color:rgba(255,255,255,0.65);white-space:nowrap;">{{ topbarModoTexto }}</div>
+          </sc-if>
         </div>
       </sc-if>
       <sc-if value="{{ crumbProjeto }}" hint-placeholder-val="{{ false }}">
@@ -226,6 +273,115 @@
           <div sc-camel-on-click="{{ goProjetos }}" style="cursor:pointer;">Projetos</div>
           <div>/</div>
           <div style="color:#fff;">{{ crumbProjeto.label }}</div>
+        </div>
+      </sc-if>
+
+      <!-- ADMINISTRAÇÃO -->
+      <sc-if value="{{ isAdminView }}" hint-placeholder-val="{{ false }}">
+        <div class="sip-projetos-row" style="flex:1;display:flex;min-height:0;">
+          <div class="sip-projetos-sidebar" style="width:200px;flex:0 0 200px;background:#16283f;padding:20px 12px;display:flex;flex-direction:column;gap:6px;">
+            <div sc-camel-on-click="{{ goProjetos }}" style="padding:11px 14px;border-radius:8px;cursor:pointer;font-size:13.5px;font-weight:600;color:rgba(255,255,255,0.72);">Projetos</div>
+            <div style="padding:11px 14px;border-radius:8px;font-size:13.5px;font-weight:600;color:#fff;background:#2f6690;">Administração</div>
+            <div sc-camel-on-click="{{ abrirTrocaVoluntaria }}" style="padding:11px 14px;border-radius:8px;cursor:pointer;font-size:13.5px;font-weight:600;color:rgba(255,255,255,0.72);">Trocar minha senha</div>
+          </div>
+          <div style="flex:1;min-width:0;padding:30px 32px;display:flex;flex-direction:column;gap:16px;">
+            <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;">
+              <div>
+                <div style="font-size:12px;font-weight:700;letter-spacing:0.12em;color:#2f6690;">ADMINISTRAÇÃO</div>
+                <div style="margin-top:6px;font-size:26px;font-weight:800;color:#1f3a5f;">Funcionários e permissões</div>
+                <div style="margin-top:6px;font-size:13px;color:#5b6774;">Marque direto na grade, como na planilha. Supervisor e Administrador veem tudo.</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;">
+                <sc-if value="{{ adminTemPendentes }}" hint-placeholder-val="{{ false }}">
+                  <div style="font-size:12.5px;font-weight:600;color:#8a4a0b;background:#fbe9d6;padding:6px 12px;border-radius:999px;">{{ adminPendentesTexto }}</div>
+                </sc-if>
+                <div sc-camel-on-click="{{ adminDescartar }}" style="cursor:pointer;background:#fff;border:1px solid #c4ccd6;color:#1f3a5f;font-size:13.5px;font-weight:700;padding:11px 18px;border-radius:8px;">Descartar</div>
+                <div sc-camel-on-click="{{ adminSalvar }}" style="cursor:pointer;background:#0066ff;color:#fff;font-size:13.5px;font-weight:700;padding:11px 22px;border-radius:8px;opacity:{{ adminSalvarOpacity }};">{{ adminSalvarLabel }}</div>
+              </div>
+            </div>
+            <sc-if value="{{ adminTemMsg }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:10px 14px;border-radius:8px;font-size:13px;line-height:1.5;background:{{ adminMsgBg }};color:{{ adminMsgCor }};white-space:pre-line;">{{ adminMsg }}</div>
+            </sc-if>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+              <input type="search" value="{{ adminBusca }}" sc-camel-on-change="{{ setAdminBusca }}" placeholder="Buscar por nome ou e-mail" style="width:320px;padding:10px 14px;border:1px solid #c4ccd6;border-radius:8px;font-size:13.5px;background:#fff;font-family:inherit;">
+              <select value="{{ adminFiltro }}" sc-camel-on-change="{{ setAdminFiltro }}" style="padding:10px 12px;border:1px solid #c4ccd6;border-radius:8px;font-size:13.5px;background:#fff;font-family:inherit;">
+                <option value="todos">Todos os perfis</option>
+                <option value="Funcionário">Funcionário</option>
+                <option value="Supervisor">Supervisor</option>
+                <option value="Gestor de Contratos">Gestor de Contratos</option>
+                <option value="Administrador">Administrador</option>
+                <option value="inativos">Inativos</option>
+              </select>
+              <div style="font-size:12.5px;color:#5b6774;">{{ adminContagemTexto }} · AR Araçuaí · RU Rubim · SE Serro · RL Rota da Liberdade · GU Gurinhatã</div>
+            </div>
+            <sc-if value="{{ adminCarregando }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:30px;text-align:center;color:#5b6774;font-size:13px;">Carregando funcionários...</div>
+            </sc-if>
+            <sc-if value="{{ adminPronto }}" hint-placeholder-val="{{ true }}">
+              <div style="background:#fff;border:1px solid #dde3ea;border-radius:12px;overflow:auto;">
+                <table style="border-collapse:collapse;width:100%;min-width:1560px;table-layout:fixed;">
+                  <thead>
+                    <tr><th colspan="3" style="font-size:11px;font-weight:800;letter-spacing:0.06em;color:#1f3a5f;background:#dce6f1;padding:8px 6px;text-align:center;border-right:2px solid #fff;">IDENTIFICAÇÃO</th><th colspan="5" style="font-size:11px;font-weight:800;letter-spacing:0.06em;color:#1f3a5f;background:#dce6f1;padding:8px 6px;text-align:center;border-right:2px solid #fff;">PROJETOS QUE PODE ABRIR</th><th colspan="2" style="font-size:11px;font-weight:800;letter-spacing:0.06em;color:#1f3a5f;background:#dce6f1;padding:8px 6px;text-align:center;border-right:2px solid #fff;">ABAS EXTRAS</th><th colspan="10" style="font-size:11px;font-weight:800;letter-spacing:0.06em;color:#1f3a5f;background:#dce6f1;padding:8px 6px;text-align:center;border-right:2px solid #fff;">DISCIPLINAS NA LINHA DO TEMPO</th><th colspan="2" style="font-size:11px;font-weight:800;letter-spacing:0.06em;color:#1f3a5f;background:#dce6f1;padding:8px 6px;text-align:center;border-right:2px solid #fff;"></th></tr>
+                    <tr><th style="font-size:11px;font-weight:700;color:#fff;background:#1f3a5f;padding:8px 4px;text-align:center;border-right:1px solid #2c4a70;line-height:1.25;width:210px;text-align:left;padding-left:14px;">Nome</th><th style="font-size:11px;font-weight:700;color:#fff;background:#1f3a5f;padding:8px 4px;text-align:center;border-right:1px solid #2c4a70;line-height:1.25;width:220px;text-align:left;padding-left:14px;">E-mail (login)</th><th style="font-size:11px;font-weight:700;color:#fff;background:#1f3a5f;padding:8px 4px;text-align:center;border-right:1px solid #2c4a70;line-height:1.25;width:150px;">Perfil</th><th style="font-size:11px;font-weight:700;color:#fff;background:#1f3a5f;padding:8px 4px;text-align:center;border-right:1px solid #2c4a70;line-height:1.25;width:44px;">AR</th><th style="font-size:11px;font-weight:700;color:#fff;background:#1f3a5f;padding:8px 4px;text-align:center;border-right:1px solid #2c4a70;line-height:1.25;width:44px;">RU</th><th style="font-size:11px;font-weight:700;color:#fff;background:#1f3a5f;padding:8px 4px;text-align:center;border-right:1px solid #2c4a70;line-height:1.25;width:44px;">SE</th><th style="font-size:11px;font-weight:700;color:#fff;background:#1f3a5f;padding:8px 4px;text-align:center;border-right:1px solid #2c4a70;line-height:1.25;width:44px;">RL</th><th style="font-size:11px;font-weight:700;color:#fff;background:#1f3a5f;padding:8px 4px;text-align:center;border-right:1px solid #2c4a70;line-height:1.25;width:44px;">GU</th><th style="font-size:11px;font-weight:700;color:#fff;background:#1f3a5f;padding:8px 4px;text-align:center;border-right:1px solid #2c4a70;line-height:1.25;width:62px;">Medição</th><th style="font-size:11px;font-weight:700;color:#fff;background:#1f3a5f;padding:8px 4px;text-align:center;border-right:1px solid #2c4a70;line-height:1.25;width:62px;">Terceiros</th><th style="font-size:11px;font-weight:700;color:#fff;background:#1f3a5f;padding:8px 4px;text-align:center;border-right:1px solid #2c4a70;line-height:1.25;width:66px;">Topografia</th><th style="font-size:11px;font-weight:700;color:#fff;background:#1f3a5f;padding:8px 4px;text-align:center;border-right:1px solid #2c4a70;line-height:1.25;width:66px;">Hidrologia</th><th style="font-size:11px;font-weight:700;color:#fff;background:#1f3a5f;padding:8px 4px;text-align:center;border-right:1px solid #2c4a70;line-height:1.25;width:66px;">Geometria</th><th style="font-size:11px;font-weight:700;color:#fff;background:#1f3a5f;padding:8px 4px;text-align:center;border-right:1px solid #2c4a70;line-height:1.25;width:66px;">Terrapl./Geotec.</th><th style="font-size:11px;font-weight:700;color:#fff;background:#1f3a5f;padding:8px 4px;text-align:center;border-right:1px solid #2c4a70;line-height:1.25;width:66px;">Drenagem</th><th style="font-size:11px;font-weight:700;color:#fff;background:#1f3a5f;padding:8px 4px;text-align:center;border-right:1px solid #2c4a70;line-height:1.25;width:66px;">Pavimentação</th><th style="font-size:11px;font-weight:700;color:#fff;background:#1f3a5f;padding:8px 4px;text-align:center;border-right:1px solid #2c4a70;line-height:1.25;width:66px;">Interseção</th><th style="font-size:11px;font-weight:700;color:#fff;background:#1f3a5f;padding:8px 4px;text-align:center;border-right:1px solid #2c4a70;line-height:1.25;width:66px;">Sinaliz./Seg. Viária</th><th style="font-size:11px;font-weight:700;color:#fff;background:#1f3a5f;padding:8px 4px;text-align:center;border-right:1px solid #2c4a70;line-height:1.25;width:66px;">Desapropriação</th><th style="font-size:11px;font-weight:700;color:#fff;background:#1f3a5f;padding:8px 4px;text-align:center;border-right:1px solid #2c4a70;line-height:1.25;width:66px;">Obras Compl.</th><th style="font-size:11px;font-weight:700;color:#fff;background:#1f3a5f;padding:8px 4px;text-align:center;border-right:1px solid #2c4a70;line-height:1.25;width:80px;">Status</th><th style="font-size:11px;font-weight:700;color:#fff;background:#1f3a5f;padding:8px 4px;text-align:center;border-right:1px solid #2c4a70;line-height:1.25;width:120px;"></th></tr>
+                  </thead>
+                  <tbody>
+                    <sc-for list="{{ adminLinhas }}" as="r" hint-placeholder-count="3">
+                      <tr style="background:{{ r.bg }};">
+                        <td style="border-bottom:1px solid #eef1f4;border-right:1px solid #f1f3f6;padding:0;text-align:center;vertical-align:middle;height:46px;text-align:left;padding:0 6px;">
+                          <input type="text" value="{{ r.nome }}" sc-camel-on-change="{{ r.setNome }}" style="width:100%;box-sizing:border-box;border:1px solid {{ r.bordaCampo }};background:transparent;padding:7px 8px;border-radius:6px;font-size:13px;font-weight:700;color:#1f2933;font-family:inherit;">
+                        </td>
+                        <td style="border-bottom:1px solid #eef1f4;border-right:1px solid #f1f3f6;padding:0;text-align:center;vertical-align:middle;height:46px;text-align:left;padding:0 6px;">
+                          <sc-if value="{{ r.novo }}" hint-placeholder-val="{{ false }}">
+                            <input type="email" value="{{ r.email }}" sc-camel-on-change="{{ r.setEmail }}" placeholder="nome@consol.eng.br" style="width:100%;box-sizing:border-box;border:1px solid #0066ff;background:transparent;padding:7px 8px;border-radius:6px;font-size:12.5px;color:#1f2933;font-family:inherit;">
+                          </sc-if>
+                          <sc-if value="{{ r.existente }}" hint-placeholder-val="{{ true }}">
+                            <div style="padding:7px 8px;font-size:12.5px;color:#5b6774;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ r.email }}</div>
+                          </sc-if>
+                        </td>
+                        <td style="border-bottom:1px solid #eef1f4;border-right:1px solid #f1f3f6;padding:0;text-align:center;vertical-align:middle;height:46px;padding:0 8px;">
+                          <select value="{{ r.perfil }}" sc-camel-on-change="{{ r.setPerfil }}" style="width:100%;border:1px solid #c4ccd6;border-radius:6px;padding:6px;font-size:12.5px;background:#fff;font-family:inherit;">
+                            <option value="Funcionário">Funcionário</option>
+                            <option value="Supervisor">Supervisor</option>
+                            <option value="Gestor de Contratos">Gestor de Contratos</option>
+                            <option value="Administrador">Administrador</option>
+                          </select>
+                        </td>
+                        <sc-if value="{{ r.verTudo }}" hint-placeholder-val="{{ false }}">
+                          <td colspan="17" style="border-bottom:1px solid #eef1f4;border-right:1px solid #f1f3f6;padding:0;text-align:center;vertical-align:middle;height:46px;font-size:12.5px;color:#2f6690;font-weight:600;background:#f3f7fb;">Vê todos os projetos, abas e disciplinas (perfil {{ r.perfil }})</td>
+                        </sc-if>
+                        <sc-if value="{{ r.naoVerTudo }}" hint-placeholder-val="{{ true }}">
+                          <sc-for list="{{ r.celulas }}" as="c" hint-placeholder-count="17">
+                            <td style="border-bottom:1px solid #eef1f4;border-right:1px solid #f1f3f6;padding:0;text-align:center;vertical-align:middle;height:46px;">
+                              <div style="display:flex;align-items:center;justify-content:center;height:46px;">
+                                <input type="checkbox" checked="{{ c.on }}" sc-camel-on-change="{{ c.toggle }}" title="{{ c.rotulo }}" style="width:17px;height:17px;accent-color:#0066ff;margin:0;cursor:pointer;">
+                              </div>
+                            </td>
+                          </sc-for>
+                        </sc-if>
+                        <td style="border-bottom:1px solid #eef1f4;border-right:1px solid #f1f3f6;padding:0;text-align:center;vertical-align:middle;height:46px;padding:0 10px;">
+                          <div sc-camel-on-click="{{ r.toggleAtivo }}" title="Clique para ativar/desativar" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:{{ r.statusCor }};">
+                            <div style="width:8px;height:8px;border-radius:50%;background:{{ r.statusPonto }};"></div>{{ r.statusTexto }}
+                          </div>
+                        </td>
+                        <td style="border-bottom:1px solid #eef1f4;border-right:1px solid #f1f3f6;padding:0;text-align:center;vertical-align:middle;height:46px;padding:0 8px;white-space:nowrap;">
+                          <sc-if value="{{ r.existente }}" hint-placeholder-val="{{ true }}">
+                            <div sc-camel-on-click="{{ r.redefinirSenha }}" style="cursor:pointer;display:inline-block;background:#fff;border:1px solid #c4ccd6;color:#1f3a5f;font-size:12px;font-weight:600;padding:6px 10px;border-radius:6px;">Redefinir senha</div>
+                          </sc-if>
+                          <sc-if value="{{ r.novo }}" hint-placeholder-val="{{ false }}">
+                            <div style="font-size:12px;color:#8a94a3;">novo</div>
+                          </sc-if>
+                        </td>
+                      </tr>
+                    </sc-for>
+                  </tbody>
+                </table>
+              </div>
+            </sc-if>
+            <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+              <div sc-camel-on-click="{{ adminAdicionar }}" style="cursor:pointer;background:#fff;border:1px dashed #2f6690;color:#2f6690;font-size:13.5px;font-weight:700;padding:11px 18px;border-radius:8px;">+ Adicionar funcionário</div>
+              <div style="font-size:12.5px;color:#5b6774;">Cria uma linha nova; ao salvar, o sistema cria o login com a senha provisória e troca obrigatória no primeiro acesso.</div>
+            </div>
+          </div>
         </div>
       </sc-if>
 
@@ -250,14 +406,16 @@
                 <div style="font-size:11.5px;font-weight:600;color:{{ p.textColor }};opacity:0.6;margin-top:2px;">{{ p.rodovia }}</div>
               </div>
             </sc-for>
-            <sc-if value="{{ isConsolMode }}" hint-placeholder-val="{{ true }}">
-              <div style="height:1px;background:rgba(255,255,255,0.12);margin:6px 4px;"></div>
-              <div sc-camel-on-click="{{ openVisitaTecnica }}" style="padding:14px 16px;border-radius:10px;cursor:pointer;background:{{ visitaTecnicaBg }};border:1px solid rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:space-between;gap:8px;">
-                <div style="font-size:13.5px;font-weight:700;color:{{ visitaTecnicaColor }};">Visita Técnica</div>
-                <sc-if value="{{ visitaPendentes }}" hint-placeholder-val="{{ false }}">
-                  <div style="background:#e0752f;color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px;flex:0 0 auto;">{{ visitaPendentesCount }}</div>
-                </sc-if>
-              </div>
+            <sc-if value="{{ semProjetosLiberados }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:10px 8px;font-size:12.5px;line-height:1.5;color:rgba(255,255,255,0.65);">Nenhum projeto liberado para o seu usuário. Procure o administrador do SIP.</div>
+            </sc-if>
+            <sc-if value="{{ isUsuarioNomeado }}" hint-placeholder-val="{{ false }}">
+              <div style="height:1px;background:rgba(255,255,255,0.12);margin:10px 4px;"></div>
+              <sc-if value="{{ isAdmin }}" hint-placeholder-val="{{ false }}">
+                <div sc-camel-on-click="{{ goAdmin }}" style="padding:11px 14px;border-radius:8px;cursor:pointer;font-size:13.5px;font-weight:600;color:{{ adminNavCor }};background:{{ adminNavBg }};">Administração</div>
+              </sc-if>
+              <div sc-camel-on-click="{{ abrirTrocaVoluntaria }}" style="padding:11px 14px;border-radius:8px;cursor:pointer;font-size:13.5px;font-weight:600;color:rgba(255,255,255,0.72);">Trocar minha senha</div>
+              <div sc-camel-on-click="{{ sair }}" style="padding:11px 14px;border-radius:8px;cursor:pointer;font-size:13.5px;font-weight:600;color:rgba(255,255,255,0.72);">Sair</div>
             </sc-if>
           </div>
           <div class="sip-projetos-content" style="flex:1;overflow:auto;padding:56px 40px;display:flex;justify-content:center;">
@@ -295,130 +453,34 @@
       <!-- PROJETO (MG-259) — tela cheia, com sua própria barra lateral -->
       <sc-if value="{{ isProjetoMG259 }}" hint-placeholder-val="{{ false }}">
         <div style="flex:1;min-height:0;">
-          <dc-import name="Apresentacao Infraestrutura" hint-size="100%,100%" on-voltar-projetos="{{ goProjetos }}" is-cliente-mode="{{ isClienteMode }}"></dc-import>
+          <dc-import name="Apresentacao Infraestrutura" hint-size="100%,100%" on-voltar-projetos="{{ goProjetos }}" is-cliente-mode="{{ isClienteMode }}" permissoes="{{ permissoesProjeto }}"></dc-import>
         </div>
       </sc-if>
 
       <!-- PROJETO (Araçuaí – Novo Cruzeiro) — tela cheia, com sua própria barra lateral -->
       <sc-if value="{{ isProjetoAracuai }}" hint-placeholder-val="{{ false }}">
         <div style="flex:1;min-height:0;">
-          <dc-import name="Apresentacao Aracuai-Novo Cruzeiro" hint-size="100%,100%" on-voltar-projetos="{{ goProjetos }}" is-cliente-mode="{{ isClienteMode }}"></dc-import>
+          <dc-import name="Apresentacao Aracuai-Novo Cruzeiro" hint-size="100%,100%" on-voltar-projetos="{{ goProjetos }}" is-cliente-mode="{{ isClienteMode }}" permissoes="{{ permissoesProjeto }}"></dc-import>
         </div>
       </sc-if>
 
       <sc-if value="{{ isProjetoGurinhata }}" hint-placeholder-val="{{ false }}">
         <div style="flex:1;min-height:0;">
-          <dc-import name="Apresentacao Gurinhata" hint-size="100%,100%" on-voltar-projetos="{{ goProjetos }}"></dc-import>
+          <dc-import name="Apresentacao Gurinhata" hint-size="100%,100%" on-voltar-projetos="{{ goProjetos }}" permissoes="{{ permissoesProjeto }}"></dc-import>
         </div>
       </sc-if>
 
       <sc-if value="{{ isProjetoRotaLiberdade }}" hint-placeholder-val="{{ false }}">
         <div style="flex:1;min-height:0;">
-          <dc-import name="Apresentacao Rota da Liberdade" hint-size="100%,100%" on-voltar-projetos="{{ goProjetos }}" is-cliente-mode="{{ isClienteMode }}"></dc-import>
+          <dc-import name="Apresentacao Rota da Liberdade" hint-size="100%,100%" on-voltar-projetos="{{ goProjetos }}" is-cliente-mode="{{ isClienteMode }}" permissoes="{{ permissoesProjeto }}"></dc-import>
         </div>
       </sc-if>
 
       <sc-if value="{{ isProjetoRubim }}" hint-placeholder-val="{{ false }}">
         <div style="flex:1;min-height:0;">
-          <dc-import name="Apresentacao Rubim-Rio do Prado" hint-size="100%,100%" on-voltar-projetos="{{ goProjetos }}" is-cliente-mode="{{ isClienteMode }}"></dc-import>
+          <dc-import name="Apresentacao Rubim-Rio do Prado" hint-size="100%,100%" on-voltar-projetos="{{ goProjetos }}" is-cliente-mode="{{ isClienteMode }}" permissoes="{{ permissoesProjeto }}"></dc-import>
         </div>
       </sc-if>
-
-      <!-- VISITA TÉCNICA ===================== -->
-      <sc-if value="{{ isVisitaTecnica }}" hint-placeholder-val="{{ false }}">
-        <div style="flex:1;min-height:0;overflow:auto;background:#eef1f4;">
-          <div style="max-width:560px;margin:0 auto;padding:24px 20px 60px;">
-            <div sc-camel-on-click="{{ goProjetos }}" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#5b6774;margin-bottom:20px;">← Voltar</div>
-            <h1 style="margin:0 0 4px;font-size:22px;font-weight:800;color:#1f3a5f;">Visita Técnica de Campo</h1>
-            <div style="font-size:12.5px;color:#8a94a3;margin-bottom:20px;line-height:1.5;">Tire fotos em campo pelo celular — elas ficam salvas no aparelho e sincronizam quando houver internet.</div>
-
-            <div class="sip-visita-form" style="background:#fff;border:1px solid #dde3ea;border-radius:10px;padding:16px;margin-bottom:20px;display:flex;flex-direction:column;gap:12px;">
-              <div>
-                <label style="font-size:11.5px;font-weight:700;color:#5b6774;display:block;margin-bottom:4px;">Projeto</label>
-                <sc-raw-select value="{{ visitaProjetoId }}" sc-camel-on-change="{{ setVisitaProjeto }}" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #dde3ea;font-size:13.5px;background:#fff;">
-                  <option value="">Selecione…</option>
-                  <sc-for list="{{ visitaProjetosOptions }}" as="vp" hint-placeholder-count="1">
-                    <option value="{{ vp.id }}">{{ vp.nome }}</option>
-                  </sc-for>
-                </sc-raw-select>
-              </div>
-              <div>
-                <label style="font-size:11.5px;font-weight:700;color:#5b6774;display:block;margin-bottom:4px;">Disciplina</label>
-                <sc-raw-select value="{{ visitaDisciplina }}" sc-camel-on-change="{{ setVisitaDisciplina }}" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #dde3ea;font-size:13.5px;background:#fff;">
-                  <option value="">Selecione…</option>
-                  <sc-for list="{{ visitaDisciplinasList }}" as="vd" hint-placeholder-count="1">
-                    <option value="{{ vd }}">{{ vd }}</option>
-                  </sc-for>
-                </sc-raw-select>
-              </div>
-              <div>
-                <label style="font-size:11.5px;font-weight:700;color:#5b6774;display:block;margin-bottom:4px;">Km / Estaca (opcional)</label>
-                <input value="{{ visitaKm }}" sc-camel-on-change="{{ setVisitaKm }}" placeholder="ex.: 33+400" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #dde3ea;font-size:13.5px;box-sizing:border-box;">
-              </div>
-              <div>
-                <label style="font-size:11.5px;font-weight:700;color:#5b6774;display:block;margin-bottom:4px;">Observação (opcional)</label>
-                <input value="{{ visitaObs }}" sc-camel-on-change="{{ setVisitaObs }}" placeholder="ex.: erosão no talude direito" style="width:100%;padding:10px 12px;border-radius:8px;border:1px solid #dde3ea;font-size:13.5px;box-sizing:border-box;">
-              </div>
-              <label style="display:flex;align-items:center;justify-content:center;gap:8px;background:#1f3a5f;color:#fff;font-weight:700;font-size:14.5px;padding:16px;border-radius:10px;cursor:pointer;text-align:center;">
-                Tirar Foto
-                <input type="file" accept="image/*" capture="environment" multiple="true" sc-camel-on-change="{{ onCapturaFotos }}" style="display:none;">
-              </label>
-              <div sc-camel-on-click="{{ openGaleriaFromVisita }}" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#1f3a5f;color:#fff;font-weight:700;font-size:14.5px;padding:16px;border-radius:10px;cursor:pointer;text-align:center;">
-                Galeria de Fotos ({{ visitaTotal }})
-              </div>
-            </div>
-
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-              <div style="font-size:13px;font-weight:700;color:#1f2933;">Fotos desta visita ({{ visitaTotal }})</div>
-              <sc-if value="{{ visitaPendentes }}" hint-placeholder-val="{{ false }}">
-                <div sc-camel-on-click="{{ sincronizarFotos }}" style="cursor:pointer;background:#2f6690;color:#fff;font-size:11.5px;font-weight:700;padding:7px 12px;border-radius:8px;">{{ visitaSyncLabel }}</div>
-              </sc-if>
-            </div>
-
-
-          </div>
-        </div>
-      </sc-if>
-
-      <!-- GALERIA (dentro da Visita Técnica) ===================== -->
-      <sc-if value="{{ isGaleriaView }}" hint-placeholder-val="{{ false }}">
-        <div style="flex:1;min-height:0;overflow:auto;background:#eef1f4;">
-          <div style="max-width:1200px;margin:0 auto;padding:24px 20px 60px;">
-            <div sc-camel-on-click="{{ voltarVisita }}" style="cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-size:13px;color:#5b6774;margin-bottom:20px;">← Voltar para Visita Técnica</div>
-            <h1 style="margin:0 0 4px;font-size:22px;font-weight:800;color:#1f3a5f;">Galeria de Fotos</h1>
-            <div style="font-size:12.5px;color:#8a94a3;margin-bottom:20px;">Fotos capturadas, agrupadas por disciplina.</div>
-
-            <div style="display:flex;flex-direction:column;gap:16px;">
-              <sc-for list="{{ galeriaDisciplinas }}" as="disc" hint-placeholder-count="0">
-                <div style="border-radius:10px;overflow:hidden;background:#fff;border:1px solid #dde3ea;">
-                  <div sc-camel-on-click="{{ disc.toggle }}" style="cursor:pointer;padding:16px;background:#f5f7fa;display:flex;align-items:center;justify-content:space-between;border-bottom:{{ disc.expanded ? '1px solid #dde3ea' : 'none' }};">
-                    <div style="font-size:14px;font-weight:700;color:#1f3a5f;">{{ disc.disciplina }} ({{ disc.count }})</div>
-                    <div style="font-size:12px;color:#5b6774;">{{ disc.expanded ? '▼' : '▶' }}</div>
-                  </div>
-                  <sc-if value="{{ disc.expanded }}" hint-placeholder-val="{{ false }}">
-                    <div style="padding:16px;display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:16px;">
-                      <sc-for list="{{ disc.fotos }}" as="foto" hint-placeholder-count="0">
-                        <div style="border-radius:8px;overflow:hidden;background:#f9fafc;border:1px solid #e0e6ee;">
-                          <img ref="{{ foto.imgRef }}" style="width:100%;height:180px;object-fit:cover;display:block;background:#eef1f4;">
-                          <div style="padding:12px;">
-                            <div style="font-size:11px;font-weight:700;color:#1f3a5f;margin-bottom:8px;">{{ foto.localizacao }}</div>
-                            <div style="font-size:10px;color:#8a94a3;margin-bottom:6px;">{{ foto.dataFormatada }}</div>
-                            <div style="font-size:9px;color:#5b6774;line-height:1.5;word-break:break-all;">{{ foto.coordenadasUTM }}</div>
-                            <sc-if value="{{ foto.obs }}" hint-placeholder-val="{{ false }}">
-                              <div style="font-size:9px;color:#5b6774;margin-top:6px;padding-top:6px;border-top:1px solid #dde3ea;line-height:1.4;">{{ foto.obs }}</div>
-                            </sc-if>
-                          </div>
-                        </div>
-                      </sc-for>
-                    </div>
-                  </sc-if>
-                </div>
-              </sc-for>
-            </div>
-          </div>
-        </div>
-      </sc-if>
-
 
 
       <!-- PROJETO sem conteúdo -->
@@ -444,6 +506,22 @@ class Component extends DCLogic {
     showSobre: false,
     showAcesso: false,
     showSenhaConsol: false,
+    loginEmail: '',
+    loginMsg: '',
+    usuarioSip: null,
+    showTrocaSenha: false,
+    trocaVoluntaria: false,
+    novaSenha: '',
+    confirmaSenha: '',
+    trocaErro: '',
+    trocaLoading: false,
+    adminLinhas: [],
+    adminCarregando: false,
+    adminBusca: '',
+    adminFiltro: 'todos',
+    adminSalvando: false,
+    adminMsg: '',
+    adminMsgTipo: '',
     senhaConsolInput: '',
     senhaConsolErro: '',
     senhaConsolVisible: false,
@@ -461,17 +539,7 @@ class Component extends DCLogic {
     selectedProjetoId: null,
     projetos: [],
     dataLoaded: false,
-    visitaProjetoId: '',
-    visitaDisciplina: '',
-    visitaKm: '',
-    visitaObs: '',
-    visitaPhotos: [],
-    visitaSyncing: false,
-    galeriaPhotos: [],
-    galeriaDisciplinasExpanded: {},
   };
-
-  visitaDisciplinas = ['Geometria', 'Terraplenagem', 'Sinalização', 'Obras Complementares', 'Desapropriação', 'Interseção', 'Segurança Viária', 'Pavimentação', 'Drenagem', 'Topografia', 'Meio Ambiente'];
 
   coverCanvasRef = React.createRef();
 
@@ -582,7 +650,6 @@ class Component extends DCLogic {
     if (this._heroResize) window.removeEventListener('resize', this._heroResize);
     if (this._heroMove) window.removeEventListener('mousemove', this._heroMove);
     if (this._heroLeave) window.removeEventListener('mouseleave', this._heroLeave);
-    if (this.galeriaUnsubscribe) this.galeriaUnsubscribe();
   }
 
   loadScript(src, timeoutMs) {
@@ -610,8 +677,6 @@ class Component extends DCLogic {
   }
 
   async componentDidMount() {
-    this.loadVisitaPhotos();
-    this.addExamplePhoto();
     try {
       await this.waitForFirebase();
       if (!firebase.apps.length) {
@@ -685,25 +750,311 @@ class Component extends DCLogic {
     }
   }
 
-  async confirmSenhaConsol() {
-    if (this.state.senhaConsolLoading) return;
-    if (!this.state.senhaConsolInput) {
-      this.setState({ senhaConsolErro: 'Digite a senha.' });
-      return;
+  // ================= LOGIN INDIVIDUAL E PERMISSÕES (Etapa 1) =================
+  // Cada funcionário entra com o próprio e-mail/senha (Firebase Auth). O perfil e as permissões
+  // ficam na coleção 'usuarios' (doc = uid). A área do cliente não muda.
+  ADMIN_BOOTSTRAP_EMAIL = 'rafael.muniz@consol.eng.br';
+  SENHA_PROVISORIA = 'Consol@2026';
+  CONTA_COMPARTILHADA = 'consol@sip-consol.interno';
+  PERMITIR_CONTA_COMPARTILHADA = true; // transição: mudar para false quando todos já usarem o login próprio
+  PROJETOS_TIPOS = ['aracuai-nc', 'rubim-rp', 'mg-259', 'rota-liberdade', 'gurinhata'];
+  PROJETOS_ROTULOS = ['Araçuaí', 'Rubim', 'Serro', 'Rota da Liberdade', 'Gurinhatã'];
+  DISCIPLINAS_CHAVES = ['topografia', 'hidrologia', 'geometria', 'terraplenagem', 'drenagem', 'pavimentacao', 'intersecao', 'sinalizacao', 'desapropriacao', 'obras'];
+  DISCIPLINAS_ROTULOS = ['Topografia', 'Hidrologia', 'Geometria', 'Terraplenagem / Geotecnia', 'Drenagem', 'Pavimentação', 'Interseção', 'Sinalização / Segurança Viária', 'Desapropriação', 'Obras Complementares'];
+  CADASTRO_INICIAL = [{"nome": "André Barcelos Guimarães", "email": "andre.guimaraes@consol.eng.br", "perfil": "Funcionário", "projetos": ["rota-liberdade"], "abas": {"medicao": true, "terceiros": true}, "disciplinas": []}, {"nome": "Antônio Fontana Filho", "email": "fontana@consol.eng.br", "perfil": "Funcionário", "projetos": ["aracuai-nc", "rubim-rp", "mg-259", "rota-liberdade", "gurinhata"], "abas": {"medicao": false, "terceiros": false}, "disciplinas": ["terraplenagem", "pavimentacao"]}, {"nome": "Augusto Fagundes Habaeb", "email": "augusto@consol.eng.br", "perfil": "Funcionário", "projetos": ["aracuai-nc", "rubim-rp", "mg-259", "rota-liberdade", "gurinhata"], "abas": {"medicao": false, "terceiros": false}, "disciplinas": ["terraplenagem", "pavimentacao"]}, {"nome": "Bernado Oliveira França", "email": "bernardo@consol.eng.br", "perfil": "Funcionário", "projetos": ["aracuai-nc", "rubim-rp", "mg-259", "rota-liberdade", "gurinhata"], "abas": {"medicao": false, "terceiros": false}, "disciplinas": ["geometria", "terraplenagem", "drenagem", "intersecao", "sinalizacao", "desapropriacao", "obras"]}, {"nome": "David Alves Pereira", "email": "david.alves@consol.eng.br", "perfil": "Funcionário", "projetos": ["aracuai-nc", "rubim-rp", "mg-259", "rota-liberdade", "gurinhata"], "abas": {"medicao": false, "terceiros": false}, "disciplinas": ["topografia", "geometria", "terraplenagem", "intersecao", "sinalizacao", "desapropriacao", "obras"]}, {"nome": "Denise da Silva Pysklewitz", "email": "denise@consol.eng.br", "perfil": "Funcionário", "projetos": ["aracuai-nc", "rubim-rp", "mg-259", "rota-liberdade", "gurinhata"], "abas": {"medicao": false, "terceiros": false}, "disciplinas": ["terraplenagem", "pavimentacao"]}, {"nome": "Emanuel Franco José Ferreira", "email": "emmanuel@consol.eng.br", "perfil": "Funcionário", "projetos": ["aracuai-nc", "rubim-rp", "mg-259", "rota-liberdade", "gurinhata"], "abas": {"medicao": false, "terceiros": false}, "disciplinas": ["topografia", "geometria", "terraplenagem", "intersecao", "sinalizacao", "desapropriacao", "obras"]}, {"nome": "Fernanda Medeiros Maia Taveira", "email": "fernanda@consol.eng.br", "perfil": "Funcionário", "projetos": ["aracuai-nc", "rubim-rp", "mg-259", "rota-liberdade", "gurinhata"], "abas": {"medicao": false, "terceiros": false}, "disciplinas": ["hidrologia", "drenagem"]}, {"nome": "Flávia Modesto Sousa Dias", "email": "flavia.dias@consol.eng.br", "perfil": "Funcionário", "projetos": ["aracuai-nc", "rubim-rp", "mg-259", "rota-liberdade", "gurinhata"], "abas": {"medicao": false, "terceiros": false}, "disciplinas": ["hidrologia", "drenagem"]}, {"nome": "Juliana Andrade Almeida", "email": "juliana.andrade@consol.eng.br", "perfil": "Funcionário", "projetos": ["aracuai-nc", "rubim-rp", "mg-259", "rota-liberdade", "gurinhata"], "abas": {"medicao": false, "terceiros": false}, "disciplinas": ["hidrologia", "drenagem"]}, {"nome": "Júnia Fróes da Silva", "email": "junia@consol.eng.br", "perfil": "Funcionário", "projetos": [], "abas": {"medicao": false, "terceiros": false}, "disciplinas": []}, {"nome": "Linda Inês Barbosa Chaves", "email": "ines@consol.eng.br", "perfil": "Funcionário", "projetos": ["aracuai-nc", "rubim-rp", "mg-259", "rota-liberdade", "gurinhata"], "abas": {"medicao": false, "terceiros": false}, "disciplinas": ["topografia", "geometria", "terraplenagem", "intersecao", "sinalizacao", "desapropriacao", "obras"]}, {"nome": "Maria Saleth de Santana", "email": "saleth@consol.eng.br", "perfil": "Funcionário", "projetos": [], "abas": {"medicao": false, "terceiros": false}, "disciplinas": []}, {"nome": "Paula Cláudio Gonçalves", "email": "paula@consol.eng.br", "perfil": "Funcionário", "projetos": [], "abas": {"medicao": false, "terceiros": false}, "disciplinas": []}, {"nome": "Paulo Sérgio de Oliveira", "email": "paulo@consol.eng.br", "perfil": "Supervisor", "projetos": ["aracuai-nc", "rubim-rp", "mg-259", "rota-liberdade", "gurinhata"], "abas": {"medicao": true, "terceiros": true}, "disciplinas": ["topografia", "hidrologia", "geometria", "terraplenagem", "drenagem", "pavimentacao", "intersecao", "sinalizacao", "desapropriacao", "obras"]}, {"nome": "Pedro Henrique da Silva Ladislau", "email": "pedro.henrique@consol.eng.br", "perfil": "Funcionário", "projetos": ["aracuai-nc", "rubim-rp", "mg-259", "rota-liberdade", "gurinhata"], "abas": {"medicao": false, "terceiros": false}, "disciplinas": ["terraplenagem", "pavimentacao"]}, {"nome": "Rafael Lourenço Muniz", "email": "rafael.muniz@consol.eng.br", "perfil": "Administrador", "projetos": ["aracuai-nc", "rubim-rp", "mg-259", "rota-liberdade", "gurinhata"], "abas": {"medicao": true, "terceiros": true}, "disciplinas": ["topografia", "hidrologia", "geometria", "terraplenagem", "drenagem", "pavimentacao", "intersecao", "sinalizacao", "desapropriacao", "obras"]}, {"nome": "Rafael Robson Soares Martins", "email": "rafael.robson@consol.eng.br", "perfil": "Funcionário", "projetos": ["aracuai-nc", "rubim-rp", "mg-259", "rota-liberdade", "gurinhata"], "abas": {"medicao": false, "terceiros": false}, "disciplinas": ["topografia", "geometria", "drenagem"]}, {"nome": "Renato Silva Portela", "email": "portela@consol.eng.br", "perfil": "Funcionário", "projetos": ["aracuai-nc", "rubim-rp", "mg-259", "rota-liberdade", "gurinhata"], "abas": {"medicao": false, "terceiros": false}, "disciplinas": ["hidrologia", "drenagem"]}, {"nome": "Tamires Cristine da Rocha Silva", "email": "tamires.cristiane@consol.eng.br", "perfil": "Funcionário", "projetos": ["aracuai-nc", "rubim-rp", "mg-259", "rota-liberdade", "gurinhata"], "abas": {"medicao": false, "terceiros": false}, "disciplinas": ["topografia", "geometria", "terraplenagem", "intersecao", "sinalizacao", "desapropriacao", "obras"]}, {"nome": "Victor Hugo Ferreira Rodrigues", "email": "victor.hugo@consol.eng.br", "perfil": "Funcionário", "projetos": [], "abas": {"medicao": false, "terceiros": false}, "disciplinas": []}, {"nome": "Vilma Aparecida Fróes", "email": "vilma@consol.eng.br", "perfil": "Gestor de Contratos", "projetos": [], "abas": {"medicao": false, "terceiros": true}, "disciplinas": []}, {"nome": "Marco Antônio Pimenta", "email": "mantonio@consol.eng.br", "perfil": "Supervisor", "projetos": ["aracuai-nc", "rubim-rp", "mg-259", "rota-liberdade", "gurinhata"], "abas": {"medicao": true, "terceiros": true}, "disciplinas": ["topografia", "hidrologia", "geometria", "terraplenagem", "drenagem", "pavimentacao", "intersecao", "sinalizacao", "desapropriacao", "obras"]}, {"nome": "Renato Nogueira", "email": "renatonogueira@consol.eng.br", "perfil": "Supervisor", "projetos": ["aracuai-nc", "rubim-rp", "mg-259", "rota-liberdade", "gurinhata"], "abas": {"medicao": true, "terceiros": true}, "disciplinas": ["topografia", "hidrologia", "geometria", "terraplenagem", "drenagem", "pavimentacao", "intersecao", "sinalizacao", "desapropriacao", "obras"]}, {"nome": "Ismar Godinho Pereira", "email": "ismar@consol.eng.br", "perfil": "Supervisor", "projetos": ["aracuai-nc", "rubim-rp", "mg-259", "rota-liberdade", "gurinhata"], "abas": {"medicao": true, "terceiros": true}, "disciplinas": ["topografia", "hidrologia", "geometria", "terraplenagem", "drenagem", "pavimentacao", "intersecao", "sinalizacao", "desapropriacao", "obras"]}, {"nome": "Nelson Carneiro", "email": "nelson.carneiro@consol.eng.br", "perfil": "Gestor de Contratos", "projetos": [], "abas": {"medicao": false, "terceiros": true}, "disciplinas": []}];
+
+  setLoginEmail(e) {
+    this.setState({ loginEmail: e.target.value, senhaConsolErro: '', loginMsg: '' });
+  }
+
+  async sairParaAnonimo() {
+    try { await firebase.auth().signOut(); } catch (e) {}
+    try { await firebase.auth().signInAnonymously(); } catch (e) {}
+  }
+
+  async carregarPerfilUsuario(email) {
+    const user = firebase.auth().currentUser;
+    if (email === this.CONTA_COMPARTILHADA) {
+      if (!this.PERMITIR_CONTA_COMPARTILHADA) return { ok: false, msg: 'A senha única da área CONSOL foi desativada. Entre com o seu e-mail pessoal.' };
+      return { ok: true, usuario: { uid: user.uid, nome: 'Acesso CONSOL', email, perfil: 'Supervisor', ativo: true, trocarSenha: false, compartilhada: true } };
     }
-    this.setState({ senhaConsolLoading: true, senhaConsolErro: '' });
-    const resultado = await this.signInComRetry('consol@sip-consol.interno', this.state.senhaConsolInput);
-    if (resultado.ok) {
-      this.setState({ showSenhaConsol: false, entered: true, wantsEnter: true, clienteAtivo: null, clienteNome: '', clienteTipos: [], senhaConsolInput: '', senhaConsolErro: '', senhaConsolLoading: false });
-    } else if (resultado.motivo === 'senha') {
-      this.setState({ senhaConsolErro: 'Senha incorreta. Tente novamente.', senhaConsolInput: '', senhaConsolLoading: false });
-    } else {
-      this.setState({ senhaConsolErro: 'Falha de conexão. Atualize a página forçando o recarregamento (aperte Ctrl+Shift+R) e tente novamente.', senhaConsolLoading: false });
+    const ref = this.db().collection('usuarios').doc(user.uid);
+    const doc = await ref.get();
+    if (!doc.exists) {
+      if (email === this.ADMIN_BOOTSTRAP_EMAIL) {
+        const base = this.CADASTRO_INICIAL.find(c => c.email === email) || { nome: 'Administrador', projetos: [], abas: {}, disciplinas: [] };
+        const u = { nome: base.nome, email, perfil: 'Administrador', ativo: true, trocarSenha: false, projetos: base.projetos || [], abas: base.abas || {}, disciplinas: base.disciplinas || [], criadoEm: firebase.firestore.FieldValue.serverTimestamp() };
+        await ref.set(u);
+        return { ok: true, usuario: { uid: user.uid, ...u } };
+      }
+      return { ok: false, msg: 'Seu usuário ainda não tem cadastro no SIP. Procure o administrador.' };
+    }
+    const u = doc.data();
+    if (u.ativo === false) return { ok: false, msg: 'Seu acesso ao SIP está desativado. Procure o administrador.' };
+    return { ok: true, usuario: { uid: user.uid, ...u } };
+  }
+
+  entrarComoUsuario(usuario) {
+    this.setState({
+      showSenhaConsol: false, showTrocaSenha: false, trocaVoluntaria: false,
+      entered: true, wantsEnter: true, view: 'projetos', selectedProjetoId: null,
+      clienteAtivo: null, clienteNome: '', clienteTipos: [],
+      usuarioSip: usuario, loginEmail: '', senhaConsolInput: '', senhaConsolErro: '', loginMsg: '', senhaConsolLoading: false,
+      novaSenha: '', confirmaSenha: '', trocaErro: '', trocaLoading: false,
+    });
+  }
+
+  async esqueciSenha() {
+    const email = (this.state.loginEmail || '').trim().toLowerCase();
+    if (!email) { this.setState({ senhaConsolErro: 'Digite o seu e-mail acima e clique de novo em "Esqueci minha senha".', loginMsg: '' }); return; }
+    try {
+      firebase.auth().languageCode = 'pt-BR';
+      await firebase.auth().sendPasswordResetEmail(email);
+    } catch (e) {
+      if (e && e.code === 'auth/invalid-email') { this.setState({ senhaConsolErro: 'E-mail inválido.', loginMsg: '' }); return; }
+    }
+    this.setState({ senhaConsolErro: '', loginMsg: 'Se este e-mail estiver cadastrado, você receberá em alguns minutos o link para criar uma nova senha.' });
+  }
+
+  abrirTrocaVoluntaria() {
+    this.setState({ showTrocaSenha: true, trocaVoluntaria: true, novaSenha: '', confirmaSenha: '', trocaErro: '' });
+  }
+
+  setNovaSenha(e) { this.setState({ novaSenha: e.target.value, trocaErro: '' }); }
+  setConfirmaSenha(e) { this.setState({ confirmaSenha: e.target.value, trocaErro: '' }); }
+
+  requisitosSenha() {
+    const n = this.state.novaSenha || '', c = this.state.confirmaSenha || '';
+    return { tamanho: n.length >= 6, iguais: n.length > 0 && n === c, provisoria: n.length > 0 && n !== this.SENHA_PROVISORIA };
+  }
+
+  async confirmarTrocaSenha() {
+    if (this.state.trocaLoading) return;
+    const r = this.requisitosSenha();
+    if (!r.tamanho || !r.iguais || !r.provisoria) { this.setState({ trocaErro: 'A nova senha ainda não atende aos requisitos acima.' }); return; }
+    this.setState({ trocaLoading: true, trocaErro: '' });
+    try {
+      await firebase.auth().currentUser.updatePassword(this.state.novaSenha);
+      const u = this.state.usuarioSip;
+      if (u && !u.compartilhada) {
+        await this.db().collection('usuarios').doc(u.uid).update({ trocarSenha: false, atualizadoEm: firebase.firestore.FieldValue.serverTimestamp() });
+      }
+      const usuario = { ...u, trocarSenha: false };
+      if (this.state.trocaVoluntaria && this.state.entered) {
+        this.setState({ showTrocaSenha: false, trocaVoluntaria: false, usuarioSip: usuario, novaSenha: '', confirmaSenha: '', trocaLoading: false });
+      } else {
+        this.entrarComoUsuario(usuario);
+      }
+    } catch (e) {
+      const msg = e && e.code === 'auth/requires-recent-login' ? 'Por segurança, saia e entre de novo antes de trocar a senha.' : 'Não foi possível trocar a senha. Tente novamente.';
+      this.setState({ trocaErro: msg, trocaLoading: false });
     }
   }
 
+  sairOuVoltarDaTroca() {
+    if (this.state.trocaVoluntaria && this.state.entered) { this.setState({ showTrocaSenha: false, trocaVoluntaria: false, novaSenha: '', confirmaSenha: '', trocaErro: '' }); return; }
+    this.sair();
+  }
+
+  async sair() {
+    await this.sairParaAnonimo();
+    this.resetHero();
+    this.setState({ entered: false, showTrocaSenha: false, trocaVoluntaria: false, showSenhaConsol: false, showAcesso: false, view: 'projetos', selectedProjetoId: null, usuarioSip: null, clienteAtivo: null, clienteNome: '', clienteTipos: [], adminLinhas: [], adminMsg: '' });
+  }
+
+  permissoesDoUsuario() {
+    const u = this.state.usuarioSip;
+    if (!u) return null;
+    const verTudo = u.perfil === 'Administrador' || u.perfil === 'Supervisor';
+    const abas = u.abas || {};
+    return {
+      perfil: u.perfil, nome: u.nome, email: u.email, verTudo,
+      projetos: verTudo ? this.PROJETOS_TIPOS.slice() : (u.projetos || []),
+      abas: { medicao: verTudo || !!abas.medicao, terceiros: verTudo || !!abas.terceiros },
+      disciplinas: verTudo ? this.DISCIPLINAS_CHAVES.slice() : (u.disciplinas || []),
+    };
+  }
+
+  // ---------- Administração ----------
+  linhaDeUsuario(u, novo) {
+    const linha = {
+      key: novo ? ('novo-' + Math.random().toString(36).slice(2)) : u.uid, uid: novo ? null : u.uid, novo,
+      nome: u.nome || '', email: (u.email || '').toLowerCase(), perfil: u.perfil || 'Funcionário', ativo: u.ativo !== false,
+      projetos: (u.projetos || []).slice(), abas: { medicao: !!(u.abas && u.abas.medicao), terceiros: !!(u.abas && u.abas.terceiros) },
+      disciplinas: (u.disciplinas || []).slice(),
+    };
+    linha.original = novo ? '' : this.assinaturaLinha(linha);
+    return linha;
+  }
+
+  assinaturaLinha(l) {
+    return JSON.stringify([l.nome, l.perfil, l.ativo, l.projetos.slice().sort(), l.abas.medicao, l.abas.terceiros, l.disciplinas.slice().sort()]);
+  }
+
+  async goAdmin() {
+    this.setState({ view: 'admin', selectedProjetoId: null, adminCarregando: true, adminMsg: '' });
+    try {
+      const snap = await this.db().collection('usuarios').get();
+      const existentes = snap.docs.map(d => this.linhaDeUsuario({ uid: d.id, ...d.data() }, false));
+      const emails = new Set(existentes.map(l => l.email));
+      const pendentes = this.CADASTRO_INICIAL.filter(c => !emails.has(c.email)).map(c => this.linhaDeUsuario(c, true));
+      const linhas = existentes.concat(pendentes).sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+      this.setState({ adminLinhas: linhas, adminCarregando: false,
+        adminMsg: pendentes.length ? pendentes.length + ' funcionário(s) da planilha inicial ainda não foram criados (linhas amarelas). Confira e clique em "Salvar alterações" para criar os logins.' : '', adminMsgTipo: 'info' });
+    } catch (e) {
+      this.setState({ adminCarregando: false, adminMsg: 'Não foi possível carregar os funcionários: ' + ((e && e.message) || e), adminMsgTipo: 'erro' });
+    }
+  }
+
+  atualizarLinha(key, mudar) {
+    this.setState(s => ({ adminLinhas: s.adminLinhas.map(l => l.key === key ? mudar({ ...l, projetos: l.projetos.slice(), disciplinas: l.disciplinas.slice(), abas: { ...l.abas } }) : l) }));
+  }
+
+  alternarItem(lista, item) {
+    return lista.includes(item) ? lista.filter(x => x !== item) : lista.concat([item]);
+  }
+
+  adminAdicionar() {
+    const l = this.linhaDeUsuario({ nome: '', email: '', perfil: 'Funcionário', ativo: true }, true);
+    this.setState(s => ({ adminLinhas: s.adminLinhas.concat([l]), adminBusca: '', adminFiltro: 'todos' }));
+  }
+
+  adminDescartar() {
+    this.goAdmin();
+  }
+
+  linhaAlterada(l) {
+    return l.novo || this.assinaturaLinha(l) !== l.original;
+  }
+
+  async criarLoginFuncionario(email) {
+    const cfg = firebase.app().options;
+    const app2 = firebase.initializeApp(cfg, 'sip-cadastro-' + Date.now());
+    try {
+      let uid;
+      try {
+        const cred = await app2.auth().createUserWithEmailAndPassword(email, this.SENHA_PROVISORIA);
+        uid = cred.user.uid;
+      } catch (e) {
+        if (e && e.code === 'auth/email-already-in-use') {
+          const cred = await app2.auth().signInWithEmailAndPassword(email, this.SENHA_PROVISORIA);
+          uid = cred.user.uid;
+        } else { throw e; }
+      }
+      try { await app2.auth().signOut(); } catch (e) {}
+      return uid;
+    } finally {
+      try { await app2.delete(); } catch (e) {}
+    }
+  }
+
+  async adminSalvar() {
+    if (this.state.adminSalvando) return;
+    const alteradas = this.state.adminLinhas.filter(l => this.linhaAlterada(l));
+    if (!alteradas.length) { this.setState({ adminMsg: 'Nenhuma alteração para salvar.', adminMsgTipo: 'info' }); return; }
+    for (const l of alteradas) {
+      if (!l.nome.trim() || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(l.email)) { this.setState({ adminMsg: 'Preencha nome e um e-mail válido em todas as linhas novas antes de salvar.', adminMsgTipo: 'erro' }); return; }
+    }
+    this.setState({ adminSalvando: true, adminMsg: 'Salvando ' + alteradas.length + ' linha(s)...', adminMsgTipo: 'info' });
+    const erros = [];
+    let ok = 0;
+    for (const l of alteradas) {
+      const dados = { nome: l.nome.trim(), email: l.email, perfil: l.perfil, ativo: l.ativo, projetos: l.projetos, abas: l.abas, disciplinas: l.disciplinas, atualizadoEm: firebase.firestore.FieldValue.serverTimestamp() };
+      try {
+        if (l.novo) {
+          const uid = await this.criarLoginFuncionario(l.email);
+          await this.db().collection('usuarios').doc(uid).set({ ...dados, trocarSenha: true, criadoEm: firebase.firestore.FieldValue.serverTimestamp() });
+        } else {
+          await this.db().collection('usuarios').doc(l.uid).update(dados);
+        }
+        ok++;
+      } catch (e) {
+        const motivo = e && e.code === 'auth/wrong-password' || (e && e.code === 'auth/invalid-credential') ? 'o e-mail já existe no Firebase com outra senha' : ((e && e.message) || String(e));
+        erros.push(l.nome + ' (' + l.email + '): ' + motivo);
+      }
+    }
+    await this.goAdmin();
+    this.setState({ adminSalvando: false,
+      adminMsg: erros.length ? ok + ' salvo(s). Não foi possível salvar:\n' + erros.join('\n') : ok + ' linha(s) salva(s). Novos funcionários entram com a senha provisória ' + this.SENHA_PROVISORIA + ' e trocam no primeiro acesso.',
+      adminMsgTipo: erros.length ? 'erro' : 'ok' });
+  }
+
+  async adminRedefinirSenha(l) {
+    try {
+      firebase.auth().languageCode = 'pt-BR';
+      await firebase.auth().sendPasswordResetEmail(l.email);
+      this.setState({ adminMsg: 'E-mail de redefinição de senha enviado para ' + l.email + '.', adminMsgTipo: 'ok' });
+    } catch (e) {
+      this.setState({ adminMsg: 'Não foi possível enviar o e-mail para ' + l.email + ': ' + ((e && e.message) || e), adminMsgTipo: 'erro' });
+    }
+  }
+
+  adminLinhasVisiveis() {
+    const busca = (this.state.adminBusca || '').trim().toLowerCase();
+    const filtro = this.state.adminFiltro;
+    return this.state.adminLinhas.filter(l => {
+      if (busca && !(l.nome.toLowerCase().includes(busca) || l.email.includes(busca))) return false;
+      if (filtro === 'inativos') return !l.ativo;
+      if (filtro && filtro !== 'todos' && l.perfil !== filtro) return false;
+      return true;
+    });
+  }
+
+  adminLinhasRender() {
+    return this.adminLinhasVisiveis().map(l => {
+      const alterada = this.linhaAlterada(l);
+      const verTudo = l.perfil === 'Administrador' || l.perfil === 'Supervisor';
+      const celulas = [];
+      this.PROJETOS_TIPOS.forEach((t, i) => celulas.push({ on: l.projetos.includes(t), rotulo: this.PROJETOS_ROTULOS[i], toggle: () => this.atualizarLinha(l.key, x => { x.projetos = this.alternarItem(x.projetos, t); return x; }) }));
+      ['medicao', 'terceiros'].forEach((a) => celulas.push({ on: !!l.abas[a], rotulo: a === 'medicao' ? 'Medição' : 'Contratos de Terceiros', toggle: () => this.atualizarLinha(l.key, x => { x.abas[a] = !x.abas[a]; return x; }) }));
+      this.DISCIPLINAS_CHAVES.forEach((d, i) => celulas.push({ on: l.disciplinas.includes(d), rotulo: this.DISCIPLINAS_ROTULOS[i], toggle: () => this.atualizarLinha(l.key, x => { x.disciplinas = this.alternarItem(x.disciplinas, d); return x; }) }));
+      return {
+        key: l.key, nome: l.nome, email: l.email, perfil: l.perfil, novo: l.novo, existente: !l.novo,
+        bg: alterada ? '#fffbe6' : '#ffffff', bordaCampo: l.novo ? '#0066ff' : 'transparent',
+        verTudo, naoVerTudo: !verTudo, celulas,
+        statusTexto: l.ativo ? 'Ativo' : 'Inativo', statusCor: l.ativo ? '#1e6b3f' : '#5b6774', statusPonto: l.ativo ? '#2f8f4f' : '#9aa4b1',
+        setNome: (e) => { const v = e.target.value; this.atualizarLinha(l.key, x => { x.nome = v; return x; }); },
+        setEmail: (e) => { const v = e.target.value.trim().toLowerCase(); this.atualizarLinha(l.key, x => { x.email = v; return x; }); },
+        setPerfil: (e) => { const v = e.target.value; this.atualizarLinha(l.key, x => { x.perfil = v; return x; }); },
+        toggleAtivo: () => this.atualizarLinha(l.key, x => { x.ativo = !x.ativo; return x; }),
+        redefinirSenha: () => this.adminRedefinirSenha(l),
+      };
+    });
+  }
+
+  async confirmSenhaConsol() {
+    if (this.state.senhaConsolLoading) return;
+    const email = (this.state.loginEmail || '').trim().toLowerCase();
+    if (!email || !this.state.senhaConsolInput) {
+      this.setState({ senhaConsolErro: 'Digite o seu e-mail e a sua senha.', loginMsg: '' });
+      return;
+    }
+    this.setState({ senhaConsolLoading: true, senhaConsolErro: '', loginMsg: '' });
+    const resultado = await this.signInComRetry(email, this.state.senhaConsolInput);
+    if (!resultado.ok) {
+      this.setState({
+        senhaConsolErro: resultado.motivo === 'senha' ? 'E-mail ou senha incorretos.' : 'Falha de conexão. Atualize a página forçando o recarregamento (aperte Ctrl+Shift+R) e tente novamente.',
+        senhaConsolInput: '', senhaConsolLoading: false,
+      });
+      return;
+    }
+    let perfil;
+    try { perfil = await this.carregarPerfilUsuario(email); }
+    catch (e) { perfil = { ok: false, msg: 'Não foi possível ler o seu cadastro. Tente novamente.' }; }
+    if (!perfil.ok) {
+      await this.sairParaAnonimo();
+      this.setState({ senhaConsolErro: perfil.msg, senhaConsolInput: '', senhaConsolLoading: false });
+      return;
+    }
+    if (perfil.usuario.trocarSenha) {
+      this.setState({ showSenhaConsol: false, showTrocaSenha: true, trocaVoluntaria: false, usuarioSip: perfil.usuario, senhaConsolInput: '', senhaConsolLoading: false, novaSenha: '', confirmaSenha: '', trocaErro: '' });
+      return;
+    }
+    this.entrarComoUsuario(perfil.usuario);
+  }
+
   voltarAcessoFromSenha() {
-    this.setState({ showSenhaConsol: false, showAcesso: true, senhaConsolInput: '', senhaConsolErro: '' });
+    this.setState({ showSenhaConsol: false, showAcesso: true, senhaConsolInput: '', senhaConsolErro: '', loginEmail: '', loginMsg: '' });
   }
 
   selectCliente() {
@@ -873,353 +1224,25 @@ class Component extends DCLogic {
   }
 
   goCover() {
+    if (this.state.usuarioSip) { this.sair(); return; }
     this.resetHero();
     this.setState({ entered: false, view: 'projetos', selectedProjetoId: null, clienteAtivo: null, clienteNome: '', clienteTipos: [] });
-  }
-
-  openVisitaTecnica() {
-    this.setState({ view: 'visita-tecnica' });
-    this.loadVisitaPhotos();
-  }
-
-  openGaleriaFromVisita() {
-    this.setState({ view: 'galeria-visita' });
-  }
-
-  voltarVisita() {
-    this.setState({ view: 'visita-tecnica' });
-  }
-
-  toggleGaleriaDisciplina(disc) {
-    this.setState(s => ({
-      galeriaDisciplinasExpanded: { ...s.galeriaDisciplinasExpanded, [disc]: !s.galeriaDisciplinasExpanded[disc] }
-    }));
-  }
-
-  latLngToUTM(lat, lng) {
-    const utm = this.llToUtm(lat, lng);
-    if (!utm) return 'Coordenadas indisponíveis';
-    const zone = utm.zone;
-    const easting = Math.round(utm.easting);
-    const northing = Math.round(utm.northing);
-    return `Zona ${zone} | ${easting}E ${northing}N`;
-  }
-
-  llToUtm(lat, lng) {
-    const a = 6378137; const b = 6356752.314245; const f = 1 / 298.257223563;
-    const e = Math.sqrt(1 - (1 - f) * (1 - f));
-    const N = a / Math.sqrt(1 - e * e * Math.sin(lat * Math.PI / 180) ** 2);
-    const T = Math.tan(lat * Math.PI / 180) ** 2;
-    const C = e * e * Math.cos(lat * Math.PI / 180) ** 2 / (1 - e * e);
-    const A = Math.cos(lat * Math.PI / 180) * ((lng - (Math.floor((lng + 180) / 6) * 6 + 3)) * Math.PI / 180);
-    const M = a * ((1 - e * e / 4 - 3 * e * e * e * e / 64 - 5 * e * e * e * e * e * e / 256) * lat * Math.PI / 180 - (3 * e * e / 8 + 3 * e * e * e * e / 32 - 45 * e * e * e * e * e * e / 1024) * Math.sin(2 * lat * Math.PI / 180) + (15 * e * e * e * e / 256 - 45 * e * e * e * e * e * e / 1024) * Math.sin(4 * lat * Math.PI / 180) - (35 * e * e * e * e * e * e / 3072) * Math.sin(6 * lat * Math.PI / 180));
-    const easting = 500000 + N * (A + N * T * A * A * A / 6 + N * T * T * A * A * A * A * A / 120);
-    const northing = (lat < 0 ? 10000000 : 0) + M + N * T * A * A / 2 + N * T * T * A * A * A * A / 24;
-    const zone = Math.floor((lng + 180) / 6) + 1;
-    return { zone, easting, northing };
-  }
-
-  setVisitaProjeto(e) { this.setState({ visitaProjetoId: e.target.value }); }
-  setVisitaDisciplina(e) { this.setState({ visitaDisciplina: e.target.value }); }
-  setVisitaKm(e) { this.setState({ visitaKm: e.target.value }); }
-  setVisitaObs(e) { this.setState({ visitaObs: e.target.value }); }
-
-  idbOpen() {
-    return new Promise((resolve, reject) => {
-      const req = indexedDB.open('sip-visita-campo', 1);
-      req.onupgradeneeded = () => {
-        const db = req.result;
-        if (!db.objectStoreNames.contains('fotos')) db.createObjectStore('fotos', { keyPath: 'id' });
-      };
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => reject(req.error);
-    });
-  }
-
-  async idbAll() {
-    const db = await this.idbOpen();
-    return new Promise((resolve, reject) => {
-      const req = db.transaction('fotos', 'readonly').objectStore('fotos').getAll();
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () => reject(req.error);
-    });
-  }
-
-  async idbPut(rec) {
-    const db = await this.idbOpen();
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction('fotos', 'readwrite');
-      tx.objectStore('fotos').put(rec);
-      tx.oncomplete = () => resolve();
-      tx.onerror = () => reject(tx.error);
-    });
-  }
-
-  async idbDelete(id) {
-    const db = await this.idbOpen();
-    return new Promise((resolve, reject) => {
-      const tx = db.transaction('fotos', 'readwrite');
-      tx.objectStore('fotos').delete(id);
-      tx.oncomplete = () => resolve();
-      tx.onerror = () => reject(tx.error);
-    });
-  }
-
-  loadVisitaPhotos() {
-    this.idbAll().then(list => {
-      const withUrls = list.map(r => ({ ...r, url: URL.createObjectURL(r.blob) }));
-      withUrls.sort((a, b) => b.criadoEm - a.criadoEm);
-      this.setState({ visitaPhotos: withUrls });
-    }).catch(err => console.error('idbAll error', err));
-  }
-
-  buildGaleriaDisciplinas() {
-    const fotos = this.state.visitaPhotos;
-    const byDisc = {};
-    fotos.forEach(f => {
-      const disc = f.disciplina || 'Sem disciplina';
-      if (!byDisc[disc]) byDisc[disc] = [];
-      byDisc[disc].push(f);
-    });
-    const disciplinas = Object.keys(byDisc).sort();
-    return disciplinas.map(disc => ({
-      disciplina: disc,
-      count: byDisc[disc].length,
-      expanded: !!this.state.galeriaDisciplinasExpanded[disc],
-      toggle: () => this.toggleGaleriaDisciplina(disc),
-      fotos: byDisc[disc].map(f => {
-        const data = new Date(f.criadoEm);
-        const dataFormatada = data.toLocaleDateString('pt-BR');
-        const lat = f.lat !== undefined ? f.lat : -19.9191;
-        const lng = f.lng !== undefined ? f.lng : -43.9386;
-        const localizacao = f.localizacao || 'Belo Horizonte';
-        const coordenadasUTM = this.latLngToUTM(lat, lng);
-        return {
-          localizacao,
-          dataFormatada,
-          coordenadasUTM,
-          obs: f.obs || '',
-          imgRef: (el) => { if (el && el.src !== f.url) el.src = f.url; },
-        };
-      }),
-    }));
-  }
-
-  setupGaleriaListener() {
-    if (this.galeriaUnsubscribe) return;
-    try {
-      this.galeriaUnsubscribe = this.db().collection('visitasCampo').orderBy('criadoEm', 'desc').onSnapshot(snap => {
-        const fotos = snap.docs.map(d => {
-          const data = d.data();
-          return { id: d.id, ...data, url: data.imageData || data.url };
-        });
-        console.log('Galeria atualizada:', fotos.length, 'fotos');
-        this.setState({ galeriaPhotos: fotos });
-      });
-    } catch (e) {
-      console.error('Erro ao configurar listener da galeria', e);
-    }
-  }
-
-  async loadGaleriaPhotos() {
-    try {
-      const snap = await this.db().collection('visitasCampo').orderBy('criadoEm', 'desc').get();
-      const fotos = snap.docs.map(d => {
-        const data = d.data();
-        return { id: d.id, ...data, url: data.imageData || data.url };
-      });
-      console.log('Galeria carregada:', fotos.length, 'fotos');
-      this.setState({ galeriaPhotos: fotos });
-      this.setupGaleriaListener();
-    } catch (e) {
-      console.error('Erro ao carregar galeria', e);
-    }
-  }
-
-  compressImage(file, maxW) {
-    return new Promise((resolve, reject) => {
-      const img = document.createElement('img');
-      const url = URL.createObjectURL(file);
-      img.onload = () => {
-        const scale = Math.min(1, maxW / img.width);
-        const w = Math.round(img.width * scale), h = Math.round(img.height * scale);
-        const canvas = document.createElement('canvas');
-        canvas.width = w; canvas.height = h;
-        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-        URL.revokeObjectURL(url);
-        canvas.toBlob(b => resolve(b), 'image/jpeg', 0.72);
-      };
-      img.onerror = reject;
-      img.src = url;
-    });
-  }
-
-  getGeolocation() {
-    return new Promise((resolve) => {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude, source: 'gps' });
-          },
-          (err) => {
-            console.warn('GPS não disponível:', err);
-            resolve(null);
-          },
-          { timeout: 10000, enableHighAccuracy: true }
-        );
-      } else {
-        resolve(null);
-      }
-    });
-  }
-
-  async getLocationByIP() {
-    try {
-      const resp = await fetch('https://ipapi.co/json/');
-      if (!resp.ok) return null;
-      const data = await resp.json();
-      if (data.latitude && data.longitude) {
-        return { lat: data.latitude, lng: data.longitude, localizacao: data.city || 'Localização desconhecida', source: 'ip' };
-      }
-    } catch (e) {
-      console.warn('IP geolocation fallback failed', e);
-    }
-    return null;
-  }
-
-  async getLocationName(lat, lng) {
-    try {
-      const resp = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
-      if (!resp.ok) return null;
-      const data = await resp.json();
-      if (data.address && data.address.city) return data.address.city;
-      if (data.address && data.address.town) return data.address.town;
-    } catch (e) {
-      console.warn('Reverse geocoding failed', e);
-    }
-    return null;
-  }
-
-  async onCapturaFotos(e) {
-    const files = Array.from(e.target.files || []);
-    e.target.value = '';
-    if (!files.length) return;
-    if (!this.state.visitaDisciplina) { alert('Selecione a disciplina antes de fotografar.'); return; }
-    let geoData = await this.getGeolocation();
-    if (!geoData) geoData = await this.getLocationByIP();
-    const lat = geoData?.lat || -19.9191;
-    const lng = geoData?.lng || -43.9386;
-    let localizacao = geoData?.localizacao || 'Belo Horizonte';
-    if (!localizacao && geoData && geoData.lat && geoData.lng) {
-      const nomeLocal = await this.getLocationName(geoData.lat, geoData.lng);
-      if (nomeLocal) localizacao = nomeLocal;
-    }
-    for (const file of files) {
-      const blob = await this.compressImage(file, 1600);
-      await this.idbPut({
-        id: 'foto_' + Date.now() + '_' + Math.random().toString(36).slice(2),
-        blob,
-        projetoId: this.state.visitaProjetoId || null,
-        disciplina: this.state.visitaDisciplina,
-        km: this.state.visitaKm,
-        obs: this.state.visitaObs,
-        lat,
-        lng,
-        localizacao,
-        geoSource: geoData?.source || 'padrão',
-        criadoEm: Date.now(),
-        synced: false,
-      });
-    }
-    this.loadVisitaPhotos();
-  }
-
-  async addExamplePhoto() {
-    const existing = await this.idbAll();
-    if (existing.length > 0) return;
-    const canvas = document.createElement('canvas');
-    canvas.width = 800; canvas.height = 600;
-    const ctx = canvas.getContext('2d');
-    const grad = ctx.createLinearGradient(0, 0, 800, 600);
-    grad.addColorStop(0, '#0066ff'); grad.addColorStop(1, '#ff2d55');
-    ctx.fillStyle = grad; ctx.fillRect(0, 0, 800, 600);
-    ctx.fillStyle = '#fff'; ctx.font = '48px sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('Foto de Exemplo', 400, 280);
-    ctx.font = '24px sans-serif'; ctx.fillText('Geometria', 400, 340);
-    canvas.toBlob(blob => {
-      this.idbPut({
-        id: 'foto_exemplo_' + Date.now(),
-        blob,
-        projetoId: null,
-        disciplina: 'Geometria',
-        km: '10+500',
-        obs: 'Foto de exemplo para teste',
-        criadoEm: Date.now() - 3600000,
-        synced: false,
-      }).then(() => this.loadVisitaPhotos());
-    });
-  }
-
-  async deleteFoto(id) {
-    await this.idbDelete(id);
-    this.loadVisitaPhotos();
-  }
-
-  blobToBase64(blob) {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    });
-  }
-
-  async sincronizarFotos() {
-    if (this.state.visitaSyncing) return;
-    const pendentes = this.state.visitaPhotos.filter(p => !p.synced);
-    if (!pendentes.length) { alert('Nenhuma foto pendente para sincronizar.'); return; }
-    this.setState({ visitaSyncing: true });
-    let sucessos = 0;
-    for (const foto of pendentes) {
-      try {
-        console.log('Sincronizando foto:', foto.id);
-        const base64 = await this.blobToBase64(foto.blob);
-        console.log('Base64 gerado, tamanho:', base64.length);
-        await this.db().collection('visitasCampo').add({
-          id: foto.id,
-          projetoId: foto.projetoId || '',
-          disciplina: foto.disciplina || 'Sem disciplina',
-          km: foto.km || '',
-          obs: foto.obs || '',
-          lat: foto.lat !== undefined ? foto.lat : -19.9191,
-          lng: foto.lng !== undefined ? foto.lng : -43.9386,
-          localizacao: foto.localizacao || 'Belo Horizonte',
-          geoSource: foto.geoSource || 'padrão',
-          imageData: base64,
-          criadoEm: foto.criadoEm || Date.now(),
-        });
-        console.log('Firestore salvo:', foto.id);
-        const { url: _u, ...rest } = foto;
-        await this.idbPut({ ...rest, synced: true });
-        sucessos++;
-      } catch (err) {
-        console.error('Erro ao sincronizar foto', foto.id, err.message, err);
-        alert('Erro ao sincronizar ' + foto.id + ': ' + err.message);
-      }
-    }
-    this.setState({ visitaSyncing: false });
-    alert('Sincronização concluída: ' + sucessos + ' de ' + pendentes.length + ' fotos.');
-    this.loadVisitaPhotos();
-    setTimeout(() => this.loadGaleriaPhotos(), 500);
   }
 
   renderVals() {
     const authResolved = this.state.authResolved;
     const selectedProjeto = this.state.projetos.find(p => p.id === this.state.selectedProjetoId);
+    const perm = this.permissoesDoUsuario();
+    const req = this.requisitosSenha();
+    const ok = '#7fe0a8', pend = 'rgba(255,255,255,0.72)';
+    const nomeUsuario = (this.state.usuarioSip && this.state.usuarioSip.nome) || '';
+    const linhasAdmin = this.state.view === 'admin' ? this.adminLinhasRender() : [];
+    const pendentes = this.state.adminLinhas.filter(l => this.linhaAlterada(l)).length;
+    const msgTipo = this.state.adminMsgTipo;
 
     return {
       isLoading: !authResolved,
-      isCoverView: authResolved && !this.state.entered && !this.state.showSobre && !this.state.showAcesso && !this.state.showSenhaConsol && !this.state.showSenhaCliente && !(this.state.firestoreError && this.state.wantsEnter),
+      isCoverView: authResolved && !this.state.entered && !this.state.showSobre && !this.state.showAcesso && !this.state.showSenhaConsol && !this.state.showSenhaCliente && !this.state.showTrocaSenha && !(this.state.firestoreError && this.state.wantsEnter),
       isAcessoView: authResolved && !this.state.entered && this.state.showAcesso,
       isSenhaConsolView: authResolved && !this.state.entered && this.state.showSenhaConsol,
       senhaConsolInput: this.state.senhaConsolInput,
@@ -1250,10 +1273,66 @@ class Component extends DCLogic {
       confirmSenhaCliente: () => this.confirmSenhaCliente(),
       voltarAcessoFromSenhaCliente: () => this.voltarAcessoFromSenhaCliente(),
       isConsolMode: this.state.entered && !this.state.clienteAtivo,
+      loginEmail: this.state.loginEmail,
+      setLoginEmail: (e) => this.setLoginEmail(e),
+      loginMsg: this.state.loginMsg,
+      hasLoginMsg: !!this.state.loginMsg,
+      esqueciSenha: () => this.esqueciSenha(),
+      isTrocaSenhaView: authResolved && this.state.showTrocaSenha,
+      trocaSenhaEtiqueta: this.state.trocaVoluntaria ? 'TROCAR MINHA SENHA' : 'PRIMEIRO ACESSO',
+      trocaSenhaTexto: this.state.trocaVoluntaria ? 'Digite a nova senha que você quer usar no SIP.' : 'Por segurança, crie agora a sua senha pessoal. A senha provisória não poderá mais ser usada.',
+      usuarioPrimeiroNome: nomeUsuario.split(' ')[0] || '',
+      novaSenha: this.state.novaSenha,
+      confirmaSenha: this.state.confirmaSenha,
+      setNovaSenha: (e) => this.setNovaSenha(e),
+      setConfirmaSenha: (e) => this.setConfirmaSenha(e),
+      reqTamanhoCor: req.tamanho ? ok : pend, reqTamanhoIcone: req.tamanho ? '✓' : '•',
+      reqIguaisCor: req.iguais ? ok : pend, reqIguaisIcone: req.iguais ? '✓' : '•',
+      reqProvisoriaCor: req.provisoria ? ok : pend, reqProvisoriaIcone: req.provisoria ? '✓' : '•',
+      trocaErro: this.state.trocaErro,
+      hasTrocaErro: !!this.state.trocaErro,
+      trocaLoadingOpacity: this.state.trocaLoading ? '0.6' : '1',
+      trocaBtnLabel: this.state.trocaLoading ? 'Salvando...' : 'Salvar senha e entrar',
+      trocaSairLabel: this.state.trocaVoluntaria ? '← Voltar' : 'Sair',
+      confirmarTrocaSenha: () => this.confirmarTrocaSenha(),
+      sairOuVoltarDaTroca: () => this.sairOuVoltarDaTroca(),
+      abrirTrocaVoluntaria: () => this.abrirTrocaVoluntaria(),
+      sair: () => this.sair(),
+      isUsuarioNomeado: !!this.state.usuarioSip && this.state.entered,
+      naoUsuarioNomeado: !(this.state.usuarioSip && this.state.entered),
+      usuarioLabel: nomeUsuario + (this.state.usuarioSip ? ' · ' + this.state.usuarioSip.perfil : ''),
+      topbarModoTexto: this.state.clienteAtivo ? 'Área do Cliente' : 'Modo aberto — sem login',
+      isAdmin: !!(this.state.usuarioSip && this.state.usuarioSip.perfil === 'Administrador'),
+      isAdminView: this.state.view === 'admin' && !!(this.state.usuarioSip && this.state.usuarioSip.perfil === 'Administrador'),
+      mostrarTopbar: this.state.view === 'projetos' || this.state.view === 'admin',
+      adminNavBg: this.state.view === 'admin' ? '#2f6690' : 'transparent',
+      adminNavCor: this.state.view === 'admin' ? '#fff' : 'rgba(255,255,255,0.72)',
+      goAdmin: () => this.goAdmin(),
+      adminLinhas: linhasAdmin,
+      adminCarregando: this.state.adminCarregando,
+      adminPronto: !this.state.adminCarregando,
+      adminTemPendentes: pendentes > 0,
+      adminPendentesTexto: pendentes + (pendentes === 1 ? ' linha com alterações não salvas' : ' linhas com alterações não salvas'),
+      adminContagemTexto: this.state.adminLinhas.filter(l => !l.novo).length + ' cadastrados',
+      adminTemMsg: !!this.state.adminMsg,
+      adminMsg: this.state.adminMsg,
+      adminMsgBg: msgTipo === 'erro' ? '#fdecec' : (msgTipo === 'ok' ? '#e8f5ec' : '#eaf2fb'),
+      adminMsgCor: msgTipo === 'erro' ? '#9b2c22' : (msgTipo === 'ok' ? '#1e6b3f' : '#1f3a5f'),
+      adminBusca: this.state.adminBusca,
+      adminFiltro: this.state.adminFiltro,
+      setAdminBusca: (e) => this.setState({ adminBusca: e.target.value }),
+      setAdminFiltro: (e) => this.setState({ adminFiltro: e.target.value }),
+      adminAdicionar: () => this.adminAdicionar(),
+      adminDescartar: () => this.adminDescartar(),
+      adminSalvar: () => this.adminSalvar(),
+      adminSalvarLabel: this.state.adminSalvando ? 'Salvando...' : 'Salvar alterações',
+      adminSalvarOpacity: this.state.adminSalvando ? '0.6' : '1',
+      permissoesProjeto: perm && selectedProjeto ? { ...perm, acessoCompleto: perm.verTudo || perm.projetos.includes(selectedProjeto.tipo) } : null,
+      semProjetosLiberados: !!perm && !this.state.clienteAtivo && this.state.projetos.filter(p => perm.verTudo || perm.projetos.includes(p.tipo) || perm.abas.medicao || perm.abas.terceiros).length === 0,
       isClienteMode: this.state.entered && !!this.state.clienteAtivo,
       clienteNome: this.state.clienteNome,
       isSobreView: authResolved && !this.state.entered && this.state.showSobre,
-      isApp: authResolved && !this.state.firestoreError && this.state.entered,
+      isApp: authResolved && !this.state.firestoreError && this.state.entered && !this.state.showTrocaSenha,
       isFirestoreError: authResolved && !!this.state.firestoreError && !!this.state.wantsEnter,
       firestoreError: this.state.firestoreError,
       enter: () => this.enter(),
@@ -1265,52 +1344,6 @@ class Component extends DCLogic {
       coverCanvasRef: this.coverCanvasRef,
 
       isProjetosView: this.state.view === 'projetos',
-      isVisitaTecnica: this.state.view === 'visita-tecnica',
-      isGaleriaView: this.state.view === 'galeria-visita',
-      visitaTecnicaBg: this.state.view === 'visita-tecnica' ? '#2f6690' : 'transparent',
-      visitaTecnicaColor: this.state.view === 'visita-tecnica' ? '#fff' : 'rgba(255,255,255,0.8)',
-      visitaProjetosOptions: this.state.projetos.map(p => ({ id: p.id, nome: p.nome })),
-      visitaDisciplinasList: this.visitaDisciplinas,
-      visitaProjetoId: this.state.visitaProjetoId,
-      visitaDisciplina: this.state.visitaDisciplina,
-      visitaKm: this.state.visitaKm,
-      visitaObs: this.state.visitaObs,
-      setVisitaProjeto: (e) => this.setVisitaProjeto(e),
-      setVisitaDisciplina: (e) => this.setVisitaDisciplina(e),
-      setVisitaKm: (e) => this.setVisitaKm(e),
-      setVisitaObs: (e) => this.setVisitaObs(e),
-      onCapturaFotos: (e) => this.onCapturaFotos(e),
-      openVisitaTecnica: () => this.openVisitaTecnica(),
-      openGaleriaFromVisita: () => this.openGaleriaFromVisita(),
-      voltarVisita: () => this.voltarVisita(),
-      sincronizarFotos: () => this.sincronizarFotos(),
-      visitaTotal: this.state.visitaPhotos.length,
-      visitaPendentes: this.state.visitaPhotos.some(f => !f.synced),
-      visitaPendentesCount: this.state.visitaPhotos.filter(f => !f.synced).length,
-      visitaSyncLabel: this.state.visitaSyncing ? 'Sincronizando…' : ('Sincronizar (' + this.state.visitaPhotos.filter(f => !f.synced).length + ')'),
-      visitaPhotosVals: this.state.visitaPhotos.map(f => {
-        const agora = Date.now();
-        const diff = agora - f.criadoEm;
-        let dataStr = '';
-        if (diff < 60000) dataStr = 'agora mesmo';
-        else if (diff < 3600000) dataStr = Math.floor(diff / 60000) + 'm atrás';
-        else if (diff < 86400000) dataStr = Math.floor(diff / 3600000) + 'h atrás';
-        else dataStr = Math.floor(diff / 86400000) + 'd atrás';
-        return {
-          disciplina: f.disciplina || 'Sem disciplina',
-          dataAtualizacao: dataStr,
-          legenda: (f.km ? 'km ' + f.km : 'Sem localização') + (f.obs ? ' · ' + f.obs : ''),
-          remove: () => this.deleteFoto(f.id),
-          imgRef: (el) => { if (el && el.src !== f.url) el.src = f.url; },
-        };
-      }),
-      galeriaTotal: this.state.galeriaPhotos.length,
-      galeriaPhotosVals: this.state.galeriaPhotos.map(f => ({
-        disciplina: f.disciplina || 'Sem disciplina',
-        legenda: (f.km ? 'km ' + f.km : 'Sem localização') + (f.obs ? ' · ' + f.obs : ''),
-        imgRef: (el) => { if (el && el.src !== f.url) el.src = f.url; },
-      })),
-      galeriaDisciplinas: this.buildGaleriaDisciplinas(),
       isProjetoMG259: this.state.view === 'projeto' && selectedProjeto && selectedProjeto.tipo === 'mg-259',
       isProjetoAracuai: this.state.view === 'projeto' && selectedProjeto && selectedProjeto.tipo === 'aracuai-nc',
       isProjetoRubim: this.state.view === 'projeto' && selectedProjeto && selectedProjeto.tipo === 'rubim-rp',
@@ -1324,6 +1357,7 @@ class Component extends DCLogic {
 
       projetos: this.state.projetos
         .filter(p => !this.state.clienteAtivo || this.state.clienteTipos.includes(p.tipo))
+        .filter(p => this.state.clienteAtivo || !perm || perm.verTudo || perm.projetos.includes(p.tipo) || perm.abas.medicao || perm.abas.terceiros)
         .map(p => ({
           ...p,
           open: () => this.openProjeto(p),

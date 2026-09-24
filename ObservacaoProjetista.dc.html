@@ -29,6 +29,12 @@
   <div style="max-width:720px;margin:0 auto;">
     <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;color:#2f6690;text-transform:uppercase;margin-bottom:6px;">{{ rodoviaLabel }}</div>
     <h1 style="margin:0 0 6px;font-size:26px;color:#1f3a5f;font-weight:700;">Observações do Projetista</h1>
+    <sc-if value="{{ isLogado }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:center;gap:12px;margin:0 0 14px;font-size:12px;color:#5b6774;">
+        <div>{{ usuarioLabel }}</div>
+        <div onClick="{{ onSair }}" style="font-weight:700;color:#2f6690;cursor:pointer;">Sair</div>
+      </div>
+    </sc-if>
 
     <sc-if value="{{ isMenu }}" hint-placeholder-val="{{ true }}">
       <p style="margin:0 0 24px;font-size:13.5px;color:#5b6774;line-height:1.6;">Selecione sua disciplina.</p>
@@ -42,34 +48,34 @@
           </sc-for>
         </div>
       </sc-if>
+      <sc-if value="{{ semDiscLiberadas }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:24px;background:#fff;border:1px solid #eef1f4;border-radius:10px;font-size:12.5px;color:#5b6774;line-height:1.6;">Nenhuma disciplina deste projeto está liberada para o seu usuário. Procure o administrador do SIP.</div>
+      </sc-if>
       <sc-if value="{{ noDiscButtons }}" hint-placeholder-val="{{ false }}">
         <div style="padding:24px;background:#fdecea;border:1px solid #f4c7c3;border-radius:10px;font-size:12.5px;color:#c0392b;">Projeto não reconhecido no link (parâmetro "projeto" inválido ou ausente). Peça o link correto de dentro do painel.</div>
       </sc-if>
     </sc-if>
 
-    <sc-if value="{{ isPassword }}" hint-placeholder-val="{{ false }}">
-      <p style="margin:0 0 24px;font-size:13.5px;color:#5b6774;line-height:1.6;">Digite a senha da disciplina <strong>{{ selectedLabel }}</strong> para acessar.</p>
-      <div style="background:#fff;border:1px solid #eef1f4;border-radius:10px;padding:24px;max-width:360px;">
-        <div style="font-size:10.5px;color:#8a94a3;text-transform:uppercase;margin-bottom:6px;">Senha</div>
-        <div style="position:relative;">
-          <input type="{{ passwordInputType }}" value="{{ passwordDraft }}" onChange="{{ onPasswordChange }}" onKeyDown="{{ onPasswordKeyDown }}" placeholder="Senha da disciplina" style="width:100%;font-size:13px;font-family:inherit;color:#1f2933;border:1px solid #dde3ea;border-radius:6px;padding:9px 10px;box-sizing:border-box;margin-bottom:10px;">
-          <sc-if value="{{ passwordVisible }}" hint-placeholder-val="{{ false }}">
-            <div onClick="{{ togglePasswordVisible }}" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:#8a94a3;display:flex;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a18.5 18.5 0 0 1 5.06-5.94M9.9 4.24A10.94 10.94 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>
-            </div>
-          </sc-if>
-          <sc-if value="{{ passwordHidden }}" hint-placeholder-val="{{ true }}">
-            <div onClick="{{ togglePasswordVisible }}" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);cursor:pointer;color:#8a94a3;display:flex;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            </div>
-          </sc-if>
+    <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ false }}">
+      <p style="margin:0 0 24px;font-size:13.5px;color:#5b6774;line-height:1.6;">Entre com o seu e-mail e a sua senha do SIP.</p>
+      <div style="background:#fff;border:1px solid #eef1f4;border-radius:10px;padding:24px;max-width:360px;display:flex;flex-direction:column;gap:12px;">
+        <div>
+          <div style="font-size:10.5px;color:#8a94a3;text-transform:uppercase;margin-bottom:6px;">E-mail</div>
+          <input type="email" value="{{ loginEmail }}" onChange="{{ onLoginEmailChange }}" placeholder="seu.nome@consol.eng.br" style="width:100%;box-sizing:border-box;font-size:13px;font-family:inherit;color:#1f2933;border:1px solid #dde3ea;border-radius:8px;padding:10px 12px;background:#fff;">
         </div>
-        <sc-if value="{{ showPasswordError }}" hint-placeholder-val="{{ false }}">
-          <div style="font-size:11.5px;color:#c0392b;margin-bottom:10px;">Senha incorreta.</div>
+        <div>
+          <div style="font-size:10.5px;color:#8a94a3;text-transform:uppercase;margin-bottom:6px;">Senha</div>
+          <input type="password" value="{{ loginSenha }}" onChange="{{ onLoginSenhaChange }}" onKeyDown="{{ onLoginKeyDown }}" placeholder="Sua senha do SIP" style="width:100%;box-sizing:border-box;font-size:13px;font-family:inherit;color:#1f2933;border:1px solid #dde3ea;border-radius:8px;padding:10px 12px;background:#fff;">
+        </div>
+        <sc-if value="{{ hasLoginErro }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:11.5px;color:#c0392b;line-height:1.5;">{{ loginErro }}</div>
         </sc-if>
-        <div style="display:flex;gap:10px;">
-          <div onClick="{{ onPasswordSubmit }}" style="font-size:12.5px;font-weight:700;color:#fff;background:#1f3a5f;padding:9px 18px;border-radius:8px;cursor:pointer;width:fit-content;">Entrar</div>
-          <div onClick="{{ backToMenu }}" style="font-size:12.5px;font-weight:600;color:#5b6774;padding:9px 14px;border-radius:8px;cursor:pointer;width:fit-content;">Voltar</div>
+        <sc-if value="{{ hasLoginMsg }}" hint-placeholder-val="{{ false }}">
+          <div style="font-size:11.5px;color:#1e6b3f;line-height:1.5;">{{ loginMsg }}</div>
+        </sc-if>
+        <div style="display:flex;gap:10px;align-items:center;">
+          <div onClick="{{ onLoginSubmit }}" style="font-size:12.5px;font-weight:700;color:#fff;background:#1f3a5f;padding:9px 18px;border-radius:8px;cursor:pointer;width:fit-content;opacity:{{ loginOpacity }};">{{ loginBtnLabel }}</div>
+          <div onClick="{{ onEsqueciSenha }}" style="font-size:12px;font-weight:600;color:#2f6690;cursor:pointer;text-decoration:underline;">Esqueci minha senha</div>
         </div>
       </div>
     </sc-if>
@@ -129,15 +135,15 @@
                 <div style="border-top:1px solid #eef1f4;padding-top:14px;display:flex;flex-direction:column;gap:10px;">
                   <div style="font-size:11.5px;font-weight:700;color:#5b6774;">Nova atualização</div>
                   <div>
-                    <div style="font-size:10.5px;color:#8a94a3;text-transform:uppercase;margin-bottom:4px;">Nome do Responsável</div>
-                    <input value="{{ it.nomeVal }}" onChange="{{ it.onNomeChange }}" placeholder="Nome do projetista responsável" style="width:100%;font-size:13px;font-family:inherit;color:#1f2933;border:1px solid #dde3ea;border-radius:6px;padding:8px 10px;box-sizing:border-box;">
+                    <div style="font-size:10.5px;color:#8a94a3;text-transform:uppercase;margin-bottom:4px;">Responsável</div>
+                    <div style="font-size:13px;font-weight:600;color:#1f2933;">{{ usuarioNome }}</div>
                   </div>
                   <div>
                     <div style="font-size:10.5px;color:#8a94a3;text-transform:uppercase;margin-bottom:4px;">Motivo do atraso</div>
                     <textarea value="{{ it.textoVal }}" onChange="{{ it.onTextoChange }}" placeholder="Descreva o motivo do atraso nesta etapa." style="width:100%;min-height:90px;font-size:13px;font-family:inherit;color:#1f2933;border:1px solid #dde3ea;border-radius:6px;padding:8px 10px;resize:vertical;box-sizing:border-box;"></textarea>
                   </div>
                   <sc-if value="{{ it.showFormError }}" hint-placeholder-val="{{ false }}">
-                    <div style="font-size:11.5px;color:#c0392b;">Preencha nome e motivo antes de salvar.</div>
+                    <div style="font-size:11.5px;color:#c0392b;">Preencha o motivo antes de salvar.</div>
                   </sc-if>
                   <div onClick="{{ it.save }}" style="font-size:12.5px;font-weight:700;color:#fff;background:#1f3a5f;padding:9px 18px;border-radius:8px;cursor:pointer;width:fit-content;">Salvar</div>
                 </div>
@@ -158,6 +164,7 @@
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
   state = {
+    usuario: null, loginEmail: '', loginSenha: '', loginErro: '', loginMsg: '', loginCarregando: false,
     projeto: 'trinta-reis', screen: 'menu', selectedDisc: null, discKey: null, passwordDraft: '', passwordError: false,
     loading: true, error: '', saved: {}, drafts: {}, formErrors: {}, focusNumero: null, focusLote: null,
   };
@@ -318,7 +325,7 @@ class Component extends DCLogic {
       // com o cabeçalho da rodovia errada.
       const temDados = d && (this.disciplinaAnalisesPorProjeto[projeto] || {})[d] && (this.disciplinaAnalisesPorProjeto[projeto][d] || []).length > 0;
       if (temDados) {
-        next.screen = 'password'; next.selectedDisc = d;
+        next.selectedDisc = d;
         // Vindo de um link "Abrir formulário" de uma análise específica (?numero=&lote=): a tela
         // final mostra só essa análise, não todas as pendências da disciplina.
         if (numero) next.focusNumero = parseInt(numero, 10);
@@ -329,6 +336,7 @@ class Component extends DCLogic {
     } catch (e) {}
     this.waitForFirebaseAnalises(0);
     this.ouvirDatasDoSistema(0);
+    this.verificarSessao(0);
   }
 
   // Datas reais das análises vindas do arquivo principal de cada projeto (coleção
@@ -354,7 +362,7 @@ class Component extends DCLogic {
           appId: "1:957059964424:web:30ba5c315b713c2c05bbbd"
         });
       }
-      firebase.auth().signInAnonymously().then(() => {
+      this.garantirSessao().then(() => {
         Object.keys(this.docFirestoreDoProjeto).forEach(projeto => {
           firebase.firestore().collection('analiseDatasPorProjeto').doc(this.docFirestoreDoProjeto[projeto])
             .onSnapshot(snap => {
@@ -381,11 +389,11 @@ class Component extends DCLogic {
     if (!l || this.state.screen !== 'menu') return;
     const lista = (this.disciplinaAnalisesPorProjeto[l.projeto] || {})[l.disc] || [];
     if (!lista.length) return;
-    const next = { screen: 'password', selectedDisc: l.disc };
+    const next = { selectedDisc: l.disc };
     if (l.numero) next.focusNumero = parseInt(l.numero, 10);
     if (l.lote) next.focusLote = l.lote;
     this.linkDireto = null;
-    this.setState(next);
+    this.setState(next, () => { if (this.state.usuario) this.abrirDisciplina(l.disc); });
   }
 
   projetoParaFirestoreId(projeto) {
@@ -410,8 +418,119 @@ class Component extends DCLogic {
     setTimeout(() => this.waitForFirebaseAnalises(a + 1), 100);
   }
 
+  // ===== Login individual (Etapa 3) =====
+  // A página passa a usar o mesmo login do SIP (e-mail/senha). Cada funcionário vê só as disciplinas
+  // liberadas no cadastro dele (coleção 'usuarios'); Supervisor/Administrador veem todas.
+  // Se a pessoa já entrou no SIP neste navegador, a sessão é reaproveitada (não pede login de novo).
+  ADMIN_BOOTSTRAP_EMAIL = 'rafael.muniz@consol.eng.br';
+  CONTA_COMPARTILHADA = 'consol@sip-consol.interno';
+
+  garantirSessao() {
+    if (this._sessaoPronta) return this._sessaoPronta;
+    this._sessaoPronta = new Promise(resolve => {
+      let feito = false;
+      const off = firebase.auth().onAuthStateChanged(u => {
+        Promise.resolve().then(() => off());
+        if (feito) return;
+        feito = true;
+        if (u) { resolve(u); return; }
+        firebase.auth().signInAnonymously().then(r => resolve(r.user)).catch(() => resolve(null));
+      });
+    });
+    return this._sessaoPronta;
+  }
+
+  verificarSessao(attempt) {
+    const a = attempt || 0;
+    if (!(window.firebase && firebase.auth && firebase.apps && firebase.apps.length)) {
+      if (a > 100) return;
+      setTimeout(() => this.verificarSessao(a + 1), 100);
+      return;
+    }
+    this.garantirSessao().then(async (u) => {
+      if (!u || u.isAnonymous) return;
+      const perfil = await this.carregarPerfilObs(u);
+      if (perfil.ok) this.aposLogin(perfil.usuario);
+    });
+  }
+
+  async carregarPerfilObs(u) {
+    const email = (u.email || '').toLowerCase();
+    if (email === this.CONTA_COMPARTILHADA) return { ok: true, usuario: { nome: 'Acesso CONSOL', email, perfil: 'Supervisor', disciplinas: [] } };
+    try {
+      const doc = await firebase.firestore().collection('usuarios').doc(u.uid).get();
+      if (!doc.exists) {
+        if (email === this.ADMIN_BOOTSTRAP_EMAIL) return { ok: true, usuario: { nome: 'Administrador', email, perfil: 'Administrador', disciplinas: [] } };
+        return { ok: false, msg: 'Seu usuário ainda não tem cadastro no SIP. Procure o administrador.' };
+      }
+      const d = doc.data();
+      if (d.ativo === false) return { ok: false, msg: 'Seu acesso ao SIP está desativado. Procure o administrador.' };
+      if (d.trocarSenha) return { ok: false, msg: 'Antes de usar esta página, entre no SIP com a senha provisória e crie a sua senha pessoal.' };
+      return { ok: true, usuario: { uid: u.uid, ...d } };
+    } catch (e) {
+      return { ok: false, msg: 'Não foi possível ler o seu cadastro. Tente novamente.' };
+    }
+  }
+
+  disciplinaPermitida(key) {
+    const u = this.state.usuario;
+    if (!u) return false;
+    if (u.perfil === 'Administrador' || u.perfil === 'Supervisor') return true;
+    return (u.disciplinas || []).includes(key);
+  }
+
+  aposLogin(usuario) {
+    const pendente = this.state.selectedDisc;
+    this.setState({ usuario, loginSenha: '', loginErro: '', loginMsg: '', loginCarregando: false }, () => {
+      if (pendente) this.abrirDisciplina(pendente);
+    });
+  }
+
+  abrirDisciplina(key) {
+    if (!this.state.usuario) { this.setState({ selectedDisc: key }); return; }
+    if (!this.disciplinaPermitida(key)) {
+      this.setState({ screen: 'menu', selectedDisc: null, discKey: null, focusNumero: null, focusLote: null });
+      return;
+    }
+    this.setState({ screen: 'form', selectedDisc: key, discKey: key, loading: true });
+    this.waitForFirebase(key, 0);
+  }
+
+  async entrarObs() {
+    if (this.state.loginCarregando) return;
+    const email = (this.state.loginEmail || '').trim().toLowerCase();
+    const senha = this.state.loginSenha || '';
+    if (!email || !senha) { this.setState({ loginErro: 'Digite o seu e-mail e a sua senha.', loginMsg: '' }); return; }
+    this.setState({ loginCarregando: true, loginErro: '', loginMsg: '' });
+    try {
+      const cred = await firebase.auth().signInWithEmailAndPassword(email, senha);
+      const perfil = await this.carregarPerfilObs(cred.user);
+      if (!perfil.ok) {
+        try { await firebase.auth().signOut(); await firebase.auth().signInAnonymously(); } catch (e) {}
+        this.setState({ loginErro: perfil.msg, loginSenha: '', loginCarregando: false });
+        return;
+      }
+      this.aposLogin(perfil.usuario);
+    } catch (e) {
+      const erroSenha = e && ['auth/wrong-password', 'auth/user-not-found', 'auth/invalid-credential', 'auth/invalid-email', 'auth/invalid-login-credentials'].includes(e.code);
+      this.setState({ loginErro: erroSenha ? 'E-mail ou senha incorretos.' : 'Falha de conexão. Atualize a página e tente novamente.', loginSenha: '', loginCarregando: false });
+    }
+  }
+
+  async esqueciSenhaObs() {
+    const email = (this.state.loginEmail || '').trim().toLowerCase();
+    if (!email) { this.setState({ loginErro: 'Digite o seu e-mail acima e clique de novo em "Esqueci minha senha".', loginMsg: '' }); return; }
+    try { firebase.auth().languageCode = 'pt-BR'; await firebase.auth().sendPasswordResetEmail(email); } catch (e) {}
+    this.setState({ loginErro: '', loginMsg: 'Se este e-mail estiver cadastrado, você receberá em alguns minutos o link para criar uma nova senha.' });
+  }
+
+  async sairObs() {
+    try { await firebase.auth().signOut(); await firebase.auth().signInAnonymously(); } catch (e) {}
+    this.setState({ usuario: null, screen: 'menu', selectedDisc: null, discKey: null, focusNumero: null, focusLote: null, loginEmail: '', loginSenha: '' });
+  }
+
   selectDisc(key) {
-    this.setState({ screen: 'password', selectedDisc: key, passwordDraft: '', passwordError: false });
+    this.abrirDisciplina(key);
   }
 
   backToMenu() {
@@ -457,7 +576,7 @@ class Component extends DCLogic {
       // A regra de segurança do Firestore exige request.auth != null para qualquer leitura/escrita.
       // Esta página é aberta avulsa (fora do hub SIP.dc.html, que já faz esse login), então precisa
       // autenticar sozinha antes de falar com o Firestore — senão dá "Missing or insufficient permissions".
-      firebase.auth().signInAnonymously()
+      this.garantirSessao()
         .then(() => this.subscribeFirestore(discKey))
         .catch(e => {
           console.error('Firebase auth error:', e);
@@ -512,7 +631,8 @@ class Component extends DCLogic {
 
   save(obsKey, numero, discKey) {
     const draft = this.state.drafts[obsKey] || {};
-    const nome = (draft.nome || '').trim();
+    const u = this.state.usuario || {};
+    const nome = (u.nome || '').trim();
     const texto = (draft.texto || '').trim();
     if (!nome || !texto) {
       this.setState(s => ({ formErrors: { ...s.formErrors, [obsKey]: true } }));
@@ -521,6 +641,7 @@ class Component extends DCLogic {
     if (!window.firebase || !firebase.firestore) return;
     firebase.firestore().collection('linhaTempoObservacoes').add({
       projeto: this.state.projeto, disc: discKey, obsKey, analiseNumero: numero, nome, texto,
+      autorEmail: u.email || '', autorUid: u.uid || '',
       criadoEm: firebase.firestore.FieldValue.serverTimestamp(),
     }).then(() => {
       this.setState(s => ({
@@ -630,15 +751,36 @@ class Component extends DCLogic {
     const items = this.state.screen === 'form' && discKey ? this.buildItems() : [];
     const porProjeto = this.disciplinaAnalisesPorProjeto[this.state.projeto] || {};
     const discKeysComDados = Object.keys(porProjeto).filter(k => (porProjeto[k] || []).length > 0);
+    const logado = !!this.state.usuario;
+    const discLiberadas = discKeysComDados.filter(k => this.disciplinaPermitida(k));
     return {
+      isLogin: !logado,
+      isLogado: logado,
+      usuarioNome: logado ? (this.state.usuario.nome || '') : '',
+      usuarioLabel: logado ? ('Você entrou como ' + (this.state.usuario.nome || this.state.usuario.email) + ' · ' + this.state.usuario.perfil) : '',
+      onSair: () => this.sairObs(),
+      loginEmail: this.state.loginEmail,
+      loginSenha: this.state.loginSenha,
+      onLoginEmailChange: (e) => this.setState({ loginEmail: e && e.target ? e.target.value : e, loginErro: '', loginMsg: '' }),
+      onLoginSenhaChange: (e) => this.setState({ loginSenha: e && e.target ? e.target.value : e, loginErro: '' }),
+      onLoginKeyDown: (e) => { if (e && e.key === 'Enter') this.entrarObs(); },
+      onLoginSubmit: () => this.entrarObs(),
+      onEsqueciSenha: () => this.esqueciSenhaObs(),
+      loginErro: this.state.loginErro,
+      hasLoginErro: !!this.state.loginErro,
+      loginMsg: this.state.loginMsg,
+      hasLoginMsg: !!this.state.loginMsg,
+      loginBtnLabel: this.state.loginCarregando ? 'Entrando...' : 'Entrar',
+      loginOpacity: this.state.loginCarregando ? '0.6' : '1',
+      semDiscLiberadas: logado && this.state.screen === 'menu' && discKeysComDados.length > 0 && discLiberadas.length === 0,
       rodoviaLabel: (this.projetoMeta[this.state.projeto] || {}).label || 'Projeto não identificado',
-      isMenu: this.state.screen === 'menu',
+      isMenu: logado && this.state.screen === 'menu',
       isPassword: this.state.screen === 'password',
-      isForm: this.state.screen === 'form',
-      discButtons: discKeysComDados.map(key => ({
+      isForm: logado && this.state.screen === 'form',
+      discButtons: discLiberadas.map(key => ({
         key, label: this.disciplinaMeta[key] || key, select: () => this.selectDisc(key),
       })),
-      hasDiscButtons: discKeysComDados.length > 0,
+      hasDiscButtons: discLiberadas.length > 0,
       noDiscButtons: discKeysComDados.length === 0,
       selectedLabel: this.state.selectedDisc ? this.disciplinaMeta[this.state.selectedDisc] : '',
       passwordDraft: this.state.passwordDraft,
