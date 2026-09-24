@@ -192,6 +192,145 @@
           <p style="margin:0;font-size:14px;color:#5b6774;max-width:680px;line-height:1.6;">
             Pareceres e pendências recebidos do órgão (DER-MG) para cada matéria técnica do projeto.
           </p>
+          <sc-if value="{{ temOrigemDados }}" hint-placeholder-val="{{ false }}">
+            <div style="margin-top:8px;font-size:11.5px;color:#8a94a3;">{{ origemDados }}</div>
+          </sc-if>
+          <sc-if value="{{ envioAberto }}" hint-placeholder-val="{{ false }}">
+            <div style="position:fixed;inset:0;z-index:9999;background:rgba(15,25,40,0.55);display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;">
+              <div style="width:100%;max-width:920px;max-height:92vh;overflow:auto;background:#fff;border-radius:14px;padding:26px 30px;box-sizing:border-box;display:flex;flex-direction:column;gap:16px;">
+                <sc-if value="{{ envioPasso1 }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;flex-direction:column;gap:16px;">
+                    <div>
+                      <div style="font-size:12px;font-weight:700;letter-spacing:0.12em;color:#2f6690;">ENVIAR PLANILHA · PASSO 1 DE 2</div>
+                      <div style="font-size:20px;font-weight:800;color:#1f3a5f;margin-top:4px;">{{ envioLabel }}</div>
+                    </div>
+                    <sc-if value="{{ envioTemPartes }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex;flex-direction:column;gap:8px;">
+                        <div style="font-size:12px;font-weight:700;color:#1f3a5f;">Qual subgrupo é esta planilha?</div>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                          <sc-for list="{{ envioPartes }}" as="ep" hint-placeholder-count="3">
+                            <div onClick="{{ ep.select }}" style="cursor:pointer;padding:10px 18px;border-radius:8px;border:1px solid {{ ep.borda }};background:{{ ep.bg }};color:{{ ep.fg }};font-size:13px;font-weight:700;">{{ ep.label }}</div>
+                          </sc-for>
+                        </div>
+                      </div>
+                    </sc-if>
+                    <div style="border:2px dashed #9fb3c8;border-radius:12px;background:#f6f9fc;padding:24px;display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;">
+                      <div style="font-size:14px;font-weight:700;color:#1f3a5f;">Escolha a planilha de check-list de análise do DER</div>
+                      <div style="font-size:12px;color:#5b6774;">.xls, .xlsx ou .xlsm</div>
+                      <input type="file" accept=".xls,.xlsx,.xlsm" onChange="{{ escolherArquivoEnvio }}" style="font-size:13px;font-family:inherit;">
+                    </div>
+                    <sc-if value="{{ envioTemErro }}" hint-placeholder-val="{{ false }}">
+                      <div style="padding:10px 14px;border-radius:8px;background:#fdecec;color:#9b2c22;font-size:13px;">{{ envioErro }}</div>
+                    </sc-if>
+                    <div style="display:flex;justify-content:flex-end;gap:10px;">
+                      <div onClick="{{ fecharEnvio }}" style="cursor:pointer;background:#eef1f4;border:1px solid #dde3ea;color:#1f3a5f;font-size:13px;font-weight:700;padding:10px 18px;border-radius:8px;">Cancelar</div>
+                      <div onClick="{{ lerArquivoEnvio }}" style="cursor:pointer;background:#0066ff;color:#fff;font-size:13px;font-weight:700;padding:10px 20px;border-radius:8px;">{{ envioLerLabel }}</div>
+                    </div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ envioPasso2 }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;flex-direction:column;gap:14px;">
+                    <div>
+                      <div style="font-size:12px;font-weight:700;letter-spacing:0.12em;color:#2f6690;">ENVIAR PLANILHA · PASSO 2 DE 2 · CONFERÊNCIA</div>
+                      <div style="font-size:20px;font-weight:800;color:#1f3a5f;margin-top:4px;">{{ envioTitulo }}</div>
+                      <div style="font-size:13px;color:#5b6774;margin-top:2px;">{{ envioResumoArquivo }}</div>
+                    </div>
+                    <div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;">
+                      <div style="border:1px solid #dde3ea;border-radius:10px;padding:12px 14px;"><div style="font-size:11px;color:#5b6774;font-weight:700;">TOTAL DE ITENS</div><div style="font-size:22px;font-weight:800;color:#5a3aa6;">{{ envioTotalItens }}</div><div style="font-size:11.5px;color:#5b6774;">{{ envioItensAtual }}</div></div>
+                      <div style="border:1px solid #dde3ea;border-radius:10px;padding:12px 14px;"><div style="font-size:11px;color:#5b6774;font-weight:700;">TOTAL ATENDIDOS</div><div style="font-size:22px;font-weight:800;color:#1e6b3f;">{{ envioTotalAtend }}</div><div style="font-size:11.5px;color:#5b6774;">{{ envioAtendAtual }}</div></div>
+                      <div style="border:1px solid #dde3ea;border-radius:10px;padding:12px 14px;"><div style="font-size:11px;color:#5b6774;font-weight:700;">GRÁFICO1 DA PLANILHA</div><div style="font-size:16px;font-weight:800;color:{{ envioGraficoCor }};margin-top:4px;">{{ envioGrafico }}</div><div style="font-size:11.5px;color:#5b6774;">{{ envioGraficoSub }}</div></div>
+                      <div style="border:1px solid #dde3ea;border-radius:10px;padding:12px 14px;"><div style="font-size:11px;color:#5b6774;font-weight:700;">MUDANÇAS</div><div style="font-size:15px;font-weight:800;color:#1f3a5f;margin-top:4px;">{{ envioMudancas }}</div><div style="font-size:11.5px;color:#5b6774;">{{ envioMudancasSub }}</div></div>
+                    </div>
+                    <div style="border:1px solid #dde3ea;border-radius:10px;overflow:auto;">
+                      <table style="width:100%;border-collapse:collapse;">
+                        <thead><tr><th style="text-align:right;font-size:11px;font-weight:700;color:#5b6774;padding:8px 10px;border-bottom:1px solid #dde3ea;text-align:left;">Análise</th><th style="text-align:right;font-size:11px;font-weight:700;color:#5b6774;padding:8px 10px;border-bottom:1px solid #dde3ea;text-align:left;">Recebido</th><th style="text-align:right;font-size:11px;font-weight:700;color:#5b6774;padding:8px 10px;border-bottom:1px solid #dde3ea;text-align:left;">Respondido</th><th style="text-align:right;font-size:11px;font-weight:700;color:#5b6774;padding:8px 10px;border-bottom:1px solid #dde3ea;">Atendido</th><th style="text-align:right;font-size:11px;font-weight:700;color:#5b6774;padding:8px 10px;border-bottom:1px solid #dde3ea;">Não atend.</th><th style="text-align:right;font-size:11px;font-weight:700;color:#5b6774;padding:8px 10px;border-bottom:1px solid #dde3ea;">Parcial</th><th style="text-align:right;font-size:11px;font-weight:700;color:#5b6774;padding:8px 10px;border-bottom:1px solid #dde3ea;">Retirado</th><th style="text-align:right;font-size:11px;font-weight:700;color:#5b6774;padding:8px 10px;border-bottom:1px solid #dde3ea;">Novo</th></tr></thead>
+                        <tbody>
+                          <sc-for list="{{ envioLinhas }}" as="el" hint-placeholder-count="3">
+                            <tr style="background:{{ el.bg }};"><td style="text-align:right;font-size:12.5px;padding:7px 10px;border-bottom:1px solid #eef1f4;text-align:left;font-weight:700;">{{ el.numero }} <sc-if value="{{ el.temTag }}" hint-placeholder-val="{{ false }}"><span style="font-size:10.5px;font-weight:700;color:{{ el.tagCor }};background:{{ el.tagBg }};padding:2px 8px;border-radius:999px;margin-left:6px;">{{ el.tag }}</span></sc-if></td><td style="text-align:right;font-size:12.5px;padding:7px 10px;border-bottom:1px solid #eef1f4;text-align:left;">{{ el.recebido }}</td><td style="text-align:right;font-size:12.5px;padding:7px 10px;border-bottom:1px solid #eef1f4;text-align:left;">{{ el.concluido }}</td><td style="text-align:right;font-size:12.5px;padding:7px 10px;border-bottom:1px solid #eef1f4;color:#1e6b3f;">{{ el.atendido }}</td><td style="text-align:right;font-size:12.5px;padding:7px 10px;border-bottom:1px solid #eef1f4;color:#9b2c22;">{{ el.nao }}</td><td style="text-align:right;font-size:12.5px;padding:7px 10px;border-bottom:1px solid #eef1f4;color:#8a5a00;">{{ el.parcial }}</td><td style="text-align:right;font-size:12.5px;padding:7px 10px;border-bottom:1px solid #eef1f4;color:#5b6774;">{{ el.retirado }}</td><td style="text-align:right;font-size:12.5px;padding:7px 10px;border-bottom:1px solid #eef1f4;color:#5a3aa6;">{{ el.novo }}</td></tr>
+                          </sc-for>
+                        </tbody>
+                      </table>
+                    </div>
+                    <sc-if value="{{ envioTemErros }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex;flex-direction:column;gap:6px;">
+                        <div style="font-size:13px;font-weight:800;color:#9b2c22;">{{ envioErrosTitulo }}</div>
+                        <sc-for list="{{ envioErros }}" as="er" hint-placeholder-count="1">
+                          <div style="padding:9px 12px;border-radius:8px;background:#fdecec;font-size:12.5px;color:#1f2933;">{{ er.texto }}</div>
+                        </sc-for>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ envioTemAvisos }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex;flex-direction:column;gap:6px;">
+                        <div style="font-size:13px;font-weight:800;color:#8a5a00;">{{ envioAvisosTitulo }}</div>
+                        <sc-for list="{{ envioAvisos }}" as="av" hint-placeholder-count="1">
+                          <div style="padding:9px 12px;border-radius:8px;background:#fdf4e3;font-size:12.5px;color:#1f2933;">{{ av.texto }}</div>
+                        </sc-for>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ envioSemAvisos }}" hint-placeholder-val="{{ false }}">
+                      <div style="padding:9px 12px;border-radius:8px;background:#e8f5ec;font-size:12.5px;color:#1e6b3f;font-weight:600;">Nenhum aviso: a planilha passou em todas as checagens.</div>
+                    </sc-if>
+                    <sc-if value="{{ envioTemErro }}" hint-placeholder-val="{{ false }}">
+                      <div style="padding:10px 14px;border-radius:8px;background:#fdecec;color:#9b2c22;font-size:13px;">{{ envioErro }}</div>
+                    </sc-if>
+                    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;padding-top:10px;border-top:1px solid #eef1f4;flex-wrap:wrap;">
+                      <div style="font-size:12px;color:#5b6774;flex:1;min-width:240px;">{{ envioRegistro }}</div>
+                      <div style="display:flex;gap:10px;">
+                        <div onClick="{{ voltarEnvio }}" style="cursor:pointer;background:#eef1f4;border:1px solid #dde3ea;color:#1f3a5f;font-size:13px;font-weight:700;padding:10px 18px;border-radius:8px;">← Voltar</div>
+                        <div onClick="{{ confirmarEnvio }}" style="cursor:pointer;background:#0066ff;color:#fff;font-size:13px;font-weight:700;padding:10px 20px;border-radius:8px;opacity:{{ envioGravarOpacity }};">{{ envioGravarLabel }}</div>
+                      </div>
+                    </div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ envioGravado }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;flex-direction:column;gap:14px;align-items:flex-start;">
+                    <div style="font-size:12px;font-weight:700;letter-spacing:0.12em;color:#1e6b3f;">PLANILHA GRAVADA</div>
+                    <div style="font-size:20px;font-weight:800;color:#1f3a5f;">{{ envioTitulo }}</div>
+                    <div style="font-size:13.5px;color:#1f2933;line-height:1.6;">Os dados foram gravados. A disciplina, a Linha do Tempo e a Projeção já estão atualizadas, e o envio ficou registrado no histórico.</div>
+                    <div onClick="{{ fecharEnvio }}" style="cursor:pointer;background:#0066ff;color:#fff;font-size:13px;font-weight:700;padding:10px 20px;border-radius:8px;">Fechar</div>
+                  </div>
+                </sc-if>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ historicoAberto }}" hint-placeholder-val="{{ false }}">
+            <div style="position:fixed;inset:0;z-index:9999;background:rgba(15,25,40,0.55);display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box;">
+              <div style="width:100%;max-width:1040px;max-height:92vh;overflow:auto;background:#fff;border-radius:14px;padding:26px 30px;box-sizing:border-box;display:flex;flex-direction:column;gap:14px;">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
+                  <div>
+                    <div style="font-size:12px;font-weight:700;letter-spacing:0.12em;color:#2f6690;">HISTÓRICO DE ENVIOS</div>
+                    <div style="font-size:20px;font-weight:800;color:#1f3a5f;margin-top:4px;">{{ historicoTitulo }}</div>
+                  </div>
+                  <div onClick="{{ fecharHistorico }}" style="cursor:pointer;background:#eef1f4;border:1px solid #dde3ea;color:#1f3a5f;font-size:13px;font-weight:700;padding:10px 18px;border-radius:8px;">Fechar</div>
+                </div>
+                <sc-if value="{{ historicoCarregando }}" hint-placeholder-val="{{ false }}">
+                  <div style="font-size:13px;color:#5b6774;">Carregando...</div>
+                </sc-if>
+                <sc-if value="{{ historicoTemMsg }}" hint-placeholder-val="{{ false }}">
+                  <div style="padding:10px 14px;border-radius:8px;background:#eaf2fb;color:#1f3a5f;font-size:13px;">{{ historicoMsg }}</div>
+                </sc-if>
+                <sc-if value="{{ historicoVazio }}" hint-placeholder-val="{{ false }}">
+                  <div style="font-size:13px;color:#5b6774;">Nenhum envio registrado ainda para esta disciplina.</div>
+                </sc-if>
+                <div style="display:flex;flex-direction:column;">
+                  <sc-for list="{{ historicoLista }}" as="hi" hint-placeholder-count="2">
+                    <div style="display:flex;align-items:center;gap:14px;padding:12px 4px;border-bottom:1px solid #eef1f4;flex-wrap:wrap;">
+                      <div style="width:130px;font-size:12.5px;color:#1f2933;">{{ hi.quando }}</div>
+                      <div style="width:200px;font-size:12.5px;font-weight:700;color:#1f2933;">{{ hi.nome }}</div>
+                      <div style="flex:1;min-width:200px;font-size:12.5px;color:#1f2933;">{{ hi.arquivo }}<div style="font-size:11.5px;color:#5b6774;">{{ hi.resumo }}</div></div>
+                      <sc-if value="{{ hi.atual }}" hint-placeholder-val="{{ false }}">
+                        <div style="font-size:11.5px;font-weight:700;color:#1e6b3f;background:#d8efdf;padding:3px 10px;border-radius:999px;">Versão atual</div>
+                      </sc-if>
+                      <sc-if value="{{ hi.podeRestaurar }}" hint-placeholder-val="{{ false }}">
+                        <div onClick="{{ hi.restaurar }}" style="cursor:pointer;background:#eef1f4;border:1px solid #dde3ea;color:#1f3a5f;font-size:13px;font-weight:700;padding:10px 18px;border-radius:8px;font-size:12px;padding:7px 12px;">Restaurar esta versão</div>
+                      </sc-if>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="font-size:12px;color:#5b6774;">"Restaurar esta versão" volta os dados da disciplina para aquele envio (só Administrador).</div>
+              </div>
+            </div>
+          </sc-if>
         </div>
 
         <div style="display:flex;flex-direction:column;gap:12px;">
@@ -203,10 +342,16 @@
                   <div style="font-size:15.5px;font-weight:700;color:#1f2933;">{{ disc.label }}</div>
                 </div>
                 <div style="display:flex;align-items:center;gap:14px;">
+                  <sc-if value="{{ disc.podeEnviar }}" hint-placeholder-val="{{ false }}">
+                    <div onClick="{{ disc.abrirEnvio }}" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:#fff;background:#0066ff;padding:8px 14px;border-radius:8px;cursor:pointer;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>Enviar planilha</div>
+                  </sc-if>
                   <div onClick="{{ disc.gerarRelatorio }}" style="font-size:12px;font-weight:700;color:#1f3a5f;background:#eef1f4;border:1px solid #dde3ea;padding:8px 14px;border-radius:8px;cursor:pointer;">Gerar Relatório</div>
                   <div style="font-size:18px;color:#8a94a3;">{{ disc.chevron }}</div>
                 </div>
               </div>
+              <sc-if value="{{ disc.temUltimoEnvio }}" hint-placeholder-val="{{ false }}">
+                <div style="padding:0 20px 12px 66px;margin-top:-6px;font-size:12px;color:#5b6774;">Último envio: <strong>{{ disc.ultimoEnvioNome }}</strong> · {{ disc.ultimoEnvioTexto }} · <span onClick="{{ disc.abrirHistorico }}" style="color:#2f6690;font-weight:700;cursor:pointer;text-decoration:underline;">ver histórico</span></div>
+              </sc-if>
 
               <sc-if value="{{ disc.isOpen }}" hint-placeholder-val="{{ false }}">
                 <div style="padding:0 20px 20px;border-top:1px solid #eef1f4;">
@@ -2516,6 +2661,8 @@ class Component extends DCLogic {
   PROJETO = 'rubim';
   state = {
     active: 'home',
+    envio: null,
+    historico: null,
     expanded: {},
     geoZoom: 1,
     geoPan: { x: 0, y: 0 },
@@ -2780,7 +2927,513 @@ class Component extends DCLogic {
     } catch (e) { console.error('Sync de análises para Firestore falhou:', e); }
   }
 
+  // ===== Fase 2 — dados das análises vindos do banco (Firestore) =====
+  // As análises passam a ser lidas de analisesFontes/{projeto__disciplina__parte} + rodadas/{numero}.
+  // O banco preenche as MESMAS estruturas (…AnaliseMeta e …DocsData) que todo o resto do código usa;
+  // enquanto o banco não responde (ou se falhar), valem os dados que já estão no arquivo.
+  PROJETO_DADOS = 'rubim';
+  mapaFontesBanco = { geometria: { meta: 'geoAnaliseMeta', prefixo: 'analise' }, hidrologia: { meta: 'hidrologiaAnaliseMeta', prefixo: 'hidrologiaAnalise' }, terraplenagem: { meta: 'terraAnaliseMeta', prefixo: 'terraAnalise' }, pavimentacao: { meta: 'pavAnaliseMeta', prefixo: 'pavAnalise' }, sinalizacao: { meta: 'sinalAnaliseMeta', prefixo: 'sinalAnalise' }, intersecao: { meta: 'intersecaoAnaliseMeta', prefixo: 'intersecao{Parte}Analise', comParte: true } };
+
+  carregarDadosDoBanco(attempt) {
+    const a = attempt || 0;
+    if (!(window.firebase && firebase.firestore && firebase.apps && firebase.apps.length && firebase.auth && firebase.auth().currentUser)) {
+      if (a > 150) return;
+      setTimeout(() => this.carregarDadosDoBanco(a + 1), 200);
+      return;
+    }
+    const cap = (p) => p.charAt(0).toUpperCase() + p.slice(1);
+    const db = firebase.firestore();
+    db.collection('analisesFontes').where('projeto', '==', this.PROJETO_DADOS).get().then(async (snap) => {
+      let aplicadas = 0;
+      for (const doc of snap.docs) {
+        const f = doc.data();
+        if (f.ultimoEnvio) this.ultimosEnvios[doc.id] = f.ultimoEnvio;
+        const cfg = this.mapaFontesBanco[f.disciplina];
+        if (!cfg) continue;
+        const parte = f.parte || null;
+        if (cfg.comParte && !parte) continue;
+        const prefixo = cfg.comParte ? cfg.prefixo.replace('{Parte}', cap(parte)) : cfg.prefixo;
+        const rods = await doc.ref.collection('rodadas').get();
+        if (rods.empty) continue;
+        const metaNova = {};
+        const antigo = cfg.comParte ? ((this[cfg.meta] || {})[parte] || {}) : (this[cfg.meta] || {});
+        for (const n of Object.keys(antigo)) this[prefixo + n + 'DocsData'] = [];
+        rods.forEach(r => {
+          const d = r.data();
+          const numero = Number(d.numero || r.id);
+          const { docs, numero: _n, ...datas } = d;
+          metaNova[numero] = datas;
+          this[prefixo + numero + 'DocsData'] = docs || [];
+        });
+        if (cfg.comParte) this[cfg.meta] = { ...(this[cfg.meta] || {}), [parte]: metaNova };
+        else this[cfg.meta] = metaNova;
+        aplicadas++;
+      }
+      this.dadosDoBanco = { fontes: aplicadas, em: new Date() };
+      this.setState({ dadosBancoVersao: Date.now() });
+      if (aplicadas) this.syncAnalisesParaFirestore(0);
+    }).catch(e => console.error('Leitura das análises no banco falhou (usando os dados do arquivo):', e));
+  }
+
+  // ===== Fase 3 — leitura da planilha de check-list de análise do DER (no navegador) =====
+  // Abas usadas: "Dados de entrada" (datas por análise), "Análises" (itens) e "Gráfico1" (totais de conferência).
+  normTxt(s) {
+    return String(s == null ? '' : s).normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim().toLowerCase();
+  }
+
+  dataPlanilha(v) {
+    if (v == null || v === '') return null;
+    if (typeof v === 'number') {
+      const d = new Date(Math.round((v - 25569) * 86400000));
+      return String(d.getUTCDate()).padStart(2, '0') + '/' + String(d.getUTCMonth() + 1).padStart(2, '0') + '/' + d.getUTCFullYear();
+    }
+    if (v instanceof Date) return String(v.getDate()).padStart(2, '0') + '/' + String(v.getMonth() + 1).padStart(2, '0') + '/' + v.getFullYear();
+    const m = String(v).trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    return m ? m[1].padStart(2, '0') + '/' + m[2].padStart(2, '0') + '/' + m[3] : null;
+  }
+
+  lerPlanilhaAnalise(wb, XLSX, opcoes) {
+    opcoes = opcoes || {};
+    const erros = [], avisos = [];
+    const aba = (teste) => { const nome = wb.SheetNames.find(n => teste(this.normTxt(n))); return nome ? XLSX.utils.sheet_to_json(wb.Sheets[nome], { header: 1, raw: true, defval: '' }) : null; };
+    const dados = aba(n => n.startsWith('dados de entrada'));
+    const analises = aba(n => n.startsWith('analise'));
+    const grafico = aba(n => n.replace(/\s/g, '') === 'grafico1');
+    if (!analises) return { erros: ['A planilha não tem a aba "Análises".'], avisos, rodadas: [] };
+    if (!dados) return { erros: ['A planilha não tem a aba "Dados de entrada".'], avisos, rodadas: [] };
+
+    // Datas por análise (Dados de entrada): ... "Análise" | nº | Data do Recebimento | Data da Resposta
+    const datas = {};
+    for (const row of dados) {
+      const k = row.findIndex(c => this.normTxt(c) === 'analise');
+      if (k >= 0 && typeof row[k + 1] === 'number') datas[row[k + 1]] = { recebido: this.dataPlanilha(row[k + 2]), concluido: this.dataPlanilha(row[k + 3]) };
+    }
+
+    const MAPA = { 'atendido': 'atendido', 'nao atendido': 'nao', 'atendido parcialmente': 'parcial', 'item retirado': 'retirado', 'novo questionamento': '', '': '' };
+    const linhas = [];
+    const secoes = [];
+    let secao = null;
+    const chaves = {};
+    analises.forEach((row, i) => {
+      if (i === 0) return;
+      const texto = row[2], rd = row[3];
+      if (typeof rd === 'number' && String(texto).trim() !== '') {
+        if (!secao) { secao = { key: 'geral', label: 'Questionamentos Gerais' }; secoes.push(secao); }
+        linhas.push({ linha: i + 1, texto: String(texto).replace(/\r\n?/g, '\n'), rd, rec: this.dataPlanilha(row[4]), nq: this.normTxt(row[5]).toUpperCase(), statusBruto: String(row[6] || '').trim(), resp: this.dataPlanilha(row[7]), tempo: row[9], secao });
+      } else if (String(texto).trim() !== '' && this.normTxt(texto) !== '#n/a' && rd === '') {
+        const label = String(texto).trim();
+        let key = this.normTxt(label).replace(/[^a-z0-9]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 60) || 'secao';
+        chaves[key] = (chaves[key] || 0) + 1;
+        if (chaves[key] > 1) key += '_' + chaves[key];
+        secao = { key, label };
+        secoes.push(secao);
+      }
+    });
+    if (!linhas.length) return { erros: ['Nenhum questionamento encontrado na aba "Análises".'], avisos, rodadas: [] };
+
+    // Consistência de cada linha
+    const difDatas = {}, difTempo = {};
+    const dif = (a, b) => { const p = s => { const [d, m, y] = s.split('/').map(Number); return Date.UTC(y, m - 1, d); }; return Math.round((p(b) - p(a)) / 86400000); };
+    for (const l of linhas) {
+      const st = this.normTxt(l.statusBruto);
+      if (!(st in MAPA)) { erros.push('Linha ' + l.linha + ': status "' + l.statusBruto + '" não reconhecido.'); continue; }
+      l.status = MAPA[st];
+      if (l.nq === 'RAA' && !l.status) erros.push('Linha ' + l.linha + ' (Análise ' + l.rd + '): marcada como RAA, mas sem status.');
+      if (l.nq === 'SIM' && l.status) avisos.push('Linha ' + l.linha + ' (Análise ' + l.rd + '): marcada como "SIM" (novo), mas com status "' + l.statusBruto + '".');
+      if (!datas[l.rd]) {
+        if (l.rec && l.resp) avisos.push('Análise ' + l.rd + ' não tem datas na aba "Dados de entrada"; foram usadas as datas das linhas da própria análise (' + l.rec + ' e ' + l.resp + ').');
+        else erros.push('Análise ' + l.rd + ' não tem datas na aba "Dados de entrada" nem nas linhas.');
+        datas[l.rd] = { recebido: l.rec, concluido: l.resp, _faltando: true };
+      }
+      else if (!datas[l.rd]._faltando && (l.rec !== datas[l.rd].recebido || l.resp !== datas[l.rd].concluido)) (difDatas[l.rd] = difDatas[l.rd] || []).push(l.linha);
+      if (typeof l.tempo === 'number' && l.rec && l.resp && dif(l.rec, l.resp) !== Math.round(l.tempo)) (difTempo[l.rd] = difTempo[l.rd] || []).push(l.linha);
+    }
+    const faixa = (ls) => ls.length === 1 ? 'linha ' + ls[0] : ls.length + ' linhas (' + ls.slice(0, 3).join(', ') + (ls.length > 3 ? '...' : '') + ')';
+    Object.keys(difDatas).forEach(n => avisos.push('Análise ' + n + ': ' + faixa(difDatas[n]) + ' com datas diferentes das de "Dados de entrada" (o sistema usa as de "Dados de entrada").'));
+    Object.keys(difTempo).forEach(n => avisos.push('Análise ' + n + ': ' + faixa(difTempo[n]) + ' com "Tempo de Resposta" que não bate com as datas.'));
+    const erroUnico = Array.from(new Set(erros));
+
+    // Rodadas no formato do sistema
+    const nums = Array.from(new Set(linhas.map(l => l.rd))).sort((a, b) => a - b);
+    const rodadas = nums.map(n => {
+      const docs = [];
+      for (const s of secoes) {
+        const itens = linhas.filter(l => l.rd === n && l.secao === s).map(l => l.status ? { text: l.texto, status: l.status } : l.texto);
+        if (itens.length) docs.push({ key: s.key, label: s.label, items: itens });
+      }
+      return { numero: n, recebido: datas[n] ? datas[n].recebido : null, concluido: datas[n] ? datas[n].concluido : null, docs };
+    });
+
+    // Convenção de datas "Consol" (planilhas em que "Data do Recebimento" = dia em que a análise chegou na
+    // Consol e "Data da Resposta" = dia em que a Consol respondeu): converte para a convenção do sistema
+    // (recebido = DER recebeu o material; concluído = DER emitiu a análise).
+    if (opcoes.convencao === 'consol' && rodadas.length) {
+      const orig = rodadas.map(r => ({ chegou: r.recebido, respondeu: r.concluido }));
+      rodadas.forEach((r, i) => {
+        r.concluido = orig[i].chegou;
+        r.recebido = i === 0 ? ((opcoes.recebidoAtual || {})[r.numero] || null) : orig[i - 1].respondeu;
+      });
+      const ult = orig[orig.length - 1];
+      if (ult && ult.respondeu) rodadas[rodadas.length - 1].respostaConsol = ult.respondeu;
+      if (!rodadas[0].recebido) avisos.push('A data em que o DER recebeu o material da Análise ' + rodadas[0].numero + ' não existe nesta planilha (convenção Consol); ela ficará em branco.');
+    }
+
+    // Ordem das datas
+    for (let i = 0; i < rodadas.length; i++) {
+      const r = rodadas[i];
+      if (!r.recebido || !r.concluido) continue;
+      if (dif(r.recebido, r.concluido) < 0) avisos.push('Análise ' + r.numero + ': concluída (' + r.concluido + ') antes de ser recebida (' + r.recebido + ').');
+      const ant = rodadas[i - 1];
+      if (ant && ant.concluido && dif(ant.concluido, r.recebido) < 0) avisos.push('Análise ' + r.numero + ' recebida (' + r.recebido + ') antes da conclusão da Análise ' + ant.numero + ' (' + ant.concluido + '). Confira o ano das datas.');
+    }
+
+    // Histórico dos itens (por seção + texto)
+    const chaveItem = (l) => l.secao.key + '|' + this.normTxt(l.texto);
+    const ultimo = {};
+    const vistos = new Set();
+    for (const n of nums) {
+      const daRodada = linhas.filter(l => l.rd === n);
+      const cont = {};
+      for (const l of daRodada) {
+        const k = chaveItem(l);
+        cont[k] = (cont[k] || 0) + 1;
+        const ant = ultimo[k];
+        if (ant && (ant.status === 'atendido' || ant.status === 'retirado')) avisos.push('Linha ' + l.linha + ' (Análise ' + n + '): item que já estava ' + (ant.status === 'atendido' ? 'Atendido' : 'Retirado') + ' na Análise ' + ant.rd + ' aparece de novo.');
+      }
+      Object.keys(cont).forEach(k => { if (cont[k] > 1) avisos.push('Análise ' + n + ': o mesmo questionamento aparece ' + cont[k] + ' vezes na mesma seção.'); });
+      for (const l of daRodada) { ultimo[chaveItem(l)] = { rd: n, status: l.status || 'novo' }; vistos.add(chaveItem(l)); }
+    }
+    for (let i = 0; i < nums.length - 1; i++) {
+      const prox = new Set(linhas.filter(l => l.rd === nums[i + 1]).map(chaveItem));
+      const somem = linhas.filter(l => l.rd === nums[i] && l.status !== 'atendido' && l.status !== 'retirado' && !prox.has(chaveItem(l)));
+      if (somem.length) avisos.push('Análise ' + nums[i + 1] + ': ' + somem.length + ' item(ns) pendente(s) da Análise ' + nums[i] + ' não aparece(m) — ou foram reescritos pelo DER, ou ficaram sem veredito.');
+    }
+
+    // Totais e conferência com o Gráfico1
+    let totalItens = 0, totalAtendidos = 0;
+    for (const l of linhas) { if (l.status === 'atendido') totalAtendidos++; else if (!l.status) totalItens++; }
+    let grafico1 = null;
+    if (grafico) {
+      const val = (rotulo) => { const r = grafico.find(row => this.normTxt(row[0]).startsWith(rotulo) && typeof row[1] === 'number'); return r ? r[1] : null; };
+      const gi = val('total de questionamento'), ga = val('atendido');
+      if (gi != null || ga != null) grafico1 = { itens: gi, atendidos: ga, confere: gi === totalItens && ga === totalAtendidos };
+    }
+    if (grafico1 && !grafico1.confere) avisos.push('Os totais não conferem com o Gráfico1 da planilha (planilha: ' + grafico1.itens + ' itens / ' + grafico1.atendidos + ' atendidos; lidos: ' + totalItens + ' / ' + totalAtendidos + ').');
+
+    return { erros: erroUnico, avisos: Array.from(new Set(avisos)), rodadas, totalItens, totalAtendidos, grafico1, totalLinhas: linhas.length };
+  }
+
+  // ===== Fase 3 — envio da planilha pelo responsável da disciplina =====
+  PARTES_POR_DISCIPLINA = { intersecao: [['int1', 'Interseção 1'], ['int2', 'Interseção 2'], ['geral', 'Geral']] };
+  CONVENCAO_DATAS = { pavimentacao: 'consol', sinalizacao: 'consol' };
+  ultimosEnvios = {};
+
+  parteSelecionada(disc) {
+    const partes = this.PARTES_POR_DISCIPLINA[disc];
+    if (!partes) return null;
+    let atual = null;
+    if (disc === 'intersecao') atual = this.state.intersecaoSubgrupo;
+    else if (disc === 'pavimentacao') atual = this.state.pavLote;
+    else if (disc === 'drenagem') atual = this.state.drenLote;
+    else if (disc === 'terraplenagem' && this.terraGeoEffectiveKey) atual = this.terraGeoEffectiveKey();
+    return partes.some(p => p[0] === atual) ? atual : partes[0][0];
+  }
+
+  idFonte(disc, parte) {
+    return this.PROJETO_DADOS + '__' + disc + '__' + (parte || 'unico');
+  }
+
+  podeEnviarPlanilha(disc) {
+    const p = this.props.permissoes;
+    if (!p || this.props.isClienteMode || !this.mapaFontesBanco[disc]) return false;
+    if (p.perfil === 'Administrador' || p.perfil === 'Supervisor') return true;
+    return p.perfil === 'Funcionário' && !!p.acessoCompleto && (p.disciplinas || []).includes(disc);
+  }
+
+  carregarBibliotecaPlanilha() {
+    if (window.XLSX) return Promise.resolve(window.XLSX);
+    if (this._xlsxPromise) return this._xlsxPromise;
+    this._xlsxPromise = new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+      s.onload = () => resolve(window.XLSX);
+      s.onerror = () => { this._xlsxPromise = null; reject(new Error('Não foi possível carregar o leitor de planilhas. Verifique a internet e tente de novo.')); };
+      document.head.appendChild(s);
+    });
+    return this._xlsxPromise;
+  }
+
+  rodadasAtuais(disc, parte) {
+    const cfg = this.mapaFontesBanco[disc];
+    const cap = (p) => p.charAt(0).toUpperCase() + p.slice(1);
+    const meta = cfg.comParte ? ((this[cfg.meta] || {})[parte] || {}) : (this[cfg.meta] || {});
+    const prefixo = cfg.comParte ? cfg.prefixo.replace('{Parte}', cap(parte)) : cfg.prefixo;
+    return Object.keys(meta).map(Number).sort((a, b) => a - b)
+      .map(n => ({ numero: n, ...meta[n], docs: this[prefixo + n + 'DocsData'] || [] }))
+      .filter(r => r.docs.length);
+  }
+
+  assinaturaRodada(r) {
+    const itens = [];
+    for (const d of (r.docs || [])) for (const it of (d.items || [])) itens.push((typeof it === 'string' ? 'novo' : it.status) + ':' + this.normTxt(typeof it === 'string' ? it : it.text));
+    return (r.recebido || '') + '|' + (r.concluido || '') + '|' + itens.join('¶');
+  }
+
+  contarRodada(r) {
+    const c = { atendido: 0, nao: 0, parcial: 0, retirado: 0, novo: 0 };
+    for (const d of (r.docs || [])) for (const it of (d.items || [])) {
+      const st = (it && typeof it === 'object') ? it.status : null;
+      if (st === 'atendido' || st === 'nao' || st === 'parcial' || st === 'retirado') c[st]++;
+      else if (st !== 'pendente') c.novo++;
+    }
+    return c;
+  }
+
+  abrirEnvio(disc, label) {
+    const partes = this.PARTES_POR_DISCIPLINA[disc] || null;
+    this.setState({ envio: { aberto: true, passo: 1, disc, label, partes, parte: this.parteSelecionada(disc), arquivo: null, arquivoNome: '', lendo: false, erro: '', resultado: null, gravando: false, gravado: false } });
+  }
+
+  fecharEnvio() {
+    this.setState({ envio: null });
+  }
+
+  escolherParteEnvio(parte) {
+    this.setState(s => ({ envio: { ...s.envio, parte, resultado: null } }));
+  }
+
+  escolherArquivoEnvio(e) {
+    const f = e && e.target && e.target.files && e.target.files[0];
+    if (!f) return;
+    this.setState(s => ({ envio: { ...s.envio, arquivo: f, arquivoNome: f.name, erro: '', resultado: null } }));
+  }
+
+  async lerArquivoEnvio() {
+    const env = this.state.envio;
+    if (!env || !env.arquivo) { this.setState(s => ({ envio: { ...s.envio, erro: 'Escolha a planilha antes de continuar.' } })); return; }
+    this.setState(s => ({ envio: { ...s.envio, lendo: true, erro: '' } }));
+    try {
+      const XLSX = await this.carregarBibliotecaPlanilha();
+      const buf = await env.arquivo.arrayBuffer();
+      const wb = XLSX.read(buf, { type: 'array' });
+      const atuais = this.rodadasAtuais(env.disc, env.parte);
+      const recebidoAtual = {};
+      atuais.forEach(r => { recebidoAtual[r.numero] = r.recebido; });
+      const res = this.lerPlanilhaAnalise(wb, XLSX, { convencao: this.CONVENCAO_DATAS[env.disc] || null, recebidoAtual });
+      const mapaAtual = {};
+      atuais.forEach(r => { mapaAtual[r.numero] = this.assinaturaRodada(r); });
+      let novas = 0, alteradas = 0;
+      (res.rodadas || []).forEach(r => {
+        if (!(r.numero in mapaAtual)) { r._situacao = 'nova'; novas++; }
+        else if (mapaAtual[r.numero] !== this.assinaturaRodada(r)) { r._situacao = 'alterada'; alteradas++; }
+        else r._situacao = '';
+      });
+      const numsNovos = new Set((res.rodadas || []).map(r => r.numero));
+      const removidas = atuais.filter(r => !numsNovos.has(r.numero)).map(r => r.numero);
+      let totalItensAtual = 0, totalAtendAtual = 0;
+      atuais.forEach(r => { const c = this.contarRodada(r); totalItensAtual += c.novo; totalAtendAtual += c.atendido; });
+      res.comparacao = { novas, alteradas, removidas, totalItensAtual, totalAtendAtual };
+      if (removidas.length) res.avisos.push('A planilha não tem a(s) Análise(s) ' + removidas.join(', ') + ', que hoje está(ão) no sistema. Ao gravar, ela(s) será(ão) removida(s).');
+      this.setState(s => ({ envio: { ...s.envio, lendo: false, passo: 2, resultado: res } }));
+    } catch (err) {
+      this.setState(s => ({ envio: { ...s.envio, lendo: false, erro: 'Não foi possível ler a planilha: ' + ((err && err.message) || err) } }));
+    }
+  }
+
+  voltarEnvio() {
+    this.setState(s => ({ envio: { ...s.envio, passo: 1 } }));
+  }
+
+  // O projeto carrega de novo a biblioteca do Firebase (scripts do <helmet>); quando isso acontece depois
+  // do login, a variável global "firebase" passa a ser uma cópia nova, ainda sem o app iniciado.
+  // Esta função garante o app iniciado e a sessão do usuário restaurada antes de ler/gravar.
+  async firebasePronto() {
+    if (!firebase.apps || !firebase.apps.length) {
+      firebase.initializeApp({
+        apiKey: "AIzaSyDNBXkzFJFAsOKefmBesSWmwRHgS0i7ACA",
+        authDomain: "sip-sistema-intelig-de-projeto.firebaseapp.com",
+        projectId: "sip-sistema-intelig-de-projeto",
+        storageBucket: "sip-sistema-intelig-de-projeto.firebasestorage.app",
+        messagingSenderId: "957059964424",
+        appId: "1:957059964424:web:30ba5c315b713c2c05bbbd"
+      });
+    }
+    const auth = firebase.auth();
+    if (!auth.currentUser) {
+      await new Promise(resolve => {
+        let feito = false;
+        const off = auth.onAuthStateChanged(() => {
+          Promise.resolve().then(() => off());
+          if (!feito) { feito = true; resolve(); }
+        });
+        setTimeout(() => { if (!feito) { feito = true; resolve(); } }, 8000);
+      });
+    }
+    if (!auth.currentUser) throw new Error('sua sessão expirou. Saia do SIP e entre de novo.');
+    return firebase;
+  }
+
+  async gravarRodadas(disc, parte, rodadas, origem, arquivoNome) {
+    await this.firebasePronto();
+    const db = firebase.firestore();
+    const p = this.props.permissoes || {};
+    const quem = p.email || '';
+    const nome = p.nome || quem;
+    const id = this.idFonte(disc, parte);
+    const ref = db.collection('analisesFontes').doc(id);
+    const extrasAtuais = {};
+    this.rodadasAtuais(disc, parte).forEach(r => {
+      const x = {};
+      ['prazo', 'analista', 'respostaConsol'].forEach(k => { if (r[k]) x[k] = r[k]; });
+      extrasAtuais[r.numero] = x;
+    });
+    const limpas = rodadas.map(r => ({ ...(extrasAtuais[r.numero] || {}), ...(r.respostaConsol ? { respostaConsol: r.respostaConsol } : {}), numero: r.numero, recebido: r.recebido, concluido: r.concluido, docs: r.docs }));
+    let totalItens = 0, totalAtendidos = 0, totalLinhas = 0;
+    limpas.forEach(r => { const c = this.contarRodada(r); totalItens += c.novo; totalAtendidos += c.atendido; totalLinhas += c.atendido + c.nao + c.parcial + c.retirado + c.novo; });
+    const atuais = this.rodadasAtuais(disc, parte).map(r => r.numero);
+    const numeros = limpas.map(r => r.numero);
+    const batch = db.batch();
+    const ultimoEnvio = { nome, email: quem, arquivo: arquivoNome || '', quando: new Date().toISOString(), origem };
+    batch.set(ref, { projeto: this.PROJETO_DADOS, disciplina: disc, parte: parte || null, numeros, totalLinhas, totalItens, totalAtendidos, origem, atualizadoPor: quem, atualizadoEm: firebase.firestore.FieldValue.serverTimestamp(), ultimoEnvio });
+    limpas.forEach(r => batch.set(ref.collection('rodadas').doc(String(r.numero)), r));
+    atuais.filter(n => !numeros.includes(n)).forEach(n => batch.delete(ref.collection('rodadas').doc(String(n))));
+    batch.set(ref.collection('envios').doc(), { nome, email: quem, arquivo: arquivoNome || '', origem, quando: firebase.firestore.FieldValue.serverTimestamp(), quandoTexto: new Date().toISOString(), numeros, totalItens, totalAtendidos, rodadas: limpas });
+    await batch.commit();
+    this.ultimosEnvios[id] = ultimoEnvio;
+  }
+
+  async confirmarEnvio() {
+    const env = this.state.envio;
+    if (!env || !env.resultado || env.gravando || env.resultado.erros.length) return;
+    this.setState(s => ({ envio: { ...s.envio, gravando: true, erro: '' } }));
+    try {
+      await this.gravarRodadas(env.disc, env.parte, env.resultado.rodadas, 'planilha', env.arquivoNome);
+      this.carregarDadosDoBanco(0);
+      this.setState(s => ({ envio: { ...s.envio, gravando: false, gravado: true } }));
+    } catch (err) {
+      const negado = err && err.code === 'permission-denied';
+      this.setState(s => ({ envio: { ...s.envio, gravando: false, erro: negado ? 'Seu usuário não tem permissão para enviar planilhas desta disciplina.' : 'Não foi possível gravar: ' + ((err && err.message) || err) } }));
+    }
+  }
+
+  async abrirHistorico(disc, label) {
+    const partes = this.PARTES_POR_DISCIPLINA[disc] || null;
+    const parte = this.parteSelecionada(disc);
+    const rotuloParte = partes ? (partes.find(x => x[0] === parte) || [parte, parte])[1] : '';
+    this.setState({ historico: { aberto: true, disc, label: label + (rotuloParte ? ' — ' + rotuloParte : ''), parte, carregando: true, lista: [], msg: '' } });
+    try {
+      await this.firebasePronto();
+      const snap = await firebase.firestore().collection('analisesFontes').doc(this.idFonte(disc, parte)).collection('envios').get();
+      const lista = snap.docs.map(d => ({ id: d.id, ...d.data() })).sort((a, b) => String(b.quandoTexto || '').localeCompare(String(a.quandoTexto || '')));
+      this.setState(s => ({ historico: { ...s.historico, carregando: false, lista } }));
+    } catch (err) {
+      this.setState(s => ({ historico: { ...s.historico, carregando: false, msg: 'Não foi possível carregar o histórico: ' + ((err && err.message) || err) } }));
+    }
+  }
+
+  fecharHistorico() {
+    this.setState({ historico: null });
+  }
+
+  async restaurarEnvio(envio) {
+    const h = this.state.historico;
+    if (!h || !envio || !envio.rodadas) return;
+    this.setState(s => ({ historico: { ...s.historico, msg: 'Restaurando...' } }));
+    try {
+      await this.gravarRodadas(h.disc, h.parte, envio.rodadas, 'restauração', 'restauração de ' + (envio.arquivo || 'envio anterior'));
+      this.carregarDadosDoBanco(0);
+      await this.abrirHistorico(h.disc, (h.label || '').split(' — ')[0]);
+      this.setState(s => ({ historico: { ...s.historico, msg: 'Versão restaurada.' } }));
+    } catch (err) {
+      this.setState(s => ({ historico: { ...s.historico, msg: 'Não foi possível restaurar: ' + ((err && err.message) || err) } }));
+    }
+  }
+
+  fmtQuando(iso) {
+    if (!iso) return '';
+    const d = new Date(iso);
+    if (isNaN(d)) return '';
+    return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear() + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  }
+
+  valoresEnvio() {
+    const env = this.state.envio;
+    const h = this.state.historico;
+    const out = { envioAberto: !!(env && env.aberto), historicoAberto: !!(h && h.aberto) };
+    if (env) {
+      const res = env.resultado;
+      const partes = (env.partes || []).map(([k, t]) => ({ label: t, bg: env.parte === k ? '#1f3a5f' : '#ffffff', fg: env.parte === k ? '#ffffff' : '#1f3a5f', borda: env.parte === k ? '#1f3a5f' : '#c4ccd6', select: () => this.escolherParteEnvio(k) }));
+      const rotuloParte = env.partes ? ((env.partes.find(x => x[0] === env.parte) || [])[1] || '') : '';
+      Object.assign(out, {
+        envioPasso1: env.passo === 1 && !env.gravado, envioPasso2: env.passo === 2 && !env.gravado, envioGravado: !!env.gravado,
+        envioTitulo: env.label + (rotuloParte ? ' — ' + rotuloParte : ''), envioLabel: env.label,
+        envioTemPartes: partes.length > 0, envioPartes: partes,
+        envioArquivoNome: env.arquivoNome, envioTemArquivo: !!env.arquivoNome,
+        envioErro: env.erro, envioTemErro: !!env.erro,
+        envioLerLabel: env.lendo ? 'Lendo a planilha...' : 'Ler planilha e conferir →',
+        envioGravarLabel: env.gravando ? 'Gravando...' : 'Confirmar e gravar',
+        envioPodeGravar: !!(res && !res.erros.length),
+        envioGravarOpacity: res && !res.erros.length && !env.gravando ? '1' : '0.45',
+        escolherArquivoEnvio: (e) => this.escolherArquivoEnvio(e),
+        lerArquivoEnvio: () => this.lerArquivoEnvio(),
+        voltarEnvio: () => this.voltarEnvio(),
+        confirmarEnvio: () => this.confirmarEnvio(),
+        fecharEnvio: () => this.fecharEnvio(),
+      });
+      if (res) {
+        const cmp = res.comparacao || {};
+        const mud = [];
+        if (cmp.novas) mud.push(cmp.novas + (cmp.novas === 1 ? ' análise nova' : ' análises novas'));
+        if (cmp.alteradas) mud.push(cmp.alteradas + (cmp.alteradas === 1 ? ' alterada' : ' alteradas'));
+        if (cmp.removidas && cmp.removidas.length) mud.push(cmp.removidas.length + ' removida(s)');
+        Object.assign(out, {
+          envioResumoArquivo: env.arquivoNome + ' · ' + (res.totalLinhas || 0) + ' linhas lidas · ' + res.rodadas.length + ' análises (' + res.rodadas.map(r => r.numero).join(', ') + ')',
+          envioTotalItens: res.totalItens, envioTotalAtend: res.totalAtendidos,
+          envioItensAtual: 'hoje no sistema: ' + cmp.totalItensAtual, envioAtendAtual: 'hoje no sistema: ' + cmp.totalAtendAtual,
+          envioGrafico: res.grafico1 ? (res.grafico1.confere ? 'Confere ✓' : 'Não confere') : 'Não encontrado',
+          envioGraficoCor: res.grafico1 && res.grafico1.confere ? '#1e6b3f' : '#8a5a00',
+          envioGraficoSub: res.grafico1 ? (res.grafico1.itens + ' itens · ' + res.grafico1.atendidos + ' atendidos') : 'aba "Gráfico1" sem totais',
+          envioMudancas: mud.length ? mud.join(' · ') : 'Nenhuma mudança',
+          envioMudancasSub: mud.length ? 'em relação ao que está no sistema' : 'a planilha é igual ao que já está no sistema',
+          envioLinhas: res.rodadas.map(r => {
+            const c = this.contarRodada(r);
+            return { numero: 'A' + r.numero, recebido: r.recebido || '—', concluido: r.concluido || '—', atendido: c.atendido, nao: c.nao, parcial: c.parcial, retirado: c.retirado, novo: c.novo,
+              bg: r._situacao === 'nova' ? '#eef7ee' : (r._situacao === 'alterada' ? '#fdf8e8' : '#ffffff'),
+              temTag: !!r._situacao, tag: r._situacao === 'nova' ? 'NOVA' : 'ALTERADA', tagBg: r._situacao === 'nova' ? '#d8efdf' : '#faecc8', tagCor: r._situacao === 'nova' ? '#1e6b3f' : '#8a5a00' };
+          }),
+          envioErros: res.erros.map(t => ({ texto: t })), envioTemErros: res.erros.length > 0, envioErrosTitulo: 'Erros que impedem o envio (' + res.erros.length + ')',
+          envioAvisos: res.avisos.map(t => ({ texto: t })), envioTemAvisos: res.avisos.length > 0, envioAvisosTitulo: 'Avisos (' + res.avisos.length + ') — confira; se estiver fiel ao parecer do DER, pode gravar',
+          envioSemAvisos: !res.avisos.length && !res.erros.length,
+          envioRegistro: 'Ao confirmar, fica registrado: ' + (((this.props.permissoes || {}).nome) || '') + ' · ' + this.fmtQuando(new Date().toISOString()) + ' · ' + env.arquivoNome + '.',
+        });
+      }
+    }
+    if (h) {
+      const ehAdmin = (this.props.permissoes || {}).perfil === 'Administrador';
+      Object.assign(out, {
+        historicoTitulo: h.label, historicoCarregando: !!h.carregando, historicoMsg: h.msg || '', historicoTemMsg: !!h.msg,
+        historicoVazio: !h.carregando && !(h.lista || []).length,
+        historicoLista: (h.lista || []).map((e, i) => ({
+          quando: this.fmtQuando(e.quandoTexto), nome: e.nome || e.email || '', arquivo: e.arquivo || '', origem: e.origem || '',
+          resumo: 'A' + (e.numeros || []).join(', A') + ' · ' + (e.totalItens || 0) + ' itens · ' + (e.totalAtendidos || 0) + ' atendidos',
+          atual: i === 0, naoAtual: i !== 0, podeRestaurar: i !== 0 && ehAdmin,
+          restaurar: () => this.restaurarEnvio(e),
+        })),
+        fecharHistorico: () => this.fecharHistorico(),
+      });
+    }
+    return out;
+  }
+
+  rotuloOrigemDados() {
+    const d = this.dadosDoBanco;
+    if (!d || !d.fontes) return '';
+    const hh = String(d.em.getHours()).padStart(2, '0') + ':' + String(d.em.getMinutes()).padStart(2, '0');
+    return 'Dados carregados do banco de dados às ' + hh + ' (' + d.fontes + (d.fontes === 1 ? ' fonte' : ' fontes') + ').';
+  }
+
   componentDidMount() {
+    this.carregarDadosDoBanco(0);
     this.waitForFirebaseObs(0);
     this.waitForFirebaseMedicao(0);
     this.waitForFirebaseRespostas(0);
@@ -7554,6 +8207,14 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
         mostrarQuestionamentos: !this.props.isClienteMode || m.key === 'geometria',
         mostrarQuestionamentosLegado: (!this.props.isClienteMode || m.key === 'geometria') && m.key !== 'geometria' && m.key !== 'intersecao' && m.key !== 'hidrologia' && m.key !== 'pavimentacao' && m.key !== 'sinalizacao' && m.key !== 'terraplenagem',
         gerarRelatorio: (e) => { e.stopPropagation(); this.generateRelatorioDisciplina(m); },
+        podeEnviar: this.podeEnviarPlanilha(m.key),
+        abrirEnvio: (e) => { e.stopPropagation(); this.abrirEnvio(m.key, m.label); },
+        abrirHistorico: (e) => { e.stopPropagation(); this.abrirHistorico(m.key, m.label); },
+        ...(() => {
+          const partes = this.PARTES_POR_DISCIPLINA[m.key];
+          const ue = this.ultimosEnvios[this.idFonte(m.key, this.parteSelecionada(m.key))];
+          return { temUltimoEnvio: !!ue, ultimoEnvioNome: ue ? ue.nome : '', ultimoEnvioTexto: ue ? (this.fmtQuando(ue.quando) + ' · ' + (ue.arquivo || '')) : '' };
+        })(),
       };
     });
   }
@@ -7964,6 +8625,7 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
 
   renderVals() {
     const active = this.abaAtiva();
+    const origemDados = this.rotuloOrigemDados();
     const onVoltarProjetos = this.props.onVoltarProjetos || null;
     const navDisciplinasOpen = !!this.state.expanded['nav-disciplinas'];
     const navItems = [
@@ -8037,6 +8699,9 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
       showIllustrativeTags: this.props.showIllustrativeTags ?? true,
       onVoltarProjetos,
       isHome: active === 'home',
+      temOrigemDados: !!origemDados,
+      ...this.valoresEnvio(),
+      origemDados,
       isGeometria: active === 'geometria' && (this.materiaMeta.find(m => m.key === 'geometria') || {}).modeled,
       isTerraplenagem: active === 'terraplenagem' && (this.materiaMeta.find(m => m.key === 'terraplenagem') || {}).modeled,
       isSinalizacao: active === 'sinalizacao' && (this.materiaMeta.find(m => m.key === 'sinalizacao') || {}).modeled,
