@@ -381,6 +381,33 @@
               <div sc-camel-on-click="{{ adminAdicionar }}" style="cursor:pointer;background:#fff;border:1px dashed #2f6690;color:#2f6690;font-size:13.5px;font-weight:700;padding:11px 18px;border-radius:8px;">+ Adicionar funcionário</div>
               <div style="font-size:12.5px;color:#5b6774;">Cria uma linha nova; ao salvar, o sistema cria o login com a senha provisória e troca obrigatória no primeiro acesso.</div>
             </div>
+
+            <!-- DADOS DAS ANÁLISES NO BANCO (Fase 1 — migração) -->
+            <div style="margin-top:18px;background:#fff;border:1px solid #dde3ea;border-radius:12px;padding:20px 22px;display:flex;flex-direction:column;gap:12px;">
+              <div>
+                <div style="font-size:12px;font-weight:700;letter-spacing:0.12em;color:#2f6690;">DADOS DAS ANÁLISES</div>
+                <div style="margin-top:4px;font-size:18px;font-weight:800;color:#1f3a5f;">Migração para o banco de dados</div>
+                <div style="margin-top:6px;font-size:13px;color:#5b6774;line-height:1.55;">Grava no banco (Firestore) as análises já conferidas de Araçuaí, Rubim e Serro, a partir do arquivo <strong>SIP_Migracao_Analises.json</strong>. Não muda nada na tela dos projetos. Pode ser repetido sem problema: grava por cima com os mesmos dados.</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
+                <input type="file" accept=".json,application/json" sc-camel-on-change="{{ importarMigracao }}" style="font-size:13px;font-family:inherit;">
+              </div>
+              <sc-if value="{{ migraTemStatus }}" hint-placeholder-val="{{ false }}">
+                <div style="padding:10px 14px;border-radius:8px;font-size:13px;line-height:1.5;background:{{ migraBg }};color:{{ migraCor }};white-space:pre-line;">{{ migraStatus }}</div>
+              </sc-if>
+              <sc-if value="{{ migraTemResumo }}" hint-placeholder-val="{{ false }}">
+                <div style="overflow:auto;border:1px solid #eef1f4;border-radius:8px;">
+                  <table style="border-collapse:collapse;width:100%;font-size:12.5px;">
+                    <thead><tr><th style="text-align:left;padding:8px 10px;background:#f3f6f9;color:#1f3a5f;">Fonte (projeto · disciplina · parte)</th><th style="text-align:left;padding:8px 10px;background:#f3f6f9;color:#1f3a5f;">Análises</th><th style="text-align:right;padding:8px 10px;background:#f3f6f9;color:#1f3a5f;">Itens</th><th style="text-align:right;padding:8px 10px;background:#f3f6f9;color:#1f3a5f;">Atendidos</th><th style="text-align:left;padding:8px 10px;background:#f3f6f9;color:#1f3a5f;">Situação</th></tr></thead>
+                    <tbody>
+                      <sc-for list="{{ migraResumo }}" as="mr" hint-placeholder-count="3">
+                        <tr><td style="padding:7px 10px;border-top:1px solid #eef1f4;">{{ mr.id }}</td><td style="padding:7px 10px;border-top:1px solid #eef1f4;">{{ mr.analises }}</td><td style="padding:7px 10px;border-top:1px solid #eef1f4;text-align:right;">{{ mr.itens }}</td><td style="padding:7px 10px;border-top:1px solid #eef1f4;text-align:right;">{{ mr.atendidos }}</td><td style="padding:7px 10px;border-top:1px solid #eef1f4;font-weight:700;color:{{ mr.cor }};">{{ mr.situacao }}</td></tr>
+                      </sc-for>
+                    </tbody>
+                  </table>
+                </div>
+              </sc-if>
+            </div>
           </div>
         </div>
       </sc-if>
@@ -522,6 +549,9 @@ class Component extends DCLogic {
     adminSalvando: false,
     adminMsg: '',
     adminMsgTipo: '',
+    migraStatus: '',
+    migraTipo: '',
+    migraResumo: [],
     senhaConsolInput: '',
     senhaConsolErro: '',
     senhaConsolVisible: false,
@@ -1022,6 +1052,66 @@ class Component extends DCLogic {
     });
   }
 
+  // ================= DADOS DAS ANÁLISES NO BANCO (Fase 1 — migração) =================
+  // Estrutura: analisesFontes/{projeto__disciplina__parte} (resumo) + subcoleção rodadas/{numero}
+  // (datas + docs da análise, exatamente no formato dos arrays ...DocsData dos projetos).
+  contarItensFonte(rodadas) {
+    let linhas = 0, itens = 0, atendidos = 0;
+    for (const r of rodadas) for (const d of (r.docs || [])) for (const it of (d.items || [])) {
+      linhas++;
+      const st = (it && typeof it === 'object') ? it.status : null;
+      if (st === 'atendido') atendidos++;
+      else if (st !== 'nao' && st !== 'parcial' && st !== 'retirado' && st !== 'pendente') itens++;
+    }
+    return { linhas, itens, atendidos };
+  }
+
+  async importarMigracao(e) {
+    const input = e && e.target;
+    const file = input && input.files && input.files[0];
+    if (!file) return;
+    this.setState({ migraStatus: 'Lendo o arquivo...', migraTipo: 'info', migraResumo: [] });
+    let dados = null;
+    try { dados = JSON.parse(await file.text()); } catch (err) { dados = null; }
+    if (!dados || dados.tipo !== 'sip-migracao-analises' || !Array.isArray(dados.fontes)) {
+      this.setState({ migraStatus: 'Arquivo não reconhecido. Use o SIP_Migracao_Analises.json.', migraTipo: 'erro' });
+      if (input) input.value = '';
+      return;
+    }
+    const db = this.db();
+    const quem = (this.state.usuarioSip && this.state.usuarioSip.email) || '';
+    const resumo = [];
+    let i = 0;
+    for (const f of dados.fontes) {
+      i++;
+      this.setState({ migraStatus: 'Gravando ' + i + ' de ' + dados.fontes.length + ': ' + f.id + '...', migraTipo: 'info' });
+      const cont = this.contarItensFonte(f.rodadas || []);
+      const linhaResumo = { id: f.id, analises: (f.rodadas || []).map(r => r.numero).join(', '), itens: cont.itens, atendidos: cont.atendidos };
+      try {
+        const ref = db.collection('analisesFontes').doc(f.id);
+        const batch = db.batch();
+        batch.set(ref, {
+          projeto: f.projeto, disciplina: f.disciplina, parte: f.parte || null,
+          numeros: (f.rodadas || []).map(r => r.numero),
+          totalLinhas: cont.linhas, totalItens: cont.itens, totalAtendidos: cont.atendidos,
+          origem: 'migracao', atualizadoPor: quem, atualizadoEm: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+        for (const r of (f.rodadas || [])) batch.set(ref.collection('rodadas').doc(String(r.numero)), r);
+        await batch.commit();
+        resumo.push({ ...linhaResumo, situacao: 'Gravado', cor: '#1e6b3f' });
+      } catch (err) {
+        resumo.push({ ...linhaResumo, situacao: 'Erro: ' + ((err && err.message) || err), cor: '#9b2c22' });
+      }
+    }
+    const erros = resumo.filter(r => r.situacao !== 'Gravado').length;
+    this.setState({
+      migraResumo: resumo,
+      migraStatus: erros ? (resumo.length - erros) + ' fonte(s) gravada(s) e ' + erros + ' com erro (ver tabela).' : 'Migração concluída: ' + resumo.length + ' fontes gravadas no banco. Confira os totais na tabela.',
+      migraTipo: erros ? 'erro' : 'ok',
+    });
+    if (input) input.value = '';
+  }
+
   async confirmSenhaConsol() {
     if (this.state.senhaConsolLoading) return;
     const email = (this.state.loginEmail || '').trim().toLowerCase();
@@ -1319,6 +1409,13 @@ class Component extends DCLogic {
       adminMsgBg: msgTipo === 'erro' ? '#fdecec' : (msgTipo === 'ok' ? '#e8f5ec' : '#eaf2fb'),
       adminMsgCor: msgTipo === 'erro' ? '#9b2c22' : (msgTipo === 'ok' ? '#1e6b3f' : '#1f3a5f'),
       adminBusca: this.state.adminBusca,
+      importarMigracao: (e) => this.importarMigracao(e),
+      migraTemStatus: !!this.state.migraStatus,
+      migraStatus: this.state.migraStatus,
+      migraBg: this.state.migraTipo === 'erro' ? '#fdecec' : (this.state.migraTipo === 'ok' ? '#e8f5ec' : '#eaf2fb'),
+      migraCor: this.state.migraTipo === 'erro' ? '#9b2c22' : (this.state.migraTipo === 'ok' ? '#1e6b3f' : '#1f3a5f'),
+      migraTemResumo: this.state.migraResumo.length > 0,
+      migraResumo: this.state.migraResumo,
       adminFiltro: this.state.adminFiltro,
       setAdminBusca: (e) => this.setState({ adminBusca: e.target.value }),
       setAdminFiltro: (e) => this.setState({ adminFiltro: e.target.value }),
