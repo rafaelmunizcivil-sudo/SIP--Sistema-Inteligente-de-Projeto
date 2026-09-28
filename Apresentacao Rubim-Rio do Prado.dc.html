@@ -3075,7 +3075,14 @@ class Component extends DCLogic {
         secoes.push(secao);
       }
     });
-    if (!linhas.length) return { erros: ['Nenhum questionamento encontrado na aba "Análises".'], avisos, rodadas: [] };
+    if (!linhas.length) {
+      // Primeira entrega ao DER: ainda não há análise, só a linha com a "Data do Recebimento" em "Dados de entrada".
+      const soEntrega = Object.keys(datas).map(Number).filter(n => datas[n].recebido && !datas[n].concluido).sort((a, b) => a - b);
+      if (!soEntrega.length) return { erros: ['Nenhum questionamento encontrado na aba "Análises".'], avisos, rodadas: [] };
+      const nE = soEntrega[0];
+      if (soEntrega.length > 1) avisos.push('Há mais de uma análise só com a Data do Recebimento (' + soEntrega.join(', ') + '); o sistema considerou apenas a Análise ' + nE + ' como entrega ao DER.');
+      return { erros: [], avisos, rodadas: [], entregaPendente: { numero: nE, recebido: datas[nE].recebido }, totalItens: 0, totalAtendidos: 0, grafico1: null, totalLinhas: 0 };
+    }
 
     // Consistência de cada linha
     const difDatas = {}, difTempo = {};
@@ -7186,7 +7193,7 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
     const loteButtons = isInter ? this.buildIntersecaoSubgrupoButtons(this.state.timelineIntersecaoSubgrupo || 'int1', (l) => this.setTimelineIntersecaoSubgrupo(l)) : [];
     const loteSuffix = isInter ? (this.state.timelineIntersecaoSubgrupo || 'int1') : null;
     const analises = this.timelineAnalisesFor(selected);
-    if (!analises || !analises.length) {
+    if ((!analises || !analises.length) && !this.entregaPendenteTimeline(selected, analises || [])) {
       return { discButtons, hasLoteButtons: loteButtons.length > 0, loteButtons, hasTimelineData: false, noTimelineData: true };
     }
     const today = new Date();
@@ -7285,7 +7292,8 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
       });
     }
 
-    const last = analises[analises.length - 1];
+    // Sem nenhuma análise ainda (só a entrega ao DER): o topo mostra a entrega e "Aguardando DER".
+    const last = analises.length ? analises[analises.length - 1] : { numero: 0, recebido: pendEntrega.recebido, concluido: pendEntrega.recebido, respostaConsol: pendEntrega.recebido, semPendencias: false, soEntrega: true };
     let diasDecorridos = this.diffDays(this.parseBR(last.concluido), today);
     const restam = PRAZO - diasDecorridos;
     let statusAtual, statusAtualColor, responsavelAtual = 'Projetista';
@@ -7298,7 +7306,7 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
     return {
       discButtons, hasLoteButtons: loteButtons.length > 0, loteButtons, hasTimelineData: true, noTimelineData: false,
       ultimaEntregaProjetista: this.fmtDia(last.respostaConsol || last.recebido),
-      ultimaEntregaDER: this.fmtDia(last.concluido),
+      ultimaEntregaDER: last.soEntrega ? '—' : this.fmtDia(last.concluido),
       responsavelAtual,
       statusAtual, statusAtualColor, diasDecorridos,
       events,
