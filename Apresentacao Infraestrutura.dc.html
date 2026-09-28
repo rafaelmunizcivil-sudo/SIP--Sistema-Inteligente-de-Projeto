@@ -3888,6 +3888,8 @@ class Component extends DCLogic {
 
   materiaMeta = [
     { key: 'topografia', code: 'TO', label: '13. Estudos Topográficos', desc: 'Levantamento planialtimétrico e apoio topográfico.', modeled: false },
+    { key: 'hidrologia', code: 'HI', label: '14. Estudos Hidrológicos', desc: 'Caracterização das bacias, vazões de projeto e verificação hidráulica.', modeled: false },
+    { key: 'hidrologia_oae', code: 'HO', label: '15. Est. Hidrológicos para OAE c/ compr. 50m <L=<100m', desc: 'Estudos hidrológicos para obras de arte especiais com comprimento entre 50 m e 100 m.', modeled: false },
     { key: 'drenagem', code: 'DR', label: '45. Projeto de Drenagem', desc: 'Drenagem superficial e profunda ao longo do traçado.', modeled: false },
     { key: 'pavimentacao', code: 'PV', label: '46. Projeto de Pavimentação', desc: 'Dimensionamento e estrutura do pavimento.', modeled: false },
     { key: 'geometria', code: 'GE', label: '43. Projeto Geométrico', desc: 'Traçado em planta, perfil longitudinal e seções transversais.', modeled: true },
@@ -3899,6 +3901,8 @@ class Component extends DCLogic {
   ];
 
   placeholderTopics = {
+    hidrologia: ['Caracterização das bacias', 'Vazões de projeto', 'Verificação hidráulica'],
+    hidrologia_oae: ['Bacias das OAE', 'Vazões de projeto', 'Verificação hidráulica das pontes'],
     sinalizacao: ['Sinalização horizontal', 'Sinalização vertical', 'Dispositivos de segurança'],
     obras: ['Drenagem', 'Obras de arte especiais', 'Contenções'],
     desapropriacao: ['Levantamento cadastral', 'Avaliação de imóveis', 'Processo indenizatório'],
@@ -5871,7 +5875,7 @@ Estaca 1308+0 a 1452+0 LD;`, status: 'atendido' },
     const hoje = new Date().toLocaleDateString('pt-BR');
     return '<div style="display:flex;justify-content:flex-end;margin-bottom:24px;"><img src="' + logoUrl + '" style="height:34px;"></div>'
       + '<div style="font-size:11px;font-weight:700;letter-spacing:0.08em;color:#5b6774;text-transform:uppercase;margin-bottom:4px;">Relatório Técnico &mdash; Disciplina</div>'
-      + '<h1>' + label + '</h1>'
+      + '<h1>' + String(label).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</h1>'
       + '<div style="font-size:12px;color:#5b6774;margin-bottom:24px;">Rodovia MG-259 &mdash; Trecho Serro / Trinta Reis &middot; Emitido em ' + hoje + '</div>';
   }
 
