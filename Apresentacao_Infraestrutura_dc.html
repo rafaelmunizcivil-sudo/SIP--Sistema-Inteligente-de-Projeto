@@ -2713,6 +2713,7 @@ class Component extends DCLogic {
       for (const doc of snap.docs) {
         const f = doc.data();
         if (f.ultimoEnvio) this.ultimosEnvios[doc.id] = f.ultimoEnvio;
+        this.entregasPendentes[doc.id] = (f.entregaPendente && f.entregaPendente.recebido) ? f.entregaPendente : null;
         const cfg = this.cfgFonte(f.disciplina);
         if (cfg.dinamica && f.parte) continue;
         const parte = f.parte || null;
@@ -2730,6 +2731,13 @@ class Component extends DCLogic {
           metaNova[numero] = datas;
           this[prefixo + numero + 'DocsData'] = docs || [];
         });
+        // Entrega ao DER registrada: a última análise passa a mostrar a data como resposta da Consol.
+        const pendBanco = this.entregasPendentes[doc.id];
+        if (pendBanco) {
+          const numsBanco = Object.keys(metaNova).map(Number).sort((x, y) => x - y);
+          const ultBanco = numsBanco[numsBanco.length - 1];
+          if (ultBanco != null && Number(pendBanco.numero) > ultBanco && !metaNova[ultBanco].respostaConsol) metaNova[ultBanco] = { ...metaNova[ultBanco], respostaConsol: pendBanco.recebido, respostaDerivada: true };
+        }
         if (cfg.comParte) this[cfg.meta] = { ...(this[cfg.meta] || {}), [parte]: metaNova };
         else this[cfg.meta] = metaNova;
         if (cfg.dinamica) this.disciplinasDinamicas[f.disciplina] = true;
@@ -2825,6 +2833,24 @@ class Component extends DCLogic {
       return { numero: n, recebido: datas[n] ? datas[n].recebido : null, concluido: datas[n] ? datas[n].concluido : null, docs };
     });
 
+    // Entrega ao DER ainda sem análise: linha de "Dados de entrada" depois da última análise, só com a
+    // "Data do Recebimento" e sem itens na aba "Análises" = projeto entregue ao DER, aguardando a análise.
+    const convEntrega = (typeof opcoes !== 'undefined' && opcoes) ? opcoes.convencao : null;
+    let entregaPendente = null;
+    if (rodadas.length) {
+      const ultR = rodadas[rodadas.length - 1];
+      const pend = Object.keys(datas).map(Number).filter(n => n > ultR.numero && datas[n].recebido && !datas[n].concluido && !linhas.some(l => l.rd === n)).sort((a, b) => a - b);
+      if (pend.length) {
+        const n = pend[0], dt = datas[n].recebido;
+        entregaPendente = { numero: n, recebido: dt };
+        if (convEntrega === 'consol') {
+          if (!ultR.respostaConsol) ultR.respostaConsol = dt;
+          else if (ultR.respostaConsol !== dt) avisos.push('Entrega ao DER: a Análise ' + n + ' tem Data do Recebimento ' + dt + ', mas a Data da Resposta da Análise ' + ultR.numero + ' é ' + ultR.respostaConsol + '. Confira qual é a data certa da entrega.');
+        } else if (ultR.concluido && dif(ultR.concluido, dt) < 0) avisos.push('Entrega ao DER (Análise ' + n + ', ' + dt + ') com data anterior à conclusão da Análise ' + ultR.numero + ' (' + ultR.concluido + '). Confira o ano da data.');
+        if (pend.length > 1) avisos.push('Há mais de uma análise só com a Data do Recebimento (' + pend.join(', ') + '); o sistema considerou apenas a Análise ' + n + ' como entrega ao DER.');
+      }
+    }
+
     // Ordem das datas
     for (let i = 0; i < rodadas.length; i++) {
       const r = rodadas[i];
@@ -2867,7 +2893,7 @@ class Component extends DCLogic {
     }
     if (grafico1 && !grafico1.confere) avisos.push('Os totais não conferem com o Gráfico1 da planilha (planilha: ' + grafico1.itens + ' itens / ' + grafico1.atendidos + ' atendidos; lidos: ' + totalItens + ' / ' + totalAtendidos + ').');
 
-    return { erros: erroUnico, avisos: Array.from(new Set(avisos)), rodadas, totalItens, totalAtendidos, grafico1, totalLinhas: linhas.length };
+    return { erros: erroUnico, avisos: Array.from(new Set(avisos)), rodadas, entregaPendente, totalItens, totalAtendidos, grafico1, totalLinhas: linhas.length };
   }
 
   // ===== Fase 3 — envio da planilha pelo responsável da disciplina =====
@@ -2951,6 +2977,7 @@ class Component extends DCLogic {
       const XLSX = await this.carregarBibliotecaPlanilha();
       const buf = await env.arquivo.arrayBuffer();
       const wb = XLSX.read(buf, { type: 'array' });
+      const pendAtualEnv = this.entregasPendentes[this.idFonte(env.disc, env.parte)] || null;
       const res = this.lerPlanilhaAnalise(wb, XLSX);
       const atuais = this.rodadasAtuais(env.disc, env.parte);
       const mapaAtual = {};
@@ -2965,7 +2992,9 @@ class Component extends DCLogic {
       const removidas = atuais.filter(r => !numsNovos.has(r.numero)).map(r => r.numero);
       let totalItensAtual = 0, totalAtendAtual = 0;
       atuais.forEach(r => { const c = this.contarRodada(r); totalItensAtual += c.novo; totalAtendAtual += c.atendido; });
-      res.comparacao = { novas, alteradas, removidas, totalItensAtual, totalAtendAtual };
+      const pendNovoEnv = res.entregaPendente || null;
+      const entregaMudou = (pendAtualEnv ? pendAtualEnv.numero + '|' + pendAtualEnv.recebido : '') !== (pendNovoEnv ? pendNovoEnv.numero + '|' + pendNovoEnv.recebido : '');
+      res.comparacao = { novas, alteradas, removidas, totalItensAtual, totalAtendAtual, entregaMudou };
       if (removidas.length) res.avisos.push('A planilha não tem a(s) Análise(s) ' + removidas.join(', ') + ', que hoje está(ão) no sistema. Ao gravar, ela(s) será(ão) removida(s).');
       this.setState(s => ({ envio: { ...s.envio, lendo: false, passo: 2, resultado: res } }));
     } catch (err) {
@@ -3006,7 +3035,7 @@ class Component extends DCLogic {
     return firebase;
   }
 
-  async gravarRodadas(disc, parte, rodadas, origem, arquivoNome) {
+  async gravarRodadas(disc, parte, rodadas, origem, arquivoNome, entregaPendente) {
     await this.firebasePronto();
     const db = firebase.firestore();
     const p = this.props.permissoes || {};
@@ -3021,10 +3050,10 @@ class Component extends DCLogic {
     const numeros = limpas.map(r => r.numero);
     const batch = db.batch();
     const ultimoEnvio = { nome, email: quem, arquivo: arquivoNome || '', quando: new Date().toISOString(), origem };
-    batch.set(ref, { projeto: this.PROJETO_DADOS, disciplina: disc, parte: parte || null, numeros, totalLinhas, totalItens, totalAtendidos, origem, atualizadoPor: quem, atualizadoEm: firebase.firestore.FieldValue.serverTimestamp(), ultimoEnvio });
+    batch.set(ref, { projeto: this.PROJETO_DADOS, disciplina: disc, parte: parte || null, numeros, totalLinhas, totalItens, totalAtendidos, origem, atualizadoPor: quem, atualizadoEm: firebase.firestore.FieldValue.serverTimestamp(), ultimoEnvio, entregaPendente: entregaPendente || null });
     limpas.forEach(r => batch.set(ref.collection('rodadas').doc(String(r.numero)), r));
     atuais.filter(n => !numeros.includes(n)).forEach(n => batch.delete(ref.collection('rodadas').doc(String(n))));
-    batch.set(ref.collection('envios').doc(), { nome, email: quem, arquivo: arquivoNome || '', origem, quando: firebase.firestore.FieldValue.serverTimestamp(), quandoTexto: new Date().toISOString(), numeros, totalItens, totalAtendidos, rodadas: limpas });
+    batch.set(ref.collection('envios').doc(), { nome, email: quem, arquivo: arquivoNome || '', origem, quando: firebase.firestore.FieldValue.serverTimestamp(), quandoTexto: new Date().toISOString(), numeros, totalItens, totalAtendidos, rodadas: limpas, entregaPendente: entregaPendente || null });
     await batch.commit();
     this.ultimosEnvios[id] = ultimoEnvio;
   }
@@ -3034,7 +3063,7 @@ class Component extends DCLogic {
     if (!env || !env.resultado || env.gravando || env.resultado.erros.length) return;
     this.setState(s => ({ envio: { ...s.envio, gravando: true, erro: '' } }));
     try {
-      await this.gravarRodadas(env.disc, env.parte, env.resultado.rodadas, 'planilha', env.arquivoNome);
+      await this.gravarRodadas(env.disc, env.parte, env.resultado.rodadas, 'planilha', env.arquivoNome, env.resultado.entregaPendente || null);
       this.carregarDadosDoBanco(0);
       this.setState(s => ({ envio: { ...s.envio, gravando: false, gravado: true } }));
     } catch (err) {
@@ -3067,7 +3096,7 @@ class Component extends DCLogic {
     if (!h || !envio || !envio.rodadas) return;
     this.setState(s => ({ historico: { ...s.historico, msg: 'Restaurando...' } }));
     try {
-      await this.gravarRodadas(h.disc, h.parte, envio.rodadas, 'restauração', 'restauração de ' + (envio.arquivo || 'envio anterior'));
+      await this.gravarRodadas(h.disc, h.parte, envio.rodadas, 'restauração', 'restauração de ' + (envio.arquivo || 'envio anterior'), envio.entregaPendente || null);
       this.carregarDadosDoBanco(0);
       await this.abrirHistorico(h.disc, (h.label || '').split(' — ')[0]);
       this.setState(s => ({ historico: { ...s.historico, msg: 'Versão restaurada.' } }));
@@ -3113,8 +3142,9 @@ class Component extends DCLogic {
         if (cmp.novas) mud.push(cmp.novas + (cmp.novas === 1 ? ' análise nova' : ' análises novas'));
         if (cmp.alteradas) mud.push(cmp.alteradas + (cmp.alteradas === 1 ? ' alterada' : ' alteradas'));
         if (cmp.removidas && cmp.removidas.length) mud.push(cmp.removidas.length + ' removida(s)');
+        if (cmp.entregaMudou) mud.push(res.entregaPendente ? 'entrega ao DER em ' + res.entregaPendente.recebido : 'entrega ao DER retirada');
         Object.assign(out, {
-          envioResumoArquivo: env.arquivoNome + ' · ' + (res.totalLinhas || 0) + ' linhas lidas · ' + res.rodadas.length + ' análises (' + res.rodadas.map(r => r.numero).join(', ') + ')',
+          envioResumoArquivo: env.arquivoNome + ' · ' + (res.totalLinhas || 0) + ' linhas lidas · ' + res.rodadas.length + ' análises (' + res.rodadas.map(r => r.numero).join(', ') + ')' + (res.entregaPendente ? ' · entrega ao DER: Análise ' + res.entregaPendente.numero + ' recebida pelo DER/MG em ' + res.entregaPendente.recebido : ''),
           envioTotalItens: res.totalItens, envioTotalAtend: res.totalAtendidos,
           envioItensAtual: 'hoje no sistema: ' + cmp.totalItensAtual, envioAtendAtual: 'hoje no sistema: ' + cmp.totalAtendAtual,
           envioGrafico: res.grafico1 ? (res.grafico1.confere ? 'Confere ✓' : 'Não confere') : 'Não encontrado',
@@ -4543,6 +4573,29 @@ Estaca 1308+0 a 1452+0 LD;`, status: 'atendido' },
     return this.disciplinaAnalisesReais[key] || [];
   }
 
+  // ===== Entrega ao DER aguardando análise (linha da planilha só com a Data do Recebimento) =====
+  entregasPendentes = {};
+
+  parteTimeline(disc) {
+    if (!this.PARTES_POR_DISCIPLINA[disc]) return null;
+    if (disc === 'intersecao') return this.state.timelineIntersecaoSubgrupo || 'int1';
+    if (disc === 'pavimentacao') return this.state.timelinePavLote || 'lote1';
+    if (disc === 'drenagem') return this.state.timelineDrenLote || 'lote1';
+    if (disc === 'terraplenagem' && this.timelineTerraGeoEffectiveKey) {
+      const k = this.timelineTerraGeoEffectiveKey();
+      return k === 'terra' ? 'terra' : k;
+    }
+    return null;
+  }
+
+  entregaPendenteTimeline(disc, analises) {
+    const p = this.entregasPendentes[this.idFonte(disc, this.parteTimeline(disc))];
+    if (!p || !p.recebido || !p.numero) return null;
+    const ult = analises && analises.length ? analises[analises.length - 1] : null;
+    if (ult && Number(p.numero) <= Number(ult.numero)) return null;
+    return p;
+  }
+
   buildLinhaTempo() {
     const PRAZO = 20;
     const selected = this.timelineDiscEfetiva();
@@ -4628,6 +4681,33 @@ Estaca 1308+0 a 1452+0 LD;`, status: 'atendido' },
         toggle: () => this.toggleCard(evKey),
       });
     });
+
+    // Entrega ao DER registrada na planilha (linha só com a Data do Recebimento): cartão da próxima análise
+    // só com "Análise Recebida no DER/MG" e os dias corridos; os demais campos ficam em aberto.
+    const pendEntrega = this.entregaPendenteTimeline(selected, analises);
+    if (pendEntrega) {
+      const pSuf = selected + '-an-' + (this.parteTimeline(selected) ? this.parteTimeline(selected) + '-' : '') + pendEntrega.numero;
+      const diasEnt = Math.max(0, this.diffDays(this.parseBR(pendEntrega.recebido), today));
+      const pKey = 'linha-an-' + pendEntrega.numero;
+      events.push({
+        key: pKey, titulo: 'Análise ' + pendEntrega.numero,
+        nodeColor: '#8a94a3',
+        legDER: {
+          sentido: 'DER → Projetista', recebido: this.fmtDia(pendEntrega.recebido), concluido: '—', tempo: diasEnt + (diasEnt === 1 ? ' dia' : ' dias'),
+          status: '', statusColor: '#8a94a3', atrasado: false, semAtraso: true,
+          obsKey: pSuf + '-der', obsValue: '', onObsChange: () => {},
+        },
+        legResp: {
+          sentido: 'Projetista → DER', recebido: '—', concluido: '—', tempo: '—',
+          status: '', statusColor: '#8a94a3', atrasado: false, semAtraso: true,
+          obsPreenchida: false, obsPendente: false, proximaEm: null, historico: [], formLink: '',
+        },
+        temResposta: false,
+        isOpen: !this.state.expanded[pKey],
+        chevron: !this.state.expanded[pKey] ? '−' : '+',
+        toggle: () => this.toggleCard(pKey),
+      });
+    }
 
     const last = analises[analises.length - 1];
     let diasDecorridos = this.diffDays(this.parseBR(last.concluido), today);
