@@ -979,9 +979,16 @@
         <div style="margin-bottom:24px;">
           <div style="font-size:12px;font-weight:700;letter-spacing:0.1em;color:#2f6690;text-transform:uppercase;margin-bottom:6px;">Linha do Tempo</div>
           <h1 style="margin:0 0 8px;font-size:28px;color:#1f3a5f;font-weight:700;">Linha do Tempo do Projeto</h1>
+          <sc-if value="{{ naoClienteLT }}" hint-placeholder-val="{{ true }}">
           <p style="margin:0;font-size:14px;color:#5b6774;max-width:680px;line-height:1.6;">
             Histórico de tramitação entre Projetista e DER-MG por disciplina: quem está com a ação pendente, há quantos dias, e se o prazo contratual de 20 dias está sendo respeitado.
           </p>
+          </sc-if>
+          <sc-if value="{{ clienteLT }}" hint-placeholder-val="{{ false }}">
+          <p style="margin:0;font-size:14px;color:#5b6774;max-width:680px;line-height:1.6;">
+            Situação da última análise de cada disciplina entre Projetista e DER-MG.
+          </p>
+          </sc-if>
         </div>
 
         <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:24px;">
@@ -1082,6 +1089,7 @@
                       </div>
                     </div>
 
+                    <sc-if value="{{ ev.mostrarObs }}" hint-placeholder-val="{{ true }}">
                     <div style="flex:1;min-width:220px;border-left:1px solid #eef1f4;padding-left:16px;display:flex;flex-direction:column;">
                       <div style="font-size:10px;color:#8a94a3;text-transform:uppercase;margin-bottom:6px;">Observações (Projetista)</div>
                       <sc-if value="{{ ev.legResp.obsPreenchida }}" hint-placeholder-val="{{ false }}">
@@ -1105,6 +1113,7 @@
                         <div style="font-size:12px;color:#b7c0ca;">—</div>
                       </sc-if>
                     </div>
+                    </sc-if>
                   </div>
                   </sc-if>
                 </div>
@@ -7197,7 +7206,7 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
       return { discButtons, hasLoteButtons: loteButtons.length > 0, loteButtons, hasTimelineData: false, noTimelineData: true };
     }
     const today = new Date();
-    const events = [];
+    let events = [];
 
     analises.forEach((a, i) => {
       const rec = this.parseBR(a.recebido), conc = this.parseBR(a.concluido);
@@ -7302,6 +7311,14 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
     else if (restam < 0) { statusAtual = 'Atrasado'; statusAtualColor = '#c0392b'; }
     else if (restam <= 5) { statusAtual = 'Prazo Vencendo'; statusAtualColor = '#c98a1c'; }
     else { statusAtual = 'Dentro do Prazo'; statusAtualColor = '#2f8f4f'; }
+
+    // Área do Cliente: só o último cartão (a análise mais recente ou a entrega que está com o DER),
+    // sempre aberto e sem a coluna de observações do projetista.
+    if (this.props.isClienteMode) {
+      events = events.slice(-1).map(ev => ({ ...ev, titulo: ev.titulo + ' (última análise)', isOpen: true, chevron: '', toggle: () => {}, mostrarObs: false }));
+    } else {
+      events = events.map(ev => ({ ...ev, mostrarObs: true }));
+    }
 
     return {
       discButtons, hasLoteButtons: loteButtons.length > 0, loteButtons, hasTimelineData: true, noTimelineData: false,
@@ -8936,7 +8953,7 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
     ];
 
     // Cliente (via Acesso Cliente) não vê abas internas/confidenciais. CONSOL sempre vê tudo (padrão seguro).
-    const ABAS_ESCONDIDAS_CLIENTE = ['disciplinas', 'avisos', 'consultas', 'controle-terceiros', 'reuniao-externa', 'linha-tempo'];
+    const ABAS_ESCONDIDAS_CLIENTE = ['disciplinas', 'avisos', 'consultas', 'controle-terceiros', 'reuniao-externa'];
     const navItemsFiltrados = this.props.isClienteMode
       ? navItems.filter(item => !ABAS_ESCONDIDAS_CLIENTE.includes(item.key))
       : navItems.filter(item => this.abaPermitida(item.key));
@@ -8998,6 +9015,7 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
       // (dados desse card ainda em revisão, ver conversa com Rafael). Quando escondido, "Itens
       // Repetidos" ocupa a largura toda em vez de deixar um vão vazio.
       mostrarComparativoSequencial: !this.props.isClienteMode,
+      clienteLT: !!this.props.isClienteMode, naoClienteLT: !this.props.isClienteMode,
       comparativoGridCols: this.props.isClienteMode ? '1fr' : '1fr 1fr',
       // Projeção de Faturamento (aba Medição): informação interna da CONSOL, escondida do cliente.
       mostrarProjecaoFaturamento: !this.props.isClienteMode,
