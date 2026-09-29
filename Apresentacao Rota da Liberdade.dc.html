@@ -204,12 +204,17 @@
                   <td style="padding:7px 12px;border-bottom:1px solid #eef1f4;height:30px;color:#5b6774;">{{ rp.distAcum }}</td>
                   <td style="padding:7px 12px;border-bottom:1px solid #eef1f4;height:30px;color:#5b6774;">—</td>
                   <td style="padding:5px 8px;border-bottom:1px solid #eef1f4;height:30px;">
+                    <sc-if value="{{ podeEditarStatus }}" hint-placeholder-val="{{ true }}">
                     <select value="{{ rp.status }}" onChange="{{ rp.setStatus }}" style="font-size:10.5px;font-weight:600;padding:3px 6px;border-radius:6px;border:1px solid transparent;background:{{ rp.statusBg }};color:{{ rp.statusColor }};cursor:pointer;width:100%;">
                       <option value="Não iniciado">Não iniciado</option>
                       <option value="Em estudo">Em estudo</option>
                       <option value="Desenvolvendo">Desenvolvendo</option>
                       <option value="Concluído">Concluído</option>
                     </select>
+                    </sc-if>
+                    <sc-if value="{{ naoPodeEditarStatus }}" hint-placeholder-val="{{ false }}">
+                      <div style="font-size:10.5px;font-weight:600;padding:3px 6px;border-radius:6px;background:{{ rp.statusBg }};color:{{ rp.statusColor }};width:100%;box-sizing:border-box;text-align:center;">{{ rp.status }}</div>
+                    </sc-if>
                   </td>
                 </tr>
               </sc-for>
@@ -813,7 +818,20 @@ class Component extends DCLogic {
     'Concluído': { bg: '#eef8f0', color: '#2f8f4f' },
   };
 
+  // Só estes responsáveis alteram o Status das intervenções. Os demais funcionários e o cliente só visualizam.
+  // (A mesma lista está na regra do Firestore da coleção intervencaoStatus.)
+  RESPONSAVEIS_STATUS = ['rafael.muniz@consol.eng.br', 'andre.guimaraes@consol.eng.br'];
+
+  podeAlterarStatus() {
+    if (this.props.isClienteMode) return false;
+    const p = this.props.permissoes;
+    let email = (p && p.email) || '';
+    if (!email && p) { try { email = (firebase.auth().currentUser || {}).email || ''; } catch (e) {} }
+    return this.RESPONSAVEIS_STATUS.includes(String(email).trim().toLowerCase());
+  }
+
   async setStatusFor(id, value) {
+    if (!this.podeAlterarStatus()) return;
     this.setState(s => ({ statusMap: { ...s.statusMap, [id]: value } }));
     const pronto = await this.waitForFirebase();
     if (!pronto) return;
@@ -919,10 +937,10 @@ class Component extends DCLogic {
     const primaryColor = this.props.primaryColor ?? '#1f3a5f';
     const active = this.abaAtiva();
     this.trIntervencoesComStatus = this.withStatus(this.trIntervencoes, 'trinterv');
-    // Status das intervenções: editável só pra CONSOL. Cliente vê o mesmo dado (sempre
-    // sincronizado, é a mesma fonte), só que como etiqueta fixa, sem poder alterar.
-    const podeEditarStatus = !this.props.isClienteMode;
-    const naoPodeEditarStatus = !!this.props.isClienteMode;
+    // Status das intervenções: editável só pelos responsáveis (RESPONSAVEIS_STATUS). Os demais
+    // funcionários e o cliente veem o mesmo dado (mesma fonte), só que como etiqueta fixa.
+    const podeEditarStatus = this.podeAlterarStatus();
+    const naoPodeEditarStatus = !podeEditarStatus;
     const navDefs = [
       { key: 'home', code: 'VG', label: 'Visão Geral' },
       { key: 'analise', code: 'AN', label: 'Análise' },
