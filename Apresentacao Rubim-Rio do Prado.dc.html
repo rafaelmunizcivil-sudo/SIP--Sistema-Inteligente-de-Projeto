@@ -3546,7 +3546,7 @@ class Component extends DCLogic {
     const buildDocs = (docsData, prefix) => docsData.map(d => {
       const items = d.items.map((it, i) => {
         const st = (it && typeof it === 'object') ? it.status : null;
-        const sm = st ? this.statusMeta[st] : null;
+        const sm = this.statusMeta[st || 'novo'] || null; // sem status = questionamento novo
         return { n: i + 1, text: textOf(it), statusLabel: sm ? sm.label : null, statusColor: sm ? sm.color : '', statusBg: sm ? sm.bg : '' };
       });
       const key = prefix + '-' + d.key;
@@ -4547,11 +4547,11 @@ class Component extends DCLogic {
 
   statusMeta = {
     atendido: { label: 'Atendido', color: '#2f8f4f', bg: '#eef8f0' },
-    parcial: { label: 'Atendido parcialmente', color: '#b5541f', bg: '#fdf1e8' },
-    nao: { label: 'Não atendido', color: '#c0392b', bg: '#fbeaea' },
-    novo: { label: 'Novo', color: '#2f6690', bg: '#eaf1f7' },
+    parcial: { label: 'Atendido parcialmente', color: '#a97a15', bg: '#fdf3df' },
+    nao: { label: 'Não atendido', color: '#c94545', bg: '#fbeaea' },
+    novo: { label: 'Novo', color: '#7a4fc9', bg: '#f1ecfb' },
+    retirado: { label: 'Item retirado', color: '#6b7480', bg: '#eef0f2' },
     pendente: { label: 'Aguardando resposta', color: '#8a94a3', bg: '#f4f6f8' },
-    retirado: { label: 'Item retirado', color: '#5b6774', bg: '#f0f2f5' },
   };
 
   intersecaoAnaliseMeta = {
@@ -5157,7 +5157,7 @@ a atender aos parâmetros geométricos;`, status: 'retirado' },
     const buildDocs = (docsData, prefix) => docsData.map(d => {
       const items = d.items.map((it, i) => {
         const st = (it && typeof it === 'object') ? it.status : null;
-        const sm = st ? this.statusMeta[st] : null;
+        const sm = this.statusMeta[st || 'novo'] || null; // sem status = questionamento novo
         return { n: i + 1, text: textOf(it), statusLabel: sm ? sm.label : null, statusColor: sm ? sm.color : '', statusBg: sm ? sm.bg : '' };
       });
       const key = prefix + '-' + d.key;
@@ -5271,7 +5271,7 @@ a atender aos parâmetros geométricos;`, status: 'retirado' },
     const buildDocs = (docsData, prefix) => docsData.map(d => {
       const items = d.items.map((it, i) => {
         const st = (it && typeof it === 'object') ? it.status : null;
-        const sm = st ? this.statusMeta[st] : null;
+        const sm = this.statusMeta[st || 'novo'] || null; // sem status = questionamento novo
         return { n: i + 1, text: textOf(it), statusLabel: sm ? sm.label : null, statusColor: sm ? sm.color : '', statusBg: sm ? sm.bg : '' };
       });
       const key = prefix + '-' + d.key;
@@ -6695,7 +6695,7 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
     const buildDocs = (docsData, prefix) => docsData.map(d => {
       const items = d.items.map((it, i) => {
         const st = (it && typeof it === 'object') ? it.status : null;
-        const sm = st ? this.statusMeta[st] : null;
+        const sm = this.statusMeta[st || 'novo'] || null; // sem status = questionamento novo
         return { n: i + 1, text: textOf(it), statusLabel: sm ? sm.label : null, statusColor: sm ? sm.color : '', statusBg: sm ? sm.bg : '' };
       });
       const key = prefix + '-' + d.key;
@@ -6793,7 +6793,7 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
     const buildDocs = (docsData, prefix) => docsData.map(d => {
       const items = d.items.map((it, i) => {
         const st = (it && typeof it === 'object') ? it.status : null;
-        const sm = st ? this.statusMeta[st] : null;
+        const sm = this.statusMeta[st || 'novo'] || null; // sem status = questionamento novo
         return { n: i + 1, text: textOf(it), statusLabel: sm ? sm.label : null, statusColor: sm ? sm.color : '', statusBg: sm ? sm.bg : '' };
       });
       const key = prefix + '-' + d.key;
@@ -6931,7 +6931,7 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
     const buildDocs = (docsData, prefix) => docsData.map(d => {
       const items = d.items.map((it, i) => {
         const st = (it && typeof it === 'object') ? it.status : null;
-        const sm = st ? this.statusMeta[st] : null;
+        const sm = this.statusMeta[st || 'novo'] || null; // sem status = questionamento novo
         return { n: i + 1, text: textOf(it), statusLabel: sm ? sm.label : null, statusColor: sm ? sm.color : '', statusBg: sm ? sm.bg : '' };
       });
       const key = prefix + '-' + d.key;
@@ -6976,7 +6976,7 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
   buildSegurancaAnalises() {
     const cardOpen = (key) => this.state.expanded[key] === undefined ? false : this.state.expanded[key];
     const docs = this.segurancaAnalise1DocsData.map(d => {
-      const items = d.items.map((text, i) => ({ n: i + 1, text, statusLabel: null, statusColor: '', statusBg: '' }));
+      const items = d.items.map((text, i) => ({ n: i + 1, text, statusLabel: this.statusMeta.novo.label, statusColor: this.statusMeta.novo.color, statusBg: this.statusMeta.novo.bg }));
       return { key: 'sv1-' + d.key, label: d.label, count: items.length, items, toggle: () => this.toggleCard('sv1-' + d.key), isOpen: !!this.state.expanded['sv1-' + d.key], chevron: this.state.expanded['sv1-' + d.key] ? '−' : '+' };
     });
     const total = docs.reduce((s, d) => s + d.count, 0);
@@ -8344,7 +8344,7 @@ Estaca 1741 + 0,00 à 1756 + 0,00 (300m) – Novo segmento`, status: 'atendido' 
     const buildDocs = (docsData, prefix) => docsData.map(d => {
       const items = d.items.map((it, i) => {
         const text = typeof it === 'string' ? it : it.text;
-        const sm = (it && it.status) ? this.statusMeta[it.status] : null;
+        const sm = this.statusMeta[(it && typeof it === 'object' && it.status) || 'novo'] || null; // sem status = questionamento novo
         return { n: i + 1, text, statusLabel: sm ? sm.label : null, statusColor: sm ? sm.color : '', statusBg: sm ? sm.bg : '' };
       });
       const key = prefix + '-' + d.key;

@@ -5855,7 +5855,7 @@ Volume 2, será aprovado somente após a finalização da análise de toda a ext
     const buildDocs = (docsData, prefix) => docsData.map(d => {
       const items = d.items.map((it, i) => {
         const text = typeof it === 'string' ? it : it.text;
-        const sm = (it && it.status) ? this.statusMeta[it.status] : null;
+        const sm = this.statusMeta[(it && typeof it === 'object' && it.status) || 'novo'] || null; // sem status = questionamento novo
         return { n: i + 1, text, statusLabel: sm ? sm.label : null, statusColor: sm ? sm.color : '', statusBg: sm ? sm.bg : '' };
       });
       const key = prefix + '-' + d.key;
@@ -6001,7 +6001,7 @@ Volume 2, será aprovado somente após a finalização da análise de toda a ext
       const items = d.items.map((it, i) => {
         // Questionamento novo vem só como texto (sem status); os demais vêm como { text, status }.
         const text = typeof it === 'string' ? it : it.text;
-        const sm = (it && it.status) ? this.statusMeta[it.status] : null;
+        const sm = this.statusMeta[(it && typeof it === 'object' && it.status) || 'novo'] || null; // sem status = questionamento novo
         return { n: i + 1, text, statusLabel: sm ? sm.label : null, statusColor: sm ? sm.color : '', statusBg: sm ? sm.bg : '' };
       });
       const key = prefix + '-' + d.key;
@@ -6764,7 +6764,7 @@ Iniciar no corte (seta vermelha).`, status: 'atendido' },
       const items = d.items.map((it, i) => {
         // Questionamento novo vem só como texto (sem status); os demais vêm como { text, status }.
         const text = typeof it === 'string' ? it : it.text;
-        const sm = (it && it.status) ? this.statusMeta[it.status] : null;
+        const sm = this.statusMeta[(it && typeof it === 'object' && it.status) || 'novo'] || null; // sem status = questionamento novo
         return { n: i + 1, text, statusLabel: sm ? sm.label : null, statusColor: sm ? sm.color : '', statusBg: sm ? sm.bg : '' };
       });
       const key = prefix + '-' + d.key;
@@ -6847,7 +6847,7 @@ Iniciar no corte (seta vermelha).`, status: 'atendido' },
   buildSegurancaAnalises() {
     const cardOpen = (key) => this.state.expanded[key] === undefined ? false : this.state.expanded[key];
     const docs = this.segurancaAnalise1DocsData.map(d => {
-      const items = d.items.map((text, i) => ({ n: i + 1, text, statusLabel: null, statusColor: '', statusBg: '' }));
+      const items = d.items.map((text, i) => ({ n: i + 1, text, statusLabel: this.statusMeta.novo.label, statusColor: this.statusMeta.novo.color, statusBg: this.statusMeta.novo.bg }));
       return { key: 'sv1-' + d.key, label: d.label, count: items.length, items, toggle: () => this.toggleCard('sv1-' + d.key), isOpen: !!this.state.expanded['sv1-' + d.key], chevron: this.state.expanded['sv1-' + d.key] ? '−' : '+' };
     });
     const total = docs.reduce((s, d) => s + d.count, 0);
@@ -7623,7 +7623,7 @@ Apresentar os PV’s em planta.
     const buildDocs = (docsData, prefix) => docsData.map(d => {
       const items = d.items.map((it, i) => {
         const text = typeof it === 'string' ? it : it.text;
-        const sm = (it && it.status) ? this.statusMeta[it.status] : null;
+        const sm = this.statusMeta[(it && typeof it === 'object' && it.status) || 'novo'] || null; // sem status = questionamento novo
         return { n: i + 1, text, statusLabel: sm ? sm.label : null, statusColor: sm ? sm.color : '', statusBg: sm ? sm.bg : '' };
       });
       const key = prefix + '-' + d.key;
@@ -7791,7 +7791,7 @@ Apresentar os PV’s em planta.
     const buildDocs = (docsData, prefix) => docsData.map(d => {
       const items = d.items.map((it, i) => {
         const text = typeof it === 'string' ? it : it.text;
-        const sm = (it && it.status) ? this.statusMeta[it.status] : null;
+        const sm = this.statusMeta[(it && typeof it === 'object' && it.status) || 'novo'] || null; // sem status = questionamento novo
         return { n: i + 1, text, statusLabel: sm ? sm.label : null, statusColor: sm ? sm.color : '', statusBg: sm ? sm.bg : '' };
       });
       const key = prefix + '-' + d.key;
@@ -8238,7 +8238,7 @@ Apresentar os PV’s em planta.
     const buildDocs = (docsData, prefix) => docsData.map(d => {
       const items = d.items.map((it, i) => {
         const text = typeof it === 'string' ? it : it.text;
-        const sm = (it && it.status) ? this.statusMeta[it.status] : null;
+        const sm = this.statusMeta[(it && typeof it === 'object' && it.status) || 'novo'] || null; // sem status = questionamento novo
         return { n: i + 1, text, statusLabel: sm ? sm.label : null, statusColor: sm ? sm.color : '', statusBg: sm ? sm.bg : '' };
       });
       const key = prefix + '-' + d.key;
@@ -8562,7 +8562,7 @@ Permanente (APP), avaliando eventuais restrições à utilização destes pontos
     const buildDocs = (docsData, prefix) => docsData.map(d => {
       const items = d.items.map((it, i) => {
         const text = typeof it === 'string' ? it : it.text;
-        const sm = (it && it.status) ? this.statusMeta[it.status] : null;
+        const sm = this.statusMeta[(it && typeof it === 'object' && it.status) || 'novo'] || null; // sem status = questionamento novo
         return { n: i + 1, text, statusLabel: sm ? sm.label : null, statusColor: sm ? sm.color : '', statusBg: sm ? sm.bg : '' };
       });
       const key = prefix + '-' + d.key;
