@@ -5999,8 +5999,10 @@ Volume 2, será aprovado somente após a finalização da análise de toda a ext
     };
     const buildDocs = (docsData, prefix) => docsData.map(d => {
       const items = d.items.map((it, i) => {
-        const sm = it.status ? this.statusMeta[it.status] : null;
-        return { n: i + 1, text: it.text, statusLabel: sm ? sm.label : null, statusColor: sm ? sm.color : '', statusBg: sm ? sm.bg : '' };
+        // Questionamento novo vem só como texto (sem status); os demais vêm como { text, status }.
+        const text = typeof it === 'string' ? it : it.text;
+        const sm = (it && it.status) ? this.statusMeta[it.status] : null;
+        return { n: i + 1, text, statusLabel: sm ? sm.label : null, statusColor: sm ? sm.color : '', statusBg: sm ? sm.bg : '' };
       });
       const key = prefix + '-' + d.key;
       return { key, label: d.label, count: items.length, items, toggle: () => this.toggleCard(key), isOpen: !!this.state.expanded[key], chevron: this.state.expanded[key] ? '−' : '+' };
@@ -6760,8 +6762,10 @@ Iniciar no corte (seta vermelha).`, status: 'atendido' },
     };
     const buildDocs = (docsData, prefix) => docsData.map(d => {
       const items = d.items.map((it, i) => {
-        const sm = it.status ? this.statusMeta[it.status] : null;
-        return { n: i + 1, text: it.text, statusLabel: sm ? sm.label : null, statusColor: sm ? sm.color : '', statusBg: sm ? sm.bg : '' };
+        // Questionamento novo vem só como texto (sem status); os demais vêm como { text, status }.
+        const text = typeof it === 'string' ? it : it.text;
+        const sm = (it && it.status) ? this.statusMeta[it.status] : null;
+        return { n: i + 1, text, statusLabel: sm ? sm.label : null, statusColor: sm ? sm.color : '', statusBg: sm ? sm.bg : '' };
       });
       const key = prefix + '-' + d.key;
       return { key, label: d.label, count: items.length, items, toggle: () => this.toggleCard(key), isOpen: !!this.state.expanded[key], chevron: this.state.expanded[key] ? '−' : '+' };
