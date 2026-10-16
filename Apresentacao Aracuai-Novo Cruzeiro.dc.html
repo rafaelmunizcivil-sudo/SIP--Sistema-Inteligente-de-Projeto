@@ -4314,6 +4314,7 @@ class Component extends DCLogic {
     16: 0, 17: 1, 18: 58.7, 19: 35, 20: 7, 21: 1, 22: 1190.4, 23: 124, 40: 983.25, 41: 1,
     // Itens de sondagem/estabilização (fonte: aba FONTANA da planilha Medições_DER.xlsx)
     24: 1, 25: 28.5, 26: 346.78, 48: 0, 49: 0,
+    // Atualizado em 16/10/2026 pela planilha Itens_de_Serviço_Estudos (abas ANDRÉ e FONTANA).
   };
 
   entregaXMedidoData = [
@@ -4333,16 +4334,16 @@ class Component extends DCLogic {
     { numero: 14, categoria: 'revisao', entrega: '25/02/2026' },
     { numero: 15, categoria: 'revisao', entrega: '03/06/2026' },
     { numero: 16, categoria: 'internogap', entrega: null },
-    { numero: 17, categoria: 'ok', entrega: '27/11/2025' },
-    { numero: 18, categoria: 'divergencia', entrega: '27/11/2025' },
-    { numero: 19, categoria: 'divergencia', entrega: '27/11/2025' },
-    { numero: 20, categoria: 'divergencia', entrega: '27/11/2025' },
-    { numero: 21, categoria: 'internogap', entrega: null },
-    { numero: 22, categoria: 'internogap', entrega: null },
-    { numero: 23, categoria: 'internogap', entrega: null },
-    { numero: 24, categoria: 'internogap', entrega: null },
-    { numero: 25, categoria: 'internogap', entrega: null },
-    { numero: 26, categoria: 'internogap', entrega: null },
+    { numero: 17, categoria: 'ok', entrega: '12/12/2025' },
+    { numero: 18, categoria: 'ok', entrega: '12/12/2025' },
+    { numero: 19, categoria: 'ok', entrega: '12/12/2025' },
+    { numero: 20, categoria: 'ok', entrega: '12/12/2025' },
+    { numero: 21, categoria: 'internogap', entrega: '31/03/2026' },
+    { numero: 22, categoria: 'internogap', entrega: '31/03/2026' },
+    { numero: 23, categoria: 'internogap', entrega: '31/03/2026' },
+    { numero: 24, categoria: 'divergencia', entrega: '11/05/2024' },
+    { numero: 25, categoria: 'divergencia', entrega: '01/08/2025' },
+    { numero: 26, categoria: 'internogap', entrega: '01/08/2025' },
     { numero: 27, categoria: 'divergencia', entrega: '19/12/2023' },
     { numero: 28, categoria: 'divergencia', entrega: null },
     { numero: 29, categoria: 'divergencia', entrega: null },
@@ -4356,15 +4357,15 @@ class Component extends DCLogic {
     { numero: 37, categoria: 'divergencia', entrega: '31/03/2026' },
     { numero: 38, categoria: 'divergencia', entrega: '15/04/2026' },
     { numero: 39, categoria: 'revisao', entrega: '07/05/2026' },
-    { numero: 40, categoria: 'divergencia', entrega: '12/05/2026' },
-    { numero: 41, categoria: 'divergencia', entrega: '31/03/2026' },
+    { numero: 40, categoria: 'divergencia', entrega: '14/10/2026' },
+    { numero: 41, categoria: 'divergencia', entrega: '27/05/2026' },
     { numero: 42, categoria: 'divergencia', entrega: '31/03/2026' },
     { numero: 43, categoria: 'revisao', entrega: '23/07/2025' },
     { numero: 44, categoria: 'revisao', entrega: '19/11/2025' },
     { numero: 45, categoria: 'custodireto', entrega: null },
     { numero: 46, categoria: 'custodireto', entrega: null },
     { numero: 47, categoria: 'revisao', entrega: '11/11/2025' },
-    { numero: 48, categoria: 'internogap', entrega: null },
+    { numero: 48, categoria: 'internogap', entrega: '28/10/2025' },
     { numero: 49, categoria: 'internogap', entrega: null },
     { numero: 50, categoria: 'custodireto', entrega: null },
     { numero: 51, categoria: 'custodireto', entrega: null },
@@ -10296,7 +10297,8 @@ Permanente (APP), avaliando eventuais restrições à utilização destes pontos
     const valorUnit = valorContratado / qtdContratada;
     const valorProjetado = qtdExecutada * valorUnit;
     const totalJaMedido = ef.totalJaMedido;
-    const saldoFinanceiro = Math.max(valorProjetado - totalJaMedido, 0);
+    // Saldo a medir dentro do contrato (regra da planilha): o excedente aparece só no bloco Aditar.
+    const saldoFinanceiro = Math.max(Math.min(qtdExecutada, qtdContratada) * valorUnit - totalJaMedido, 0);
     const hasAditar = qtdExecutada > qtdContratada;
     const unidade = item.unidade || '';
     const fmtQ = (n) => {
@@ -10312,7 +10314,9 @@ Permanente (APP), avaliando eventuais restrições à utilização destes pontos
     if (hasAditar) {
       const qtdExcedenteTxt = fmtQ(qtdExecutada - qtdContratada);
       introTexto = 'O contrato previu ' + qtdContratadaFmt + ' para este serviço, mas em campo foram necessárias ' + qtdExecutadaFmt + ' — ' + qtdExcedenteTxt + ' a mais que o previsto. Por isso, o Valor Projetado abaixo já considera as ' + qtdExecutadaFmt + ' executadas, e não apenas ' + qtdContratadaFmt + ' do contrato original.';
-      saldoTexto = null;
+      saldoTexto = saldoFinanceiro > 0.005
+        ? 'Dentro do limite contratual (' + qtdContratadaFmt + '), o valor medido (' + this.fmtMoney(totalJaMedido) + ') ainda não alcançou o previsto — restam ' + this.fmtMoney(saldoFinanceiro) + ' a incluir em medições futuras. O excedente depende de aditivo (abaixo).'
+        : null;
     } else {
       introTexto = 'O contrato prevê ' + qtdContratadaFmt + ' para este serviço; em campo, foram necessárias ' + qtdExecutadaFmt + '. O Valor Projetado abaixo reflete essa quantidade realmente executada.';
       saldoTexto = saldoFinanceiro > 0.005

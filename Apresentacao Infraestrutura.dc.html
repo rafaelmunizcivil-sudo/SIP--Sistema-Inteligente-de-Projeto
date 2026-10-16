@@ -3449,14 +3449,14 @@ class Component extends DCLogic {
     { numero: 14, categoria: 'internogap', entrega: null },
     { numero: 15, categoria: 'internogap', entrega: null },
     { numero: 16, categoria: 'revisao', entrega: null },
-    { numero: 17, categoria: 'ok', entrega: '05/2026' },
-    { numero: 18, categoria: 'ok', entrega: '05/2026' },
-    { numero: 19, categoria: 'ok', entrega: '05/2026' },
-    { numero: 20, categoria: 'ok', entrega: '05/2026' },
-    { numero: 21, categoria: 'ok', entrega: '05/2026' },
-    { numero: 22, categoria: 'ok', entrega: '05/2026' },
-    { numero: 23, categoria: 'divergencia', entrega: null },
-    { numero: 24, categoria: 'divergencia', entrega: null },
+    { numero: 17, categoria: 'ok', entrega: '07/08/2026' },
+    { numero: 18, categoria: 'ok', entrega: '07/08/2026' },
+    { numero: 19, categoria: 'ok', entrega: '07/08/2026' },
+    { numero: 20, categoria: 'ok', entrega: '07/08/2026' },
+    { numero: 21, categoria: 'ok', entrega: '07/08/2026' },
+    { numero: 22, categoria: 'ok', entrega: '07/08/2026' },
+    { numero: 23, categoria: 'divergencia', entrega: '07/08/2026' },
+    { numero: 24, categoria: 'divergencia', entrega: '06/05/2026' },
     { numero: 25, categoria: 'internogap', entrega: null },
     { numero: 26, categoria: 'internogap', entrega: null },
     { numero: 27, categoria: 'internogap', entrega: null },
@@ -3464,7 +3464,7 @@ class Component extends DCLogic {
     { numero: 29, categoria: 'internogap', entrega: null },
     { numero: 30, categoria: 'internogap', entrega: null },
     { numero: 31, categoria: 'internogap', entrega: null },
-    { numero: 32, categoria: 'divergencia', entrega: null },
+    { numero: 32, categoria: 'divergencia', entrega: '07/08/2026' },
     { numero: 33, categoria: 'internogap', entrega: null },
     { numero: 34, categoria: 'internogap', entrega: null },
     { numero: 35, categoria: 'internogap', entrega: null },
@@ -3524,6 +3524,7 @@ class Component extends DCLogic {
     32: 1, 33: 0, 34: 0, 55: 0, 56: 0,
     // Itens de sondagem/OAE (fonte: mesma planilha Medições_DER.xlsx)
     24: 1, 25: 0, 26: 0, 27: 0, 28: 0, 29: 0, 30: 0, 31: 0, 47: 0, 48: 0,
+    // Atualizado em 16/10/2026 pela planilha Itens_de_Serviço_Estudos (abas ANDRÉ e FONTANA).
   };
 
   // Interseção — Projeção combinando os subgrupos (regra aprovada pelo usuário em 23/09/2026, igual nos
@@ -3698,7 +3699,9 @@ class Component extends DCLogic {
       const valorContrato = item.totalReal || item.totalContrato || 0;
       const valorUnit = valorContrato / qtdContrato;
       const qtdExec = this.servicosProjecaoQtdExecutadaData[l.numero];
-      const refExecutado = qtdExec * valorUnit;
+      // A Medir limitado à Qtd. do contrato (regra da planilha); o excedente vai só para Aditar.
+      const qtdDentroContrato = Math.min(qtdExec, qtdContrato);
+      const refExecutado = qtdDentroContrato * valorUnit;
       const pago = ef.totalJaMedido;
       const aReceber = Math.max(refExecutado - pago, 0);
       totalPagoTab += pago;
@@ -3761,7 +3764,8 @@ class Component extends DCLogic {
     const valorUnit = valorContratado / qtdContratada;
     const valorProjetado = qtdExecutada * valorUnit;
     const totalJaMedido = ef.totalJaMedido;
-    const saldoFinanceiro = Math.max(valorProjetado - totalJaMedido, 0);
+    // Saldo a medir dentro do contrato (regra da planilha): o excedente aparece só no bloco Aditar.
+    const saldoFinanceiro = Math.max(Math.min(qtdExecutada, qtdContratada) * valorUnit - totalJaMedido, 0);
     const hasAditar = qtdExecutada > qtdContratada;
     const unidade = item.unidade || '';
     const fmtQ = (n) => {
@@ -3777,7 +3781,9 @@ class Component extends DCLogic {
     if (hasAditar) {
       const qtdExcedenteTxt = fmtQ(qtdExecutada - qtdContratada);
       introTexto = 'O contrato previu ' + qtdContratadaFmt + ' para este serviço, mas em campo foram necessárias ' + qtdExecutadaFmt + ' — ' + qtdExcedenteTxt + ' a mais que o previsto. Por isso, o Valor Projetado abaixo já considera as ' + qtdExecutadaFmt + ' executadas, e não apenas ' + qtdContratadaFmt + ' do contrato original.';
-      saldoTexto = null;
+      saldoTexto = saldoFinanceiro > 0.005
+        ? 'Dentro do limite contratual (' + qtdContratadaFmt + '), o valor medido (' + this.fmtMoney(totalJaMedido) + ') ainda não alcançou o previsto — restam ' + this.fmtMoney(saldoFinanceiro) + ' a incluir em medições futuras. O excedente depende de aditivo (abaixo).'
+        : null;
     } else {
       introTexto = 'O contrato prevê ' + qtdContratadaFmt + ' para este serviço; em campo, foram necessárias ' + qtdExecutadaFmt + '. O Valor Projetado abaixo reflete essa quantidade realmente executada.';
       saldoTexto = saldoFinanceiro > 0.005
